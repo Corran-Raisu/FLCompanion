@@ -226,24 +226,26 @@ LPVOID CGameInspect::TreeFind(FlTree& tree, DWORD id)
 	if (node._Parent == nodeNil) return NULL;
 	return TreeFindRecurse(node._Parent, id, nodeNil);
 }
-
+DWORD cb = 0;
 HANDLE OpenGameProcess()
 {
-	DWORD cb=0;
-	while (true)
+	if (cb == 0)
 	{
-		DWORD lpcbNeeded_;
-		std::unique_ptr<DWORD[]> _dwProcessIDs(new DWORD[cb]);
-		if (EnumProcesses(_dwProcessIDs.get(), cb, &lpcbNeeded_) == FALSE)
-			return NULL;
-		if (cb == lpcbNeeded_)
+		while (true)
 		{
-			Log(L"Not Enough: %d",cb);
-			cb += 256;
-		}
-		else
-		{
-			break;
+			DWORD lpcbNeeded_;
+			std::unique_ptr<DWORD[]> _dwProcessIDs(new DWORD[cb]);
+			if (EnumProcesses(_dwProcessIDs.get(), cb, &lpcbNeeded_) == FALSE)
+				return NULL;
+			if (cb == lpcbNeeded_)
+			{
+				Log(L"Not Enough: %d", cb);
+				cb += 256;
+			}
+			else
+			{
+				break;
+			}
 		}
 	}
 	DWORD lpcbNeeded;
