@@ -93,7 +93,7 @@ CString IniFile::GetCurrentSectionName()
 		return m_stringtable+*m_curSection;
 }
 
-bool IniFile::GetNextSection(IniSection &section, CString &name)
+BOOL IniFile::GetNextSection(IniSection &section, CString &name)
 {
 	if (m_textMode)
 	{

@@ -112,9 +112,9 @@ void CSystem::CalcLaneDistances(CDockable &to)
 		lane.m_closest = NULL; // NULL means direct path, outside the lane
 		lane.m_distance = Distance(lane, to.m_pos) * 1000 / ENGINE_SPEED + LANE_DELAY;
 	}
-	bool changeMade = false;
-	bool debug = false;
-	bool firstPass = false;
+	BOOL changeMade = false;
+	BOOL debug = false;
+	BOOL firstPass = false;
 	do
 	{
 		if (debug) dumplane(this);

@@ -153,7 +153,7 @@ BOOL LoadStationSolarArch(const CString &iniFilename)
 					if (iniFile.GetValues(section, "docking_sphere", value))
 					{
 						CString dock = iniFile.GetValue(value,0);
-						bool dockable = (dock.CompareNoCase(L"berth") == 0) || (dock.CompareNoCase(L"ring") == 0) || (dock.CompareNoCase(L"jump") == 0);
+						BOOL dockable = (dock.CompareNoCase(L"berth") == 0) || (dock.CompareNoCase(L"ring") == 0) || (dock.CompareNoCase(L"jump") == 0);
 						if (dockable)
 							g_solarArch[name] = ARCH_STATION;
 					}
@@ -715,9 +715,9 @@ void CalculateDirectRoutes()
 	}
 }
 
-bool PropagateRoutes()
+BOOL PropagateRoutes()
 { // the only routes we need to propagate now is from middle-jumps to middle-jumps & from initial-bases to middle-jumps
-	bool changeMade = false;
+	BOOL changeMade = false;
 	CString dummy, dummy2;
 	for (int sysIndex = 0; sysIndex < SYSTEMS_COUNT; sysIndex++)
 	{
@@ -850,7 +850,7 @@ int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpDa
 }
 
 
-bool BrowseForFolder(CString &path, LPCTSTR lpszTitle, HWND hwndOwner, UINT ulFlags)
+BOOL BrowseForFolder(CString &path, LPCTSTR lpszTitle, HWND hwndOwner, UINT ulFlags)
 {
 	IFileOpenDialogPtr ofd;
 	if (SUCCEEDED(ofd.CreateInstance(__uuidof(FileOpenDialog))))
@@ -894,7 +894,7 @@ bool BrowseForFolder(CString &path, LPCTSTR lpszTitle, HWND hwndOwner, UINT ulFl
 	pMalloc->Free(pidl);
 	return true;
 }
-bool BrowseFLDir(HWND hWnd, const CString &initialPath, bool displayWarning)
+BOOL BrowseFLDir(HWND hWnd, const CString &initialPath, BOOL displayWarning)
 {
 	CString path = initialPath;
 	do
@@ -912,7 +912,7 @@ bool BrowseFLDir(HWND hWnd, const CString &initialPath, bool displayWarning)
 	return true;
 }
 
-bool XMLCallback(const CString& tag, const CString& attrs, const CString& content, LPVOID param)
+BOOL XMLCallback(const CString& tag, const CString& attrs, const CString& content, LPVOID param)
 {
 	struct ModInfo* pModInfo = (struct ModInfo*) param;
 	CString name;
@@ -950,7 +950,7 @@ bool XMLCallback(const CString& tag, const CString& attrs, const CString& conten
 	return true;
 }
 
-bool QuickXMLReader(CStdioFile& file, bool (*callback)(const CString&,const CString&,const CString&,LPVOID), LPVOID param)
+BOOL QuickXMLReader(CStdioFile& file, BOOL (*callback)(const CString&,const CString&,const CString&,LPVOID), LPVOID param)
 {
 	CString line;
 	if (!file.ReadString(line))
@@ -960,7 +960,7 @@ bool QuickXMLReader(CStdioFile& file, bool (*callback)(const CString&,const CStr
 	int scan = line.Find('>', 1);
 	CString tag = line.Mid(1, scan-1);
 	line.Delete(0, scan+1);
-	bool nocontent = (tag[tag.GetLength()-1] == '/');
+	BOOL nocontent = (tag[tag.GetLength()-1] == '/');
 	if (nocontent)
 		tag.Delete(tag.GetLength()-1);
 	scan = tag.Find(' ');
@@ -1045,7 +1045,7 @@ void DetectMod()
 	}
 }
 
-bool LoadAppDatas(CWnd *wnd)
+BOOL LoadAppDatas(CWnd *wnd)
 {
 	g_flAppPath = theApp.GetProfileString(L"Settings", L"FLPath");
 	if (g_flAppPath.IsEmpty() || !PathFileExists(g_flAppPath+L"\\EXE\\Freelancer.exe"))
@@ -1110,7 +1110,7 @@ bool LoadAppDatas(CWnd *wnd)
 void ProblemFound(LPCTSTR lpFormat, ...)
 {
 	TCHAR msg[1024];
-	static bool logDlgInit = false;
+	static BOOL logDlgInit = false;
 	if (logDlgInit)
 	{
 		logDlgInit = true;

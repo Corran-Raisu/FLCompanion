@@ -91,7 +91,7 @@ BOOL CFLCompanionApp::InitInstance()
 	return FALSE;
 }
 
-CString MinuteSeconds(UINT time, bool forceMin)
+CString MinuteSeconds(UINT time, BOOL forceMin)
 {
 	time = (time+500)/1000;
 	if (forceMin || (time > 60))

@@ -67,7 +67,7 @@ struct FlTree
 	DWORD	_allocator;
 	FlNode*	_Head;
 	FlNode*	_Nil;
-	bool	_Multi;
+	BOOL	_Multi;
 	size_t	_Size;
 };
 struct FlBaseData
@@ -229,15 +229,34 @@ LPVOID CGameInspect::TreeFind(FlTree& tree, DWORD id)
 
 HANDLE OpenGameProcess()
 {
-	DWORD cb;
-	std::unique_ptr<DWORD[]> dwProcessIDs(new DWORD[1024]);
-	if (EnumProcesses(dwProcessIDs.get(), 1024, &cb) == FALSE)
+	DWORD cb=0;
+	while (true)
+	{
+		DWORD lpcbNeeded_;
+		std::unique_ptr<DWORD[]> _dwProcessIDs(new DWORD[cb]);
+		if (EnumProcesses(_dwProcessIDs.get(), cb, &lpcbNeeded_) == FALSE)
+			return NULL;
+		if (cb == lpcbNeeded_)
+		{
+			Log(L"Not Enough: %d",cb);
+			cb += 256;
+		}
+		else
+		{
+			break;
+		}
+	}
+	DWORD lpcbNeeded;
+	std::unique_ptr<DWORD[]> dwProcessIDs(new DWORD[cb]);
+	if (EnumProcesses(dwProcessIDs.get(), cb, &lpcbNeeded) == FALSE)
 		return NULL;
-	cb /= sizeof(DWORD);
-	for (UINT idx = 0; idx < cb; idx++)
+	lpcbNeeded /= sizeof(DWORD);
+	for (size_t idx = 0; idx < lpcbNeeded; idx++)
 	{
 		DWORD dwProcessID = dwProcessIDs[idx];
+
 		HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ|PROCESS_SET_INFORMATION, FALSE, dwProcessID);
+
 		if (!hProcess) hProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, FALSE, dwProcessID);
 		if (hProcess)
 		{
@@ -254,7 +273,7 @@ HANDLE OpenGameProcess()
 int CGameInspect::DoTask(DWORD flags)
 {
 	m_hflProcess = OpenGameProcess();
-	static bool signalAccessDenied = true;
+	static BOOL signalAccessDenied = true;
 	if (!m_hflProcess)
 	{
 		if (signalAccessDenied)
@@ -302,7 +321,7 @@ int CGameInspect::DoTask(DWORD flags)
 		}
 		if (basesFound != BASES_COUNT)
 		{
-			static bool signalBadBases = true;
+			static BOOL signalBadBases = true;
 			if (signalBadBases)
 			{
 				signalBadBases = false;

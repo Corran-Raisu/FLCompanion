@@ -749,7 +749,7 @@ void CFLCompanionDlg::OnItemchangedRoutes(NMHDR* pNMHDR, LRESULT* pResult)
 		UINT units = m_cargoSize == 1 ? 1 : UINT(m_cargoSize/g_goods[goodIndex].m_volume);
 		if ((m_maxInvestment > 0) && (from->m_sell[goodIndex]*units > m_maxInvestment))
 			units = UINT(m_maxInvestment/from->m_sell[goodIndex]);
-		bool perishable = (g_goods[goodIndex].m_decay_time != 0);
+		BOOL perishable = (g_goods[goodIndex].m_decay_time != 0);
 		SetDlgItemText(IDC_PERISHABLE, perishable ? L"*PERISHABLE*" : L"");
 		UINT distance = from->m_distanceToBase[destination-g_bases];
 		CString msg;
@@ -1320,7 +1320,7 @@ void CFLCompanionDlg::OnLButtonUp(UINT nFlags, CPoint point)
 	CDialog::OnLButtonUp(nFlags, point);
 }
 
-bool CFLCompanionDlg::SetMaxInvestment(UINT investment)
+BOOL CFLCompanionDlg::SetMaxInvestment(UINT investment)
 {
 	if (m_maxInvestment == investment)
 		return false;
@@ -1330,7 +1330,7 @@ bool CFLCompanionDlg::SetMaxInvestment(UINT investment)
 	return true;
 }
 
-bool CFLCompanionDlg::SetMaxDistance(UINT distance)
+BOOL CFLCompanionDlg::SetMaxDistance(UINT distance)
 {
 	if (m_maxDistance == distance)
 		return false;
@@ -1340,7 +1340,7 @@ bool CFLCompanionDlg::SetMaxDistance(UINT distance)
 	return true;
 }
 
-bool CFLCompanionDlg::SetCargoSize(UINT cargoSize)
+BOOL CFLCompanionDlg::SetCargoSize(UINT cargoSize)
 {
 	if (m_cargoSize != cargoSize)
 	{

@@ -67,7 +67,7 @@ void ListView_HeaderSortReset(HWND listWnd)
 	Header_SetItem(hdrCtrl, iItem, &hdItem);
 }
 
-void ListView_HeaderSort(HWND listWnd, int column, bool descending) 
+void ListView_HeaderSort(HWND listWnd, int column, BOOL descending) 
 {
 #ifdef UNICODE
 	(FARPROC&) StrCmpLogical = GetProcAddress(GetModuleHandle(_T("SHLWAPI.DLL")), "StrCmpLogicalW");

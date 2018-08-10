@@ -51,7 +51,7 @@ protected:
 private:
 	CString m_kind;
 	CString m_item;
-	bool m_showAllBases;
+	BOOL m_showAllBases;
 	float m_defaultPrice;
 	static CGoodsRepoDlg *g_goodsRepoDlg;
 	BOOL FindEquipKind(const CString &iniFilename);

@@ -18,7 +18,7 @@ public:
 public:
 	CString m_caption;
 	CString m_nickname;
-	bool	m_avoid;
+	BOOL	m_avoid;
 };
 
 #define FACTIONS_MAX	256

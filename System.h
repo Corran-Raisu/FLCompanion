@@ -65,8 +65,8 @@ public:
 	CString m_caption;
 	CString m_nickname;
 	CString m_file;
-	bool m_hasSell;
-	bool m_avoid;
+	BOOL m_hasSell;
+	BOOL m_avoid;
 	double m_navmapscale;
 	void SetMapScale(double navmapscale);
 	int m_x, m_y;
@@ -75,7 +75,7 @@ public:
 
 #ifdef DESACTIVE_POUR_LINSTANT
 	void LoadMap(CStdioFile &file, const CMapStringToPtr &systemsByName);
-	bool PropagateDistances();
+	BOOL PropagateDistances();
 	void CalcDistances();
 private:
 	UINT CalcDistance(CDockable *dock1, CDockable *dock2);

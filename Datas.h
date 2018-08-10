@@ -30,10 +30,10 @@ extern CMap<CString,LPCTSTR,float,float> g_equipPrices;
 //extern CString g_jumpHoleCaption;
 //extern CString g_jumpGateCaption;
 
-bool LoadAppDatas(CWnd *wnd);
+BOOL LoadAppDatas(CWnd *wnd);
 void CalculateDirectRoutes();
-bool PropagateRoutes();
-bool BrowseFLDir(HWND hWnd, const CString &initialPath = g_flAppPath, bool displayWarning = false);
+BOOL PropagateRoutes();
+BOOL BrowseFLDir(HWND hWnd, const CString &initialPath = g_flAppPath, BOOL displayWarning = false);
 void LoadFiles(BOOL (*callback)(const CString &), LPCTSTR entriesName, LPCTSTR sectionName = L"Data");
 DWORD FLHash(LPCTSTR string);
 WORD  FLFactionHash(LPCTSTR str);

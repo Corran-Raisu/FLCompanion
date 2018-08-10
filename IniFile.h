@@ -36,7 +36,7 @@ public:
 	~IniFile();
 
 	IniSection FindFirstSection(LPCSTR sectionName);
-	bool	GetNextSection(IniSection &section, CString &name);
+	BOOL	GetNextSection(IniSection &section, CString &name);
 	CString GetCurrentSectionName();
 
 	CString	GetValue(IniSection section, LPCSTR valueName);
@@ -64,7 +64,7 @@ private:
 	HANDLE m_hFileMappingObject;
 	LPSTR m_baseAddress;
 	LPSTR m_endAddress;
-	bool m_textMode;
+	BOOL m_textMode;
 	IniSection m_firstSection;
 	LPSTR m_stringtable;
 	IniSection m_curSection; // binary only (filled by GetNextSection)

@@ -81,7 +81,7 @@ void ProblemFound(LPCTSTR lpFormat, ...);
 void FormatNumber(TCHAR* buffer, long value, UINT flags = 0);
 void FormatNumber(TCHAR* buffer, double value, UINT flags = 0);
 void ListView_HeaderSortReset(HWND listWnd);
-void ListView_HeaderSort(HWND listWnd, int column, bool descending = false);
+void ListView_HeaderSort(HWND listWnd, int column, BOOL descending = false);
 void ListView_HeaderSort(NMHDR* pNMHDR, LRESULT* pResult);
 
 //{{AFX_INSERT_LOCATION}}

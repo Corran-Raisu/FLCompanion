@@ -42,7 +42,7 @@ public:
 
 extern CFLCompanionApp theApp;
 
-CString MinuteSeconds(UINT time, bool forceMin = false);
+CString MinuteSeconds(UINT time, BOOL forceMin = false);
 
 /////////////////////////////////////////////////////////////////////////////
 

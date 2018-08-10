@@ -109,9 +109,9 @@ public:
 		RECALC_PATHS		= 0x02,
 	};
 	void Recalc(DWORD flags);
-	bool SetMaxInvestment(UINT investment);
-	bool SetMaxDistance(UINT distance);
-	bool SetCargoSize(UINT cargoSize);
+	BOOL SetMaxInvestment(UINT investment);
+	BOOL SetMaxDistance(UINT distance);
+	BOOL SetCargoSize(UINT cargoSize);
 private:
 	static int SelComboByData(CComboBox &combo, void *selData);
 	void DrawMap(CDC &dc);
@@ -133,7 +133,7 @@ private:
 	HACCEL m_hAccel;
 	UINT m_maxInvestment;
 	UINT m_maxDistance;
-	bool m_showAllSolutions;
+	BOOL m_showAllSolutions;
 	CAsteroids* m_curAsteroids;
 	CList<CBase*,CBase*> m_history;
 	CPoint m_mapMouseCoords;

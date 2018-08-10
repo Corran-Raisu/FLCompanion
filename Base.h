@@ -28,7 +28,7 @@ public:
 	//CString m_owner;
 	float m_buy[GOODS_MAX];
 	float m_sell[GOODS_MAX];
-	bool m_hasSell;
+	BOOL m_hasSell;
 	CFaction *m_faction;
 	int m_ids_info;
 };

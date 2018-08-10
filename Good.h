@@ -28,7 +28,7 @@ public:
 	float m_volume;
 	float m_defaultPrice;
 	UINT m_decay_time; // number of milliseconds before decay of 1 unit
-	bool m_avoid;
+	BOOL m_avoid;
 	operator UINT() { return this-g_goods; }
 };
 
