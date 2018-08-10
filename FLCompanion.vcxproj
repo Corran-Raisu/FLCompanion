@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug UNICODE|Win32">
+      <Configuration>Debug UNICODE</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release UNICODE|Win32">
+      <Configuration>Release UNICODE</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <SccProjectName />
+    <SccLocalPath />
+    <Keyword>MFCProj</Keyword>
+    <ProjectGuid>{919DA618-8031-401C-BAA1-0C4EC4219FCE}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug UNICODE|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release UNICODE|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release UNICODE|Win32'">
+    <OutDir>.\Release_UNICODE\</OutDir>
+    <IntDir>.\Release_UNICODE\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug UNICODE|Win32'">
+    <OutDir>.\Debug_UNICODE\</OutDir>
+    <IntDir>.\Debug_UNICODE\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release UNICODE|Win32'">
+    <ClCompile>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>MaxSpeed</Optimization>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x040c</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EntryPointSymbol>wWinMainCRTStartup </EntryPointSymbol>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug UNICODE|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x040c</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EntryPointSymbol>wWinMainCRTStartup </EntryPointSymbol>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="AboutDlg.cpp" />
+    <ClCompile Include="Base.cpp" />
+    <ClCompile Include="BaseInfoDlg.cpp" />
+    <ClCompile Include="Datas.cpp" />
+    <ClCompile Include="Dockable.cpp" />
+    <ClCompile Include="DynEconDlg.cpp" />
+    <ClCompile Include="Faction.cpp" />
+    <ClCompile Include="FLCompanion.cpp" />
+    <ClCompile Include="FLCompanionDlg.cpp" />
+    <ClCompile Include="Good.cpp" />
+    <ClCompile Include="GoodsRepoDlg.cpp" />
+    <ClCompile Include="IniFile.cpp" />
+    <ClCompile Include="Jump.cpp" />
+    <ClCompile Include="LimitationsDlg.cpp" />
+    <ClCompile Include="ListCtrl.cpp" />
+    <ClCompile Include="LogDlg.cpp" />
+    <ClCompile Include="MiningBaseDlg.cpp" />
+    <ClCompile Include="ModInfoDlg.cpp" />
+    <ClCompile Include="ResourceProvider.cpp" />
+    <ClCompile Include="SpeedDelaysDlg.cpp" />
+    <ClCompile Include="StdAfx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release UNICODE|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug UNICODE|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="System.cpp" />
+    <ClCompile Include="SystemMap.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="FLCompanion.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AboutDlg.h" />
+    <ClInclude Include="Base.h" />
+    <ClInclude Include="BaseInfoDlg.h" />
+    <ClInclude Include="Datas.h" />
+    <ClInclude Include="Dockable.h" />
+    <ClInclude Include="DynEconDlg.h" />
+    <ClInclude Include="Faction.h" />
+    <ClInclude Include="FLCompanion.h" />
+    <ClInclude Include="FLCompanionDlg.h" />
+    <ClInclude Include="Good.h" />
+    <ClInclude Include="GoodsRepoDlg.h" />
+    <ClInclude Include="IniFile.h" />
+    <ClInclude Include="Jump.h" />
+    <ClInclude Include="LimitationsDlg.h" />
+    <ClInclude Include="LogDlg.h" />
+    <ClInclude Include="MiningBaseDlg.h" />
+    <ClInclude Include="ModInfoDlg.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="ResourceProvider.h" />
+    <ClInclude Include="SpeedDelaysDlg.h" />
+    <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="System.h" />
+    <ClInclude Include="SystemMap.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\back_arrow.ico" />
+    <Image Include="res\FLCompanion.ico" />
+    <Image Include="res\jump.ico" />
+    <Image Include="res\switch_arrow.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="res\FLCompanion.rc2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="FLCompanion.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

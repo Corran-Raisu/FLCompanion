@@ -1,0 +1,561 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_FLCOMPANION_DIALOG DIALOGEX 0, 0, 672, 297
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Freelancer Companion %s by Wizou"
+MENU IDR_TOOLMENU
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    RTEXT           "System: ",IDC_STATIC,5,5,40,13,SS_CENTERIMAGE
+    COMBOBOX        IDC_SYSTEM_COMBO,45,5,75,175,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Base: ",IDC_STATIC,125,5,20,13,SS_CENTERIMAGE
+    COMBOBOX        IDC_BASE_COMBO,145,5,135,175,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "<=",IDC_BACK,400,5,15,12,BS_ICON
+    CONTROL         "",IDC_FACTION,"Static",SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | WS_GROUP,285,5,114,12
+    CTEXT           "",IDC_MAPNAME,485,6,125,10,SS_CENTERIMAGE
+    CONTROL         "List1",IDC_ROUTES,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | WS_BORDER | WS_TABSTOP,5,20,410,145
+    RTEXT           "Destination: ",IDC_STATIC,5,175,40,13,SS_CENTERIMAGE
+    COMBOBOX        IDC_DESTSYSTEM_COMBO,45,175,75,175,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Base: ",IDC_STATIC,125,175,20,13,SS_CENTERIMAGE
+    COMBOBOX        IDC_DESTBASE_COMBO,145,175,135,175,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "List2",IDC_WAYPOINTS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | WS_BORDER | WS_TABSTOP,5,190,410,101
+    CONTROL         "List2",IDC_SYSTEM_WAYPOINTS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | NOT WS_VISIBLE | WS_BORDER | WS_TABSTOP,5,295,410,71
+    CONTROL         "",IDC_MAP,"Static",SS_BLACKFRAME,420,20,245,225
+    CTEXT           "(click map and drag, or use the mouse wheel to scroll & zoom)",IDC_MAPINFO,420,252,245,8,SS_NOPREFIX
+    CTEXT           "",IDC_BUY_PRICE,10,166,170,8
+    CTEXT           "",IDC_SELL_PRICE,245,166,170,8
+    CTEXT           "",IDC_PERISHABLE,180,166,65,8
+    CONTROL         "",IDC_DESTFACTION,"Static",SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | WS_GROUP,285,175,114,12
+    PUSHBUTTON      "Mine here",IDC_MINING,623,280,42,12
+    RTEXT           "Mining fields: ",IDC_STATIC,420,280,45,13,SS_CENTERIMAGE
+    COMBOBOX        IDC_ASTEROIDS_COMBO,465,280,155,90,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Jumps",IDC_JUMPS,420,5,15,12,BS_ICON
+    PUSHBUTTON      "X",IDC_SWITCH,400,175,15,12,BS_ICON
+END
+
+IDD_SPEEDDELAYS_DIALOG DIALOG 0, 0, 167, 131
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Speed & Delays"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    RTEXT           "Average speed for cruise travel : ",IDC_STATIC,0,10,124,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_ENGINE_SPEED,125,10,25,12,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+    RTEXT           "Average speed in trade lanes : ",IDC_STATIC,0,25,124,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_LANE_SPEED,125,25,25,12,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+    RTEXT           "Jump gate delay : ",IDC_STATIC,0,40,124,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_JUMP_DELAY,125,40,25,12,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           " s",IDC_STATIC,151,40,8,12,SS_CENTERIMAGE
+    RTEXT           "Jump hole delay : ",IDC_STATIC,0,55,124,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_HOLE_DELAY,125,55,25,12,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           " s",IDC_STATIC,151,55,8,12,SS_CENTERIMAGE
+    RTEXT           "Trade lane docking delay : ",IDC_STATIC,0,70,124,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_LANE_DELAY,125,70,25,12,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           " s",IDC_STATIC,151,70,8,12,SS_CENTERIMAGE
+    RTEXT           "Base reaching && docking delay : ",IDC_STATIC,0,85,124,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_BASE_DELAY,125,85,25,12,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           " s",IDC_STATIC,151,85,8,12,SS_CENTERIMAGE
+    DEFPUSHBUTTON   "OK",IDOK,50,110,50,15
+    PUSHBUTTON      "Cancel",IDCANCEL,105,110,50,15
+END
+
+IDD_SYSTEMMAP_DIALOG DIALOG 0, 0, 267, 156
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Universe Map"
+FONT 8, "MS Shell Dlg"
+BEGIN
+END
+
+IDD_LOGDLG_DIALOG DIALOGEX 450, 350, 430, 200
+STYLE DS_SETFONT | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "Messages log"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_LOG,"RICHEDIT",TCS_HOTTRACK | TCS_RAGGEDRIGHT | TCS_FOCUSONBUTTONDOWN | TCS_OWNERDRAWFIXED | TCS_MULTISELECT | WS_VSCROLL | WS_TABSTOP,0,0,430,200
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 3,0,0,0
+ PRODUCTVERSION 3,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "This software is freeware."
+            VALUE "CompanyName", "Olivier Marcoux"
+            VALUE "FileDescription", "Freelancer Companion"
+            VALUE "FileVersion", "3.0.0.0"
+            VALUE "InternalName", "FLCompanion"
+            VALUE "LegalCopyright", "Copyright © 2006-2016 Olivier Marcoux"
+            VALUE "OriginalFilename", "FLCompanion.exe"
+            VALUE "ProductName", "Freelancer Companion"
+            VALUE "ProductVersion", "3.0.0.0"
+            VALUE "URLInfoAbout", "http://wizou.fr"
+            VALUE "URLUpdateInfo", "http://wiz0u.free.fr/prog/flc"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_FLCOMPANION_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 665
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 290
+    END
+
+    IDD_SPEEDDELAYS_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 160
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 124
+    END
+
+    IDD_SYSTEMMAP_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 260
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 149
+    END
+
+    IDD_LOGDLG_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 423
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 193
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\FLCompanion.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_FLCOMPANION_DIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// French (France) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRA)
+LANGUAGE LANG_FRENCH, SUBLANG_FRENCH
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_BASEINFO_DIALOG DIALOG 0, 0, 467, 211
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Bases information"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    GROUPBOX        "&Base: ",IDC_STATIC,6,5,456,200
+    COMBOBOX        IDC_BASE_COMBO,33,3,212,175,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "List2",IDC_GOODS_LIST,"SysListView32",LVS_REPORT | WS_BORDER | WS_TABSTOP,55,35,190,80
+    RTEXT           "&Faction:",IDC_STATIC,10,20,40,12,SS_CENTERIMAGE
+    LTEXT           " Base &description && history:",IDC_STATIC,250,20,205,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_DESCR,250,35,205,80,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL
+    EDITTEXT        IDC_FACTION,55,20,130,12,ES_AUTOHSCROLL | ES_READONLY
+    RTEXT           "&Commodities:",IDC_STATIC,9,35,41,12,SS_CENTERIMAGE
+    CONTROL         "List2",IDC_EQUIP_LIST,"SysListView32",LVS_REPORT | WS_BORDER | WS_TABSTOP,55,120,190,80
+    RTEXT           "&Equipments:",IDC_STATIC,10,121,40,8,SS_CENTERIMAGE
+    CONTROL         "List2",IDC_SHIP_LIST,"SysListView32",LVS_REPORT | WS_BORDER | WS_TABSTOP,250,130,205,70
+    LTEXT           "&Ships:",IDC_STATIC,250,120,40,8,SS_CENTERIMAGE
+END
+
+IDD_GOODSREPO_DIALOG DIALOG 0, 0, 552, 210
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Items repository"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    RTEXT           "Kind:",IDC_STATIC,5,5,20,12,SS_CENTERIMAGE
+    COMBOBOX        IDC_KIND_COMBO,30,5,220,55,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Items:",IDC_STATIC,5,20,20,12,SS_CENTERIMAGE
+    CONTROL         "List1",IDC_BASES_LIST,"SysListView32",LVS_REPORT | WS_BORDER | WS_TABSTOP,255,25,290,175
+    CTEXT           "Default price: ",IDC_DEFAULT_PRICE,255,15,290,10,SS_CENTERIMAGE
+    CONTROL         "Only show bases selling this item",IDC_SHOWSELL,"Button",BS_AUTORADIOBUTTON,255,5,130,10
+    CONTROL         "Show bases buying item at non-default price",IDC_SHOWALL,
+                    "Button",BS_AUTORADIOBUTTON,385,5,160,10
+    CONTROL         "List1",IDC_GOODS_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | WS_BORDER | WS_TABSTOP,30,20,220,180
+    CTEXT           "Click twice on a base to select it in main window",IDC_STATIC,255,200,290,8
+END
+
+IDD_ABOUT_DIALOG DIALOGEX 0, 0, 230, 76
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About FLCompanion"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,170,55,50,14
+    ICON            IDR_MAINFRAME,IDC_ABOUTICON,10,10,20,20,SS_CENTERIMAGE
+    LTEXT           "FLCompanion v%s\nCopyright © 2006-2016 Olivier Marcoux\n\nThis software is freeware.",IDC_ABOUTTEXT,55,10,160,40
+    CONTROL         "<a href=""http://wiz0u.free.fr/prog/flc"">Visit official website</a>",IDC_WEBLINK,
+                    "SysLink",WS_TABSTOP,55,55,90,8
+END
+
+IDD_LIMITATIONS_DIALOG DIALOG 0, 0, 361, 233
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Limitations for determining possible routes"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Exclude systems:",IDC_STATIC,5,5,110,160
+    LISTBOX         IDC_SYSTEMS_LIST,10,15,100,131,LBS_SORT | LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Check all",IDC_CHECK_ALL_SYSTEMS,10,145,50,15
+    PUSHBUTTON      "Clear all",IDC_CLEAR_ALL_SYSTEMS,60,145,50,15
+    GROUPBOX        "Exclude base by factions:",IDC_STATIC,125,5,110,160
+    LISTBOX         IDC_FACTIONS_LIST,130,15,100,131,LBS_SORT | LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Check all",IDC_CHECK_ALL_FACTIONS,130,145,50,15
+    PUSHBUTTON      "Clear all",IDC_CLEAR_ALL_FACTIONS,180,145,50,15
+    GROUPBOX        "Exclude goods:",IDC_STATIC,245,5,110,160
+    LISTBOX         IDC_GOODS_LIST,250,15,100,131,LBS_SORT | LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Check all",IDC_CHECK_ALL_GOODS,250,145,50,15
+    PUSHBUTTON      "Clear all",IDC_CLEAR_ALL_GOODS,300,145,50,15
+    GROUPBOX        "Other limitations:",IDC_STATIC,5,170,280,58
+    RTEXT           "Cargo volume: ",IDC_STATIC,15,180,80,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_CARGO_SIZE,100,180,45,12,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           " unit(s)",IDC_STATIC,145,180,25,12,SS_CENTERIMAGE
+    CONTROL         "Maximum investment:",IDC_INVESTMENT_CHECK,"Button",BS_AUTOCHECKBOX | BS_RIGHT | WS_TABSTOP,15,195,80,12
+    EDITTEXT        IDC_INVESTMENT,100,195,45,12,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           " $",IDC_STATIC,145,195,25,12,SS_CENTERIMAGE
+    CONTROL         "Avoid initially locked gates",IDC_AVOIDLOCKED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,175,180,105,12
+    CONTROL         "Don't go through jump holes",IDC_AVOIDHOLES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,175,195,105,12
+    DEFPUSHBUTTON   "OK",IDOK,295,180,55,14
+    PUSHBUTTON      "Cancel",IDCANCEL,295,201,55,14
+    CONTROL         "Maximum distance:",IDC_DISTANCE_CHECK,"Button",BS_AUTOCHECKBOX | BS_RIGHT | WS_TABSTOP,15,210,80,12
+    EDITTEXT        IDC_DISTANCE,100,210,45,12,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           " min",IDC_STATIC,145,210,25,12,SS_CENTERIMAGE
+END
+
+IDD_MININGBASE_DIALOG DIALOG 0, 0, 222, 110
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Create virtual mining operation base"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "Place a mining operation with the following characteristics :",IDC_STATIC,5,5,190,8
+    RTEXT           "Good: ",IDC_STATIC,5,20,89,12,SS_CENTERIMAGE
+    COMBOBOX        IDC_GOODS_LIST,95,20,120,130,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Loot probability in this area: ",IDC_STATIC,5,35,89,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_LOOT_STAT,95,35,60,12,ES_RIGHT | ES_AUTOHSCROLL
+    LTEXT           "units/asteroids",IDC_STATIC,161,35,55,12,SS_CENTERIMAGE
+    RTEXT           "Your mining speed: ",IDC_STATIC,5,50,89,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_MINING_SPEED,95,50,60,12,ES_RIGHT | ES_AUTOHSCROLL
+    LTEXT           "asteroids/sec",IDC_STATIC,161,50,55,12,SS_CENTERIMAGE
+    RTEXT           "Cargo filled in: ",IDC_STATIC,5,65,89,12,SS_CENTERIMAGE
+    EDITTEXT        IDC_MINING_TIME,95,65,60,12,ES_RIGHT | ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "for %1!d! units",IDC_CARGO_SIZE,161,65,55,12,SS_CENTERIMAGE
+    DEFPUSHBUTTON   "OK",IDOK,110,90,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,165,90,50,14
+END
+
+IDD_MODINFO_DIALOG DIALOG 0, 0, 312, 155
+STYLE DS_SETFONT | WS_POPUP | WS_CAPTION | WS_THICKFRAME
+CAPTION "Information about %1..."
+FONT 8, "MS Shell Dlg"
+BEGIN
+    CONTROL         "Mod description",IDC_RADIO_DESCRIPTION,"Button",BS_AUTORADIOBUTTON,10,107,70,10
+    CONTROL         "FLC usage information",IDC_RADIO_FLCWARNING,"Button",BS_AUTORADIOBUTTON,85,107,215,10
+    CONTROL         "Visit mod website",IDC_WEBLINK,"SysLink",WS_TABSTOP,5,120,70,8
+    RTEXT           "",IDC_AUTHORS,80,120,225,8
+    DEFPUSHBUTTON   "OK",IDOK,240,135,65,14
+    CONTROL         "",IDC_ABOUTTEXT,"RICHEDIT",TCS_RAGGEDRIGHT | TCS_MULTISELECT | WS_BORDER | WS_VSCROLL | WS_TABSTOP,5,5,300,100
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_BASEINFO_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 460
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 204
+    END
+
+    IDD_GOODSREPO_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 545
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 203
+    END
+
+    IDD_ABOUT_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 223
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 69
+    END
+
+    IDD_MININGBASE_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 215
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_MODINFO_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 300
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 148
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_BACK_ARROW          ICON                    "res\\back_arrow.ico"
+
+IDI_JUMP                ICON                    "res\\jump.ico"
+
+IDI_SWITCH_ARROW        ICON                    "res\\switch_arrow.ico"
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRA)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 12, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\FLCompanion.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""l.fra\\afxres.rc""          // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_TOOLMENU MENU
+BEGIN
+    POPUP "&Game"
+    BEGIN
+        MENUITEM "Launch &game\tCtrl+G",        ID_GAME_LAUNCH
+        MENUITEM SEPARATOR
+        POPUP "Import from running game"
+        BEGIN
+            MENUITEM "Bases prices (dynamic economy)", ID_GAME_IMPORT_PRICES, CHECKED
+            MENUITEM "Your credits (max investment)", ID_GAME_IMPORT_CREDITS, CHECKED
+            MENUITEM "Your ship's cargo hold size", ID_GAME_IMPORT_CARGOHOLD, CHECKED
+            MENUITEM SEPARATOR
+            MENUITEM "Check/Uncheck all",           ID_GAME_IMPORT_CHECKALL
+            MENUITEM "About this feature...",       ID_GAME_IMPORT_ABOUT
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Save base-to-base travel times...", ID_DUMP_BASE_TIMES
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit\tEsc",                  IDCANCEL
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "Universe &map\tCtrl+M",       ID_SYSTEM_MAP
+        MENUITEM "&Base information\tCtrl+B",   ID_BASE_INFO
+        MENUITEM "&Items repository\tCtrl+I",   ID_GOODS_REPO
+        MENUITEM SEPARATOR
+        MENUITEM "Mod information...",          ID_MOD_INFO
+    END
+    POPUP "&Settings"
+    BEGIN
+        MENUITEM "&Speed && Delays...\tCtrl+S", ID_SPEEDDELAYS
+        MENUITEM "&Limitations...\tCtrl+L",     ID_LIMITATIONS
+        MENUITEM SEPARATOR
+        MENUITEM "Set Freelancer &directory...", ID_SET_FL_DIR
+        MENUITEM "Display &internal nicknames", ID_NICKNAMES
+    END
+    POPUP "&?"
+    BEGIN
+        MENUITEM "Online support &forums\tF1",  ID_VISIT_FORUM
+        MENUITEM "Visit official &website",     ID_VISIT_WEBSITE
+        MENUITEM "View &versions history",      ID_VERSION_HISTORY
+        MENUITEM SEPARATOR
+        MENUITEM "&About Freelancer Companion...", ID_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_GOODSREPO_DIALOG DLGINIT
+BEGIN
+    IDC_KIND_COMBO, 0x403, 5, 0
+0x6853, 0x7069, "\000" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_ACCELERATOR ACCELERATORS
+BEGIN
+    "B",            ID_BASE_INFO,           VIRTKEY, CONTROL, NOINVERT
+    "G",            ID_GAME_LAUNCH,         VIRTKEY, CONTROL, NOINVERT
+    "I",            ID_GOODS_REPO,          VIRTKEY, CONTROL, NOINVERT
+    "L",            ID_LIMITATIONS,         VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_SPEEDDELAYS,         VIRTKEY, CONTROL, NOINVERT
+    "M",            ID_SYSTEM_MAP,          VIRTKEY, CONTROL, NOINVERT
+    VK_LEFT,        IDC_BACK,               VIRTKEY, ALT, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_ABOUT_DIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+#endif    // French (France) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FRA)
+#ifdef _WIN32
+LANGUAGE 12, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\FLCompanion.rc2"  // non-Microsoft Visual C++ edited resources
+#include "l.fra\afxres.rc"          // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
