@@ -1,3 +1,9 @@
+This is a continuation of FLCompanion primarily for the DiscoveryGC server and its community. Certain developments within the mod have become incompatible as well as certain parts of the code needing to be updated. This repository is primarily personal use with limited availability to DiscoveryGC users.
+
+Original readme is kept below.
+____________________________________________________________________________________________________________________________
+____________________________________________________________________________________________________________________________
+
 This work is licensed under the Creative Commons Attribution-Noncommercial-No Derivative Works 2.0 France License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-nd/2.0/fr/deed.en or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
 ______________________________________________________________
 Freelancer Companion is a cool tool for Freelancer Traders and Mod-makers.
