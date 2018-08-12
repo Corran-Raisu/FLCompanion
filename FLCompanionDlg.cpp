@@ -287,9 +287,10 @@ BOOL CFLCompanionDlg::OnInitDialog()
 	m_routes.InsertColumn(3, L"Profit", LVCFMT_RIGHT, 70);
 	m_routes.InsertColumn(4, L"Distance", LVCFMT_RIGHT, 80);
 	m_routes.InsertColumn(5, L"Profit/Distance", LVCFMT_RIGHT, 90);
+	m_routes.InsertColumn(8, L"Profit/Distance/unit", LVCFMT_RIGHT, 90);
 	m_routes.InsertColumn(6, NULL, LVCFMT_RIGHT, 0);			// Good index
 	m_routes.InsertColumn(7, NULL, LVCFMT_RIGHT, 0);			// "From" base pointer
-	INT order[] = { 6, 7, 1, 0, 2, 3, 4, 5 }; // place 0-width columns at the beginning (so it doesn't disturb dividers dragging)
+	INT order[] = { 6, 7, 1, 0, 2, 3, 4, 5, 8 }; // place 0-width columns at the beginning (so it doesn't disturb dividers dragging)
 	m_routes.SetColumnOrderArray(_countof(order), order);
 	m_routes.SetExtendedStyle(LVS_EX_GRIDLINES|LVS_EX_HEADERDRAGDROP|LVS_EX_FULLROWSELECT|LVS_EX_UNDERLINEHOT);
 
@@ -532,6 +533,8 @@ void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell,
 		_stprintf(buf, L"%s $/sec", LPCTSTR(ratio));
 	}
 	m_routes.SetItemText(nItem, 5, buf);
+	_stprintf(buf, L"%d ¢/sec", (profit/units) * 100000 / distance);
+	m_routes.SetItemText(nItem, 8, buf);
 	_stprintf(buf, L"%d", goodIndex);
 	m_routes.SetItemText(nItem, 6, buf);
 	_stprintf(buf, L"%d", (int) srcbase);
@@ -759,7 +762,7 @@ void CFLCompanionDlg::OnItemchangedRoutes(NMHDR* pNMHDR, LRESULT* pResult)
 		else
 			msg.FormatMessage(L"Buy %1!d! units for $%2!d! each", units, (int) from->m_sell[goodIndex]);
 		SetDlgItemText(IDC_BUY_PRICE, msg);
-		UINT decay_units = perishable ? distance/g_goods[goodIndex].m_decay_time : 0;
+		UINT decay_units = perishable ? distance/(g_goods[goodIndex].m_decay_time) : 0;
 		if (m_cargoSize == 1)
 			if (perishable)
 			{
