@@ -22,6 +22,7 @@ static char THIS_FILE[]=__FILE__;
 
 BOOL g_avoidLockedGates;
 BOOL g_avoidHoles;
+BOOL g_isTransport;
 ModInfo g_modInfo;
 
 UINT BASE_DELAY = 20*1000;
@@ -135,7 +136,7 @@ BOOL LoadStationSolarArch(const CString &iniFilename)
 {
 	IniSection section;
 	CString name, type, systemname;
-	printf("\nParsing Solars...");
+	Log(L"\nParsing Solars...");
 	{
 		IniFile iniFile(iniFilename);
 		section = NULL;
@@ -144,6 +145,7 @@ BOOL LoadStationSolarArch(const CString &iniFilename)
 			if (name.CompareNoCase(L"Solar") == 0)
 			{
 				name = iniFile.GetValue(section, "nickname");
+
 				name.MakeLower();
 				type = iniFile.GetValue(section, "type");
 				type.MakeUpper();
@@ -529,8 +531,9 @@ void LoadSystemObjects()
 						}
 						CString faction = iniFile.GetValue0(section, "reputation");
 						faction.MakeLower();
+						CString dock = iniFile.GetValue(section, "archetype");
 						CBase &base = g_bases[BASES_COUNT++];
-						base.Init(name, g_resourceProvider.GetStringFromID(strid), &system, faction);
+						base.Init(name, g_resourceProvider.GetStringFromID(strid), &system, faction, ( (dock.CompareNoCase(L"dsy_comsat_planetdock") == 0) ));
 						g_basesByNick[name] = &base;
 						base.m_system->AddBase(&base);
 						base.SetPos(x,y,z);
@@ -546,9 +549,11 @@ void LoadSystemObjects()
 						name = iniFile.GetValue(section, "nickname");
 						name.MakeLower();
 						CJump &jump = system.m_jumpsByNick[name];
+						CString dock = iniFile.GetValue(section, "archetype");
 						jump.Init(name,
 							archType == ARCH_JUMP_GATE,
 							g_lockedGates.Find(FLHash(name)) != NULL, // true if gate is locked in initial world
+							( (dock.CompareNoCase(L"jumphole_fighter") == 0) || (dock.CompareNoCase(L"jumphole_notransport") == 0) ),
 							g_resourceProvider.GetStringFromID(iniFile.GetValueInt0(section, "ids_name")), // caption
 							&system); // system it is in
 						jump.SetPos(x,y,z);
@@ -680,6 +685,8 @@ void CalculateDirectRoutes()
 		CBase &tobase = g_bases[baseIndex];
 		if (tobase.m_faction && tobase.m_faction->m_avoid)
 			continue;
+		if ( g_isTransport && tobase.m_isfreighteronly)
+			continue;
 		CSystem &system = *tobase.m_system;
 		system.CalcLaneDistances(tobase);
 		// in-system initial-base to final-base
@@ -698,6 +705,7 @@ void CalculateDirectRoutes()
 			CJump &fromjump = system.m_jumpsByNick.GetNextAssoc(pos, dummy);
 			if (g_avoidLockedGates && fromjump.m_islocked) continue;
 			if (g_avoidHoles && !fromjump.m_isgate) continue;
+			if (g_isTransport && fromjump.m_isfreighteronly) continue;
 			fromjump.m_shortestPath[baseIndex] = &tobase;
 			fromjump.m_distanceToBase[baseIndex] = system.ComputeDistance(fromjump, tobase);
 			if (!fromjump.m_matchingJump)
@@ -726,6 +734,7 @@ BOOL PropagateRoutes()
 		while (pos2)
 		{
 			CJump &tojump = system.m_jumpsByNick.GetNextAssoc(pos2, dummy2);
+			if (g_isTransport && tojump.m_isfreighteronly) continue;
 			if (g_avoidLockedGates && tojump.m_islocked) continue;
 			if (g_avoidHoles && !tojump.m_isgate) continue;
 			system.CalcLaneDistances(tojump);
@@ -735,6 +744,7 @@ BOOL PropagateRoutes()
 				CJump &fromjump = system.m_jumpsByNick.GetNextAssoc(pos, dummy);
 				if (g_avoidLockedGates && fromjump.m_islocked) continue;
 				if (g_avoidHoles && !fromjump.m_isgate) continue;
+				if (g_isTransport && fromjump.m_isfreighteronly) continue;
 				UINT distance = system.ComputeDistance(fromjump, tojump);
 				for (UINT baseIndex = 0; baseIndex < BASES_COUNT; baseIndex++)
 				{

@@ -48,6 +48,7 @@ CFLCompanionDlg::CFLCompanionDlg(CWnd* pParent /*=NULL*/)
 	m_showAllSolutions = false;
 	g_avoidLockedGates = theApp.GetProfileInt(L"Settings", L"AvoidLockedGates", TRUE);
 	g_avoidHoles = theApp.GetProfileInt(L"Settings", L"AvoidHoles", FALSE);
+	g_isTransport = theApp.GetProfileInt(L"Settings", L"IsTransport", FALSE);
 	ENGINE_SPEED = theApp.GetProfileInt(L"Settings", L"EngineSpeed", 280);
 	LANE_SPEED = theApp.GetProfileInt(L"Settings", L"LaneSpeed", 1900);
 	JUMP_DELAY = theApp.GetProfileInt(L"Settings", L"JumpDelay", 15)*1000;
@@ -1153,14 +1154,18 @@ void CFLCompanionDlg::OnLimitations()
 	dlg.m_cargoSize = m_cargoSize;
 	dlg.m_avoidLockedGates = g_avoidLockedGates;
 	dlg.m_avoidHoles = g_avoidHoles;
+	dlg.m_isTransport= g_isTransport;
+	
 	dlg.m_maxInvestment = m_maxInvestment;
 	dlg.m_maxDistance = m_maxDistance;
 	if (dlg.DoModal() == IDOK)
 	{
 		theApp.WriteProfileInt(L"Settings", L"AvoidLockedGates", dlg.m_avoidLockedGates);
 		theApp.WriteProfileInt(L"Settings", L"AvoidHoles", dlg.m_avoidHoles);
+		theApp.WriteProfileInt(L"Settings", L"IsTransport", dlg.m_isTransport);
 		g_avoidLockedGates = dlg.m_avoidLockedGates;
 		g_avoidHoles = dlg.m_avoidHoles;
+		g_isTransport = dlg.m_isTransport;
 		SetMaxInvestment(dlg.m_maxInvestment);
 		SetMaxDistance(dlg.m_maxDistance);
 		SetCargoSize(dlg.m_cargoSize);

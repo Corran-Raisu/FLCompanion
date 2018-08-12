@@ -21,7 +21,7 @@ class CBase : public CDockable
 public:
 	CBase() : m_hasSell(false) { for (int i = 0; i < GOODS_MAX; i++) m_sell[i] = FLT_MAX; }
 	~CBase() {}
-	void Init(const CString &nickname, const CString &caption, CSystem *system, const CString &faction);
+	void Init(const CString &nickname, const CString &caption, CSystem *system, const CString &faction, BOOL isfreighteronly);
 	void MakeMiningBase(CSystem *system, int x, int y, int z, UINT goodIndex);
 	UINT GetDockingDelay();
 public:
@@ -31,6 +31,7 @@ public:
 	BOOL m_hasSell;
 	CFaction *m_faction;
 	int m_ids_info;
+	BOOL m_isfreighteronly;
 };
 
 extern CBase g_bases[BASES_MAX];

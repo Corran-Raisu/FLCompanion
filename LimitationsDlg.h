@@ -25,6 +25,7 @@ public:
 	UINT	m_cargoSize;
 	BOOL	m_avoidLockedGates;
 	BOOL	m_avoidHoles;
+	BOOL	m_isTransport;
 	CString	m_investmentText;
 	UINT	m_maxInvestment;
 	CString	m_distanceText;

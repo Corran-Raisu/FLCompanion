@@ -23,7 +23,8 @@ public:
 public:
 	BOOL m_isgate;
 	BOOL m_islocked;
-	void Init(const CString &nickname, BOOL isgate, BOOL islocked, const CString &caption, CSystem *system);
+	BOOL m_isfreighteronly;
+	void Init(const CString &nickname, BOOL isgate, BOOL islocked, BOOL isfreighteronly, const CString &caption, CSystem *system);
 	void SetMatchingJump(CJump *matchingJump);
 	CJump *m_matchingJump;
 	virtual CString LetterPos();

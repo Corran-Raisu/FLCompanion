@@ -25,12 +25,13 @@ void CJump::SetMatchingJump(CJump *matchingJump)
 }
 extern DWORD FLHash (LPCTSTR string);
 
-void CJump::Init(const CString &nickname, BOOL isgate, BOOL islocked, const CString &caption, CSystem *system)
+void CJump::Init(const CString &nickname, BOOL isgate, BOOL islocked, BOOL isfreighteronly, const CString &caption, CSystem *system)
 {
 	//CString sCaption = isgate ? g_jumpGateCaption : g_jumpHoleCaption;
 	//sCaption += L": "+caption;
 	m_isgate = isgate;
 	m_islocked = islocked;
+	m_isfreighteronly = isfreighteronly;
 	CDockable::Init(nickname, caption, system);
 }
 

@@ -24,9 +24,10 @@ CBase* g_miningBase;
 UINT g_miningDelay;
 CSortedMap<CString,LPCTSTR,CBase*,CBase*> g_basesByNick;
 
-void CBase::Init(const CString &nickname, const CString &caption, CSystem *system, const CString &faction)
+void CBase::Init(const CString &nickname, const CString &caption, CSystem *system, const CString &faction, BOOL isfreighteronly)
 {
 	CDockable::Init(nickname, caption, system);
+	m_isfreighteronly = isfreighteronly;
 	for (UINT i = 0; i < GOODS_MAX; i++)	
 		m_buy[i] = g_goods[i].m_defaultPrice;
 	if (faction.IsEmpty())

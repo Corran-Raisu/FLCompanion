@@ -50,6 +50,7 @@
 #define IDC_MAPINFO                     1021
 #define IDC_BUY_PRICE                   1025
 #define IDC_AVOIDHOLES                  1025
+#define IDC_TRANSPORT                   1060
 #define IDC_SELL_PRICE                  1026
 #define IDC_INVESTMENT_CHECK            1026
 #define IDC_PERISHABLE                  1027
