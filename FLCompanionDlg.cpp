@@ -27,7 +27,7 @@ static char THIS_FILE[] = __FILE__;
 
 CFLCompanionDlg* g_mainDlg;
 
-//#define ALL_TRADING_ROUTES
+#define ALL_TRADING_ROUTES
 
 /////////////////////////////////////////////////////////////////////////////
 // CFLCompanionDlg dialog
@@ -45,7 +45,7 @@ CFLCompanionDlg::CFLCompanionDlg(CWnd* pParent /*=NULL*/)
 	m_maxInvestment = theApp.GetProfileInt(L"Settings", L"MaxInvestment", 0);
 	m_maxDistance = theApp.GetProfileInt(L"Settings", L"MaxDistance", 0);
 	m_displayNicknames = FALSE;
-	m_showAllSolutions = false;
+	m_showAllSolutions = true;
 	g_avoidLockedGates = theApp.GetProfileInt(L"Settings", L"AvoidLockedGates", TRUE);
 	g_avoidHoles = theApp.GetProfileInt(L"Settings", L"AvoidHoles", FALSE);
 	g_isTransport = theApp.GetProfileInt(L"Settings", L"IsTransport", FALSE);
@@ -95,6 +95,7 @@ BEGIN_MESSAGE_MAP(CFLCompanionDlg, CDialog)
 	ON_CBN_SELCHANGE(IDC_DESTSYSTEM_COMBO, OnSelchangeDestsystemCombo)
 	ON_CBN_SELCHANGE(IDC_DESTBASE_COMBO, OnSelchangeDestbaseCombo)
 	ON_WM_MOUSEWHEEL()
+	ON_WM_SIZE()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONDBLCLK()
 	ON_WM_MOUSEMOVE()
@@ -142,6 +143,34 @@ END_MESSAGE_MAP()
 // If you add a minimize button to your dialog, you will need the code below
 //  to draw the icon.  For MFC applications using the document/view model,
 //  this is automatically done for you by the framework.
+void CFLCompanionDlg::OnSize(UINT nType, int cx, int cy)
+{
+	RECT rect;
+	double routes_heightmultiplier = 0.55; // 0.49
+	GetDlgItem(IDC_ROUTES)->SetWindowPos(NULL, 5, 30, 671, cy*routes_heightmultiplier, SWP_NOACTIVATE | SWP_NOZORDER); //cx*0.63
+	GetDlgItem(IDC_ROUTES)->GetClientRect(&rect);
+	GetDlgItem(IDC_WAYPOINTS)->SetWindowPos(NULL, 5, cy*routes_heightmultiplier + 80, 618, cy-(cy*routes_heightmultiplier + 85), SWP_NOACTIVATE | SWP_NOZORDER); //  cx*0.58
+	GetDlgItem(IDC_DESTSYSTEM_LABEL)->SetWindowPos(NULL, 5, cy*routes_heightmultiplier + 54, 65, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_DESTBASE_LABEL)->SetWindowPos(NULL, 215, cy*routes_heightmultiplier + 54, 35, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_DESTSYSTEM_COMBO)->SetWindowPos(NULL, 75, cy*routes_heightmultiplier + 52, 125, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_DESTBASE_COMBO)->SetWindowPos(NULL, 255, cy*routes_heightmultiplier + 52, 175, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_DESTFACTION)->SetWindowPos(NULL, 435, cy*routes_heightmultiplier + 54, 165, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+
+	GetDlgItem(IDC_BUY_PRICE)->SetWindowPos(NULL, 10, cy*routes_heightmultiplier + 32, 170, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_SELL_PRICE)->SetWindowPos(NULL, 425, cy*routes_heightmultiplier + 32, 170, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_PERISHABLE)->SetWindowPos(NULL, 290, cy*routes_heightmultiplier + 32, 65, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_SWITCH)->SetWindowPos(NULL, 595, cy*routes_heightmultiplier + 32, 28, 20, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_MAP)->SetWindowPos(NULL, 680, 30, cx - 685, cy - 80, SWP_NOACTIVATE | SWP_NOZORDER);
+	//GetDlgItem(IDC_MAP)->GetWindowRect(&rect);
+	GetDlgItem(IDC_MINING_LABEL)->SetWindowPos(NULL, 680, cy - 23, 75, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_ASTEROIDS_COMBO)->SetWindowPos(NULL, 755, cy - 26, 155, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_MINING)->SetWindowPos(NULL, 910, cy - 24, 75, 16, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_MAPINFO)->SetWindowPos(NULL, 680, cy - 45, 355, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	if (g_logDlg.IsWindowVisible()) g_logDlg.ShowWindow(SW_HIDE);
+	ResetMapZoom();
+
+}
+
 
 void CFLCompanionDlg::OnPaint() 
 {
@@ -287,7 +316,7 @@ BOOL CFLCompanionDlg::OnInitDialog()
 	m_routes.InsertColumn(3, L"Profit", LVCFMT_RIGHT, 70);
 	m_routes.InsertColumn(4, L"Distance", LVCFMT_RIGHT, 80);
 	m_routes.InsertColumn(5, L"Profit/Distance", LVCFMT_RIGHT, 90);
-	m_routes.InsertColumn(8, L"Profit/Distance/unit", LVCFMT_RIGHT, 90);
+	m_routes.InsertColumn(8, L"CSU", LVCFMT_CENTER, 65);
 	m_routes.InsertColumn(6, NULL, LVCFMT_RIGHT, 0);			// Good index
 	m_routes.InsertColumn(7, NULL, LVCFMT_RIGHT, 0);			// "From" base pointer
 	INT order[] = { 6, 7, 1, 0, 2, 3, 4, 5, 8 }; // place 0-width columns at the beginning (so it doesn't disturb dividers dragging)
@@ -324,7 +353,7 @@ BOOL CFLCompanionDlg::OnInitDialog()
 	m_baseCombo.SetFocus();
 
 	if (g_logDlg.m_hWnd && theApp.GetProfileInt(L"Settings", L"LogMinimize", FALSE))
-		g_logDlg.ShowWindow(SW_SHOWMINIMIZED);
+		g_logDlg.ShowWindow(SW_HIDE);
 
 	if (g_modInfo.largeMod && !g_modInfo.FLC_info.IsEmpty())
 	{
@@ -595,7 +624,7 @@ void CFLCompanionDlg::ShowAllSolutions()
 	for (int index = 0; index < BASES_COUNT; index++)
 	{
 		CBase &base = g_bases[index];
-		if (!base.m_hasSell) continue;
+		if (!base.m_hasSell || (g_isTransport && base.m_isfreighteronly)) continue;
 
 		AddSolutionsForBase(&base);
 	}
