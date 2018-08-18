@@ -53,7 +53,8 @@ protected:
 	// Generated message map functions
 	//{{AFX_MSG(CFLCompanionDlg)
 	virtual BOOL OnInitDialog();
-	afx_msg void OnPaint();
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+	void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	afx_msg void OnSelchangeBaseCombo();
 	afx_msg void OnItemclickRoutes(NMHDR* pNMHDR, LRESULT* pResult);

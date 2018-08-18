@@ -109,6 +109,9 @@
 #define ID_GAME_IMPORT_PRICES           32800
 #define ID_GAME_IMPORT_CREDITS          32801
 #define ID_GAME_IMPORT_CARGOHOLD        32802
+#define IDC_DESTSYSTEM_LABEL            1060
+#define IDC_DESTBASE_LABEL              1061
+#define IDC_MINING_LABEL                1062
 
 // Next default values for new objects
 // 
