@@ -112,7 +112,12 @@
 #define IDC_DESTSYSTEM_LABEL            1060
 #define IDC_DESTBASE_LABEL              1061
 #define IDC_MINING_LABEL                1062
-
+#define IDC_TRADEROUTES                 1063
+#define IDC_TR_ADD                      1064
+#define IDC_TR_REM                      1065
+#define IDI_UP_ARROW                    1066
+#define IDI_DOWN_ARROW                  1067
+#define IDC_MINCSU                      1068
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

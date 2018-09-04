@@ -25,6 +25,7 @@ CLimitationsDlg::CLimitationsDlg(CWnd* pParent /*=NULL*/)
 	m_cargoSize = 1;
 	m_maxInvestment = 0;
 	m_maxDistance = 0;
+	m_minCSU = 0;
 	//}}AFX_DATA_INIT
 }
 
@@ -38,6 +39,7 @@ void CLimitationsDlg::DoDataExchange(CDataExchange* pDX)
 		CheckDlgButton(IDC_INVESTMENT_CHECK, m_maxInvestment != 0 ? BST_CHECKED : BST_UNCHECKED);
 		m_distanceText = m_maxDistance == 0 ? "" : IntToString(m_maxDistance/60000);
 		CheckDlgButton(IDC_DISTANCE_CHECK, m_maxDistance != 0 ? BST_CHECKED : BST_UNCHECKED);
+		m_minCSUText = m_minCSU == 0 ? "" : IntToString(m_minCSU);
 	}
 	//{{AFX_DATA_MAP(CLimitationsDlg)
 	DDX_Control(pDX, IDC_GOODS_LIST, m_goodsList);
@@ -49,6 +51,7 @@ void CLimitationsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_TRANSPORT, m_isTransport);
 	DDX_Text(pDX, IDC_INVESTMENT, m_investmentText);
 	DDX_Text(pDX, IDC_DISTANCE, m_distanceText);
+	DDX_Text(pDX, IDC_MINCSU, m_minCSUText);
 	//}}AFX_DATA_MAP
 	if (pDX->m_bSaveAndValidate)
 	{
@@ -58,6 +61,7 @@ void CLimitationsDlg::DoDataExchange(CDataExchange* pDX)
 		m_maxDistance = _ttoi(m_distanceText)*60000;
 		if (!IsDlgButtonChecked(IDC_DISTANCE_CHECK))
 			m_maxDistance = 0;
+		m_minCSU = _ttoi(m_minCSUText);
 	}
 }
 

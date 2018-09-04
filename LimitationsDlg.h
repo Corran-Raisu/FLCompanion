@@ -30,6 +30,8 @@ public:
 	UINT	m_maxInvestment;
 	CString	m_distanceText;
 	UINT	m_maxDistance;
+	CString	m_minCSUText;
+	UINT	m_minCSU;
 	//}}AFX_DATA
 
 
