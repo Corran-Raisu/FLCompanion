@@ -84,6 +84,9 @@
     <ClCompile Include="ListCtrl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WndResizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FLCompanion.rc">
@@ -160,6 +163,9 @@
     <ClInclude Include="SystemMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WndResizer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\back_arrow.ico">
@@ -172,6 +178,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="res\switch_arrow.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\up_arrow.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\down_arrow.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

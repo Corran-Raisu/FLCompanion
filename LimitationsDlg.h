@@ -59,6 +59,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 private:
 	void SwitchAll(CCheckListBox& listbox, int clearallID);
+	CWndResizer m_resizer;
 };
 
 //{{AFX_INSERT_LOCATION}}

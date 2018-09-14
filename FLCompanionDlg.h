@@ -9,6 +9,7 @@
 #endif // _MSC_VER > 1000
 
 #include "System.h"
+#include "WndResizer.h"
 
 #define WM_RECALC		(WM_APP+2)
 
@@ -154,6 +155,7 @@ private:
 	CSystem *m_drawnSystem;
 	DWORD m_importFromGame;
 	LONG m_recalcFlags;
+
 };
 
 extern CFLCompanionDlg* g_mainDlg;
