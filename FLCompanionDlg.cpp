@@ -28,7 +28,7 @@ static char THIS_FILE[] = __FILE__;
 CFLCompanionDlg* g_mainDlg;
 bool blnMap;
 int gcx, gcy;
-#define ALL_TRADING_ROUTES
+//#define ALL_TRADING_ROUTES
 
 /////////////////////////////////////////////////////////////////////////////
 // CFLCompanionDlg dialog
@@ -586,12 +586,12 @@ void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell,
 	if (((profit / units) * 100000 / distance) < m_minCSU)
 		return;
 	int nItem = m_routes.InsertItem(MAXLONG, m_displayNicknames ? g_goods[goodIndex].m_nickname : g_goods[goodIndex].m_caption);
-#ifdef ALL_TRADING_ROUTES
+//#ifdef ALL_TRADING_ROUTES
 	if (m_displayNicknames)
 		m_routes.SetItemText(nItem, 1, srcbase->m_system->m_nickname+": "+srcbase->m_nickname);
 	else
 		m_routes.SetItemText(nItem, 1, srcbase->m_system->m_caption+": "+srcbase->m_caption);
-#endif
+//#endif
 	if (m_displayNicknames)
 		m_routes.SetItemText(nItem, 2, destbase->m_system->m_nickname+": "+destbase->m_nickname);
 	else
