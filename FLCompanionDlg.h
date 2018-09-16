@@ -68,6 +68,7 @@ protected:
 	afx_msg void OnSelchangeSystemCombo();
 	afx_msg void OnBack();
 	afx_msg void OnItemchangedRoutes(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnTRItemchangedRoutes(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnItemchangedWaypoints(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnSelchangeDestsystemCombo();
 	afx_msg void OnSelchangeDestbaseCombo();
