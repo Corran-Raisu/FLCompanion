@@ -57,8 +57,6 @@
 #define IDC_INVESTMENT                  1027
 #define IDC_HOLE_DELAY                  1028
 #define IDC_DISTANCE_CHECK              1028
-#define IDC_SYSTEMS_LIST                1029
-#define IDC_FACTIONS_LIST               1030
 #define IDC_GOODS_LIST                  1031
 #define IDC_EQUIP_LIST                  1032
 #define IDC_DISTANCE                    1032
@@ -75,17 +73,11 @@
 #define IDC_WEBLINK                     1046
 #define IDC_ABOUTTEXT                   1047
 #define IDC_ABOUTICON                   1048
-#define IDC_CHECK_ALL_FACTIONS          1051
 #define IDC_MINING                      1051
-#define IDC_CLEAR_ALL_FACTIONS          1052
 #define IDC_LOOT_STAT                   1052
-#define IDC_CHECK_ALL_SYSTEMS           1053
-#define IDC_CLEAR_ALL_SYSTEMS           1054
 #define IDC_MINING_SPEED                1054
 #define IDC_MINING_TIME                 1055
-#define IDC_CHECK_ALL_GOODS             1056
 #define IDC_AUTHORS                     1056
-#define IDC_CLEAR_ALL_GOODS             1057
 #define IDC_CUSTOM1                     1057
 #define IDC_RADIO_DESCRIPTION           1058
 #define IDC_RADIO_FLCWARNING            1059
@@ -112,7 +104,25 @@
 #define IDC_DESTSYSTEM_LABEL            1060
 #define IDC_DESTBASE_LABEL              1061
 #define IDC_MINING_LABEL                1062
-
+#define IDC_TRADEROUTES                 1063
+#define IDC_TR_ADD                      1064
+#define IDC_TR_REM                      1065
+#define IDI_UP_ARROW                    1066
+#define IDI_DOWN_ARROW                  1067
+#define IDC_MINCSU                      1068
+#define IDC_FRAME_Systems               1069
+#define IDC_SYSTEMS_LIST                1070
+#define IDC_CHECK_ALL_SYSTEMS           1071
+#define IDC_CLEAR_ALL_SYSTEMS           1072
+#define IDC_FRAME_Factions              1073
+#define IDC_FACTIONS_LIST               1074
+#define IDC_CHECK_ALL_FACTIONS          1075
+#define IDC_CLEAR_ALL_FACTIONS          1076
+#define IDC_FRAME_Goods                 1077
+#define IDC_CHECK_ALL_GOODS             1078
+#define IDC_CLEAR_ALL_GOODS             1079
+#define IDI_MAP                         1080
+#define IDC_OPENMAP                     1081
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

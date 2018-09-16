@@ -26,7 +26,8 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 CFLCompanionDlg* g_mainDlg;
-
+bool blnMap;
+int gcx, gcy;
 #define ALL_TRADING_ROUTES
 
 /////////////////////////////////////////////////////////////////////////////
@@ -44,6 +45,7 @@ CFLCompanionDlg::CFLCompanionDlg(CWnd* pParent /*=NULL*/)
 	m_cargoSize = theApp.GetProfileInt(L"Settings", L"CargoSize", 1);
 	m_maxInvestment = theApp.GetProfileInt(L"Settings", L"MaxInvestment", 0);
 	m_maxDistance = theApp.GetProfileInt(L"Settings", L"MaxDistance", 0);
+	m_minCSU = theApp.GetProfileInt(L"Settings", L"MinCSU", 0);
 	m_displayNicknames = FALSE;
 	m_showAllSolutions = true;
 	g_avoidLockedGates = theApp.GetProfileInt(L"Settings", L"AvoidLockedGates", TRUE);
@@ -67,7 +69,10 @@ void CFLCompanionDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CFLCompanionDlg)
 	DDX_Control(pDX, IDC_SWITCH, m_switchBtn);
+	DDX_Control(pDX, IDC_TR_ADD, m_TRaddBtn);
+	DDX_Control(pDX, IDC_TR_REM, m_TRremBtn);
 	DDX_Control(pDX, IDC_JUMPS, m_jumpsBtn);
+	DDX_Control(pDX, IDC_OPENMAP, m_mapBtn);
 	DDX_Control(pDX, IDC_BACK, m_backBtn);
 	DDX_Control(pDX, IDC_ASTEROIDS_COMBO, m_asteroidsCombo);
 	DDX_Control(pDX, IDC_SYSTEM_WAYPOINTS, m_systemWaypoints);
@@ -77,6 +82,7 @@ void CFLCompanionDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SYSTEM_COMBO, m_systemCombo);
 	DDX_Control(pDX, IDC_ROUTES, m_routes);
 	DDX_Control(pDX, IDC_BASE_COMBO, m_baseCombo);
+	DDX_Control(pDX, IDC_TRADEROUTES, m_traderoute);
 	//}}AFX_DATA_MAP
 }
 
@@ -122,6 +128,7 @@ BEGIN_MESSAGE_MAP(CFLCompanionDlg, CDialog)
 	ON_COMMAND(ID_MOD_INFO, OnModInfo)
 	ON_UPDATE_COMMAND_UI(ID_MOD_INFO, OnUpdateModInfo)
 	ON_BN_CLICKED(IDC_JUMPS, OnJumps)
+	ON_BN_CLICKED(IDC_OPENMAP, OnMap)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_GAME_IMPORT_PRICES, ID_GAME_IMPORT_CARGOHOLD, OnUpdateGameImport)
 	ON_COMMAND(ID_GAME_IMPORT_ABOUT, OnGameImportAbout)
 	ON_COMMAND_RANGE(ID_GAME_IMPORT_PRICES, ID_GAME_IMPORT_CARGOHOLD, OnGameImport)
@@ -129,6 +136,8 @@ BEGIN_MESSAGE_MAP(CFLCompanionDlg, CDialog)
 	ON_UPDATE_COMMAND_UI(ID_GAME_IMPORT_CHECKALL, OnUpdateGameImportCheckall)
 	ON_WM_ACTIVATEAPP()
 	ON_BN_CLICKED(IDC_SWITCH, OnSwitch)
+	ON_BN_CLICKED(IDC_TR_ADD, OnTR_Add)
+	ON_BN_CLICKED(IDC_TR_REM, OnTR_Rem)
 	//}}AFX_MSG_MAP
 	ON_MESSAGE(WM_RECALC, OnRecalc)
 	ON_WM_INITMENUPOPUP()
@@ -146,26 +155,49 @@ END_MESSAGE_MAP()
 void CFLCompanionDlg::OnSize(UINT nType, int cx, int cy)
 {
 	RECT rect;
-	double routes_heightmultiplier = 0.55; // 0.49
-	GetDlgItem(IDC_ROUTES)->SetWindowPos(NULL, 5, 30, 671, cy*routes_heightmultiplier, SWP_NOACTIVATE | SWP_NOZORDER); //cx*0.63
+	double routes_heightmultiplier = 0.35; // 0.49
+	double left_widthmultiplier = blnMap ?  0.65 : 0.992;
+	double left_min = 675;
+	gcx = cx;
+	gcy = cy;
+	GetDlgItem(IDC_ROUTES)->SetWindowPos(NULL, 5, 30, max(cx*left_widthmultiplier, left_min), cy*routes_heightmultiplier, SWP_NOACTIVATE | SWP_NOZORDER); //cx*0.63
 	GetDlgItem(IDC_ROUTES)->GetClientRect(&rect);
-	GetDlgItem(IDC_WAYPOINTS)->SetWindowPos(NULL, 5, cy*routes_heightmultiplier + 80, 618, cy-(cy*routes_heightmultiplier + 85), SWP_NOACTIVATE | SWP_NOZORDER); //  cx*0.58
-	GetDlgItem(IDC_DESTSYSTEM_LABEL)->SetWindowPos(NULL, 5, cy*routes_heightmultiplier + 54, 65, 13, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_DESTBASE_LABEL)->SetWindowPos(NULL, 215, cy*routes_heightmultiplier + 54, 35, 13, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_DESTSYSTEM_COMBO)->SetWindowPos(NULL, 75, cy*routes_heightmultiplier + 52, 125, 13, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_DESTBASE_COMBO)->SetWindowPos(NULL, 255, cy*routes_heightmultiplier + 52, 175, 13, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_DESTFACTION)->SetWindowPos(NULL, 435, cy*routes_heightmultiplier + 54, 165, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+
+	GetDlgItem(IDC_TRADEROUTES)->SetWindowPos(NULL, 5, cy*routes_heightmultiplier + 55, max(cx*left_widthmultiplier, left_min), cy - ((cy*routes_heightmultiplier + 100) + (cy - (cy*routes_heightmultiplier + 225))) + +(cy - (cy*routes_heightmultiplier + 205 + min(cy - (cy*routes_heightmultiplier + 205), 225))), SWP_NOACTIVATE | SWP_NOZORDER); //cx*0.63
+	GetDlgItem(IDC_TR_ADD)->SetWindowPos(NULL, 600, cy*routes_heightmultiplier + 32, 24, 20, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_TR_REM)->SetWindowPos(NULL, 623, cy*routes_heightmultiplier + 32, 24, 20, SWP_NOACTIVATE | SWP_NOZORDER);
+
+	GetDlgItem(IDC_WAYPOINTS)->SetWindowPos(NULL, 5, cy*routes_heightmultiplier + 205 + (cy - (cy*routes_heightmultiplier + 205 + min(cy - (cy*routes_heightmultiplier + 205), 225))), 618, min(cy - (cy*routes_heightmultiplier + 205), 225), SWP_NOACTIVATE | SWP_NOZORDER); //  cx*0.58
 
 	GetDlgItem(IDC_BUY_PRICE)->SetWindowPos(NULL, 10, cy*routes_heightmultiplier + 32, 170, 13, SWP_NOACTIVATE | SWP_NOZORDER);
 	GetDlgItem(IDC_SELL_PRICE)->SetWindowPos(NULL, 425, cy*routes_heightmultiplier + 32, 170, 13, SWP_NOACTIVATE | SWP_NOZORDER);
 	GetDlgItem(IDC_PERISHABLE)->SetWindowPos(NULL, 290, cy*routes_heightmultiplier + 32, 65, 13, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_SWITCH)->SetWindowPos(NULL, 595, cy*routes_heightmultiplier + 32, 28, 20, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_MAP)->SetWindowPos(NULL, 680, 30, cx - 685, cy - 80, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_MAP)->SetWindowPos(NULL, max((cx*left_widthmultiplier) + 10, left_min + 10), 30, cx - ((cx*left_widthmultiplier)+15), min(cy-75,cx - ((cx*left_widthmultiplier) + 15)), SWP_NOACTIVATE | SWP_NOZORDER);
 	//GetDlgItem(IDC_MAP)->GetWindowRect(&rect);
-	GetDlgItem(IDC_MINING_LABEL)->SetWindowPos(NULL, 680, cy - 23, 75, 13, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_ASTEROIDS_COMBO)->SetWindowPos(NULL, 755, cy - 26, 155, 13, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_MINING)->SetWindowPos(NULL, 910, cy - 24, 75, 16, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_MAPINFO)->SetWindowPos(NULL, 680, cy - 45, 355, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_MINING_LABEL)->SetWindowPos(NULL, max((cx*left_widthmultiplier) + 10, left_min + 10), min(cy - 75, cx - ((cx*left_widthmultiplier) + 15)) + 55, 75, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_ASTEROIDS_COMBO)->SetWindowPos(NULL, max((cx*left_widthmultiplier) + 10, left_min + 10) + 75, min(cy - 75, cx - ((cx*left_widthmultiplier) + 15)) + 50, 155, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_MINING)->SetWindowPos(NULL, max((cx*left_widthmultiplier) + 10, left_min + 10) + 250, min(cy - 75, cx - ((cx*left_widthmultiplier) + 15)) + 50, 75, 18, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_MAPINFO)->SetWindowPos(NULL, max((cx*left_widthmultiplier) + 10, left_min + 10) + 25, min(cy - 75, cx - ((cx*left_widthmultiplier) + 15)) + 35, blnMap ? 355 : 0 , 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_MAPNAME)->SetWindowPos(NULL, max((cx*left_widthmultiplier) + 10, left_min + 10) + ((cx - ((cx*left_widthmultiplier) + 355) )/2), 10, blnMap ? 355 : 0, 13, SWP_NOACTIVATE);
+	//GetDlgItem(IDC_MAPINFO)->SetWindowPos(NULL,)
+		GetDlgItem(IDC_MAPINFO)->ShowWindow(blnMap ? SW_SHOW : SW_HIDE);
+		GetDlgItem(IDC_MAPNAME)->ShowWindow(blnMap ? SW_SHOW : SW_HIDE);
+		GetDlgItem(IDC_MINING)->ShowWindow(blnMap ? SW_SHOW : SW_HIDE);
+		GetDlgItem(IDC_ASTEROIDS_COMBO)->ShowWindow(blnMap ? SW_SHOW : SW_HIDE);
+		GetDlgItem(IDC_MINING_LABEL)->ShowWindow(blnMap ? SW_SHOW : SW_HIDE);
+		GetDlgItem(IDC_JUMPS)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_OPENMAP)->ShowWindow(SW_HIDE);
+
+	GetDlgItem(IDC_DESTSYSTEM_LABEL)->SetWindowPos(NULL, 5, cy*routes_heightmultiplier + 184 + (cy - (cy*routes_heightmultiplier + 205 + min(cy - (cy*routes_heightmultiplier + 205), 225))), 65, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_DESTBASE_LABEL)->SetWindowPos(NULL, 215, cy*routes_heightmultiplier + 184 + (cy - (cy*routes_heightmultiplier + 205 + min(cy - (cy*routes_heightmultiplier + 205), 225))), 35, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_DESTSYSTEM_COMBO)->SetWindowPos(NULL, 75, cy*routes_heightmultiplier + 182 + (cy - (cy*routes_heightmultiplier + 205 + min(cy - (cy*routes_heightmultiplier + 205), 225))), 125, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_DESTBASE_COMBO)->SetWindowPos(NULL, 255, cy*routes_heightmultiplier + 182 + (cy - (cy*routes_heightmultiplier + 205 + min(cy - (cy*routes_heightmultiplier + 205), 225))), 175, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_DESTFACTION)->SetWindowPos(NULL, 435, cy*routes_heightmultiplier + 184 + (cy - (cy*routes_heightmultiplier + 205 + min(cy - (cy*routes_heightmultiplier + 205), 225))), 165, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_SWITCH)->SetWindowPos(NULL, 600, cy*routes_heightmultiplier + 182 + (cy - (cy*routes_heightmultiplier + 205 + min(cy - (cy*routes_heightmultiplier + 205), 225))), 28, 20, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_OPENMAP)->SetWindowPos(NULL, max((cx*left_widthmultiplier) + 10, left_min + 10) - 25, 8, 20, 20, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_JUMPS)->SetWindowPos(NULL, max((cx*left_widthmultiplier) + 10, left_min + 10), 8, 20, 20, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_JUMPS)->ShowWindow(blnMap ? SW_SHOW : SW_HIDE);
+	GetDlgItem(IDC_OPENMAP)->ShowWindow(SW_SHOW);
 	if (g_logDlg.IsWindowVisible()) g_logDlg.ShowWindow(SW_HIDE);
 	ResetMapZoom();
 
@@ -308,7 +340,10 @@ BOOL CFLCompanionDlg::OnInitDialog()
 	
 	m_backBtn.SetIcon  ((HICON) LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_BACK_ARROW),IMAGE_ICON,16,16,LR_SHARED));
 	m_jumpsBtn.SetIcon ((HICON) LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_JUMP),IMAGE_ICON,16,16,LR_SHARED));
+	m_mapBtn.SetIcon   ((HICON) LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_MAP), IMAGE_ICON, 16, 16, LR_SHARED));
 	m_switchBtn.SetIcon((HICON) LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_SWITCH_ARROW),IMAGE_ICON,16,16,LR_SHARED));
+	m_TRaddBtn.SetIcon ((HICON) LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_DOWN_ARROW), IMAGE_ICON, 16, 16, LR_SHARED));
+	m_TRremBtn.SetIcon ((HICON) LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_UP_ARROW), IMAGE_ICON, 16, 16, LR_SHARED));
 
 	m_routes.InsertColumn(0, L"Commodity", LVCFMT_LEFT, 125);
 	m_routes.InsertColumn(1, L"From", LVCFMT_RIGHT, 0);			// "From" base caption
@@ -322,6 +357,18 @@ BOOL CFLCompanionDlg::OnInitDialog()
 	INT order[] = { 6, 7, 1, 0, 2, 3, 4, 5, 8 }; // place 0-width columns at the beginning (so it doesn't disturb dividers dragging)
 	m_routes.SetColumnOrderArray(_countof(order), order);
 	m_routes.SetExtendedStyle(LVS_EX_GRIDLINES|LVS_EX_HEADERDRAGDROP|LVS_EX_FULLROWSELECT|LVS_EX_UNDERLINEHOT);
+
+	m_traderoute.InsertColumn(0, L"Commodity", LVCFMT_LEFT, 125);
+	m_traderoute.InsertColumn(1, L"From", LVCFMT_RIGHT, 220);			// "From" base caption
+	m_traderoute.InsertColumn(2, L"To", LVCFMT_LEFT, 220);
+	m_traderoute.InsertColumn(3, L"Profit", LVCFMT_RIGHT, 70);
+	m_traderoute.InsertColumn(4, L"Distance", LVCFMT_RIGHT, 80);
+	m_traderoute.InsertColumn(5, L"Profit/Distance", LVCFMT_RIGHT, 90);
+	m_traderoute.InsertColumn(8, L"CSU", LVCFMT_CENTER, 65);
+	m_traderoute.InsertColumn(6, NULL, LVCFMT_RIGHT, 0);			// Good index
+	m_traderoute.InsertColumn(7, NULL, LVCFMT_RIGHT, 0);			// "From" base pointer
+	m_traderoute.SetColumnOrderArray(_countof(order), order);
+	m_traderoute.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_HEADERDRAGDROP | LVS_EX_FULLROWSELECT | LVS_EX_UNDERLINEHOT);
 
 	m_waypoints.InsertColumn(0, L"System", LVCFMT_LEFT, 125);
 	m_waypoints.InsertColumn(1, L"Route", LVCFMT_LEFT, 220);
@@ -508,7 +555,7 @@ reload:
 		Recalc(RECALC_SOLUTIONS);
 }
 
-void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell, CBase *srcbase, CBase *destbase, LONG distance) 
+void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell, CBase *srcbase, CBase *destbase, LONG distance)
 {
 	LONG profit;
 	UINT units = m_cargoSize == 1 ? 1 : UINT(m_cargoSize/g_goods[goodIndex].m_volume);
@@ -536,7 +583,8 @@ void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell,
 		if (profit < 0)
 			return; // negative profit if decay is taken in account, drop it
 	}
-	
+	if (((profit / units) * 100000 / distance) < m_minCSU)
+		return;
 	int nItem = m_routes.InsertItem(MAXLONG, m_displayNicknames ? g_goods[goodIndex].m_nickname : g_goods[goodIndex].m_caption);
 #ifdef ALL_TRADING_ROUTES
 	if (m_displayNicknames)
@@ -579,6 +627,8 @@ void CFLCompanionDlg::AddSolutionsForBase(CBase* base)
 	for (int index = 0; index < SYSTEMS_COUNT; index++)
 	{
 		CSystem *system = &g_systems[index];
+		if (system->m_avoid)
+			continue;
 		// scan all bases in this system
 		POSITION pos = system->m_bases.GetHeadPosition();
 		while (pos)
@@ -624,7 +674,7 @@ void CFLCompanionDlg::ShowAllSolutions()
 	for (int index = 0; index < BASES_COUNT; index++)
 	{
 		CBase &base = g_bases[index];
-		if (!base.m_hasSell || (g_isTransport && base.m_isfreighteronly)) continue;
+		if (!base.m_hasSell || (g_isTransport && base.m_isfreighteronly) || base.m_system->m_avoid) continue;
 
 		AddSolutionsForBase(&base);
 	}
@@ -766,6 +816,7 @@ void CFLCompanionDlg::OnItemchangedRoutes(NMHDR* pNMHDR, LRESULT* pResult)
 	*pResult = 0;
 	if ((pNMListView->uNewState & LVIS_SELECTED) == 0)
 		return;
+	SelectedItem = pNMListView->iItem;
 	CBase *from = (CBase*) _ttoi(m_routes.GetItemText(pNMListView->iItem, 7));
 #ifdef ALL_TRADING_ROUTES
 	if (m_showAllSolutions)
@@ -1032,6 +1083,8 @@ void CFLCompanionDlg::DrawMap(CDC &dc)
 	m_mapmax = (int) (MAPMAX/m_drawnSystem->m_navmapscale);
 	dc.SetMapMode(MM_TEXT);
 	CFont font;
+	if (rect.Height() == 0)
+		return;
 	font.CreatePointFont(80*m_mapmax/m_zoom/rect.Height()*2, L"Agency FB", &dc);
 	dc.SetMapMode(MM_ISOTROPIC);
 	dc.SetViewportOrg((rect.left+rect.right)/2, (rect.top+rect.bottom)/2);
@@ -1190,6 +1243,8 @@ void CFLCompanionDlg::OnLimitations()
 	
 	dlg.m_maxInvestment = m_maxInvestment;
 	dlg.m_maxDistance = m_maxDistance;
+	dlg.m_minCSU = m_minCSU;
+
 	if (dlg.DoModal() == IDOK)
 	{
 		theApp.WriteProfileInt(L"Settings", L"AvoidLockedGates", dlg.m_avoidLockedGates);
@@ -1200,6 +1255,7 @@ void CFLCompanionDlg::OnLimitations()
 		g_isTransport = dlg.m_isTransport;
 		SetMaxInvestment(dlg.m_maxInvestment);
 		SetMaxDistance(dlg.m_maxDistance);
+		SetMinCSU(dlg.m_minCSU);
 		SetCargoSize(dlg.m_cargoSize);
 		Recalc(RECALC_PATHS);
 	}
@@ -1373,6 +1429,16 @@ BOOL CFLCompanionDlg::SetMaxDistance(UINT distance)
 		return false;
 	m_maxDistance = distance;
 	theApp.WriteProfileInt(L"Settings", L"MaxDistance", m_maxDistance);
+	Recalc(RECALC_SOLUTIONS);
+	return true;
+}
+
+BOOL CFLCompanionDlg::SetMinCSU(UINT minCSU)
+{
+	if (m_minCSU == minCSU)
+		return false;
+	m_minCSU = minCSU;
+	theApp.WriteProfileInt(L"Settings", L"MinCSU", m_minCSU);
 	Recalc(RECALC_SOLUTIONS);
 	return true;
 }
@@ -1642,6 +1708,12 @@ void CFLCompanionDlg::OnUpdateModInfo(CCmdUI* pCmdUI)
 		pCmdUI->Enable(FALSE);
 }
 
+void CFLCompanionDlg::OnMap()
+{
+	blnMap = !blnMap;
+	OnSize(0, gcx, gcy);
+}
+
 void CFLCompanionDlg::OnJumps() 
 {
 	CMenu menu;
@@ -1690,4 +1762,132 @@ void CFLCompanionDlg::OnSwitch()
 		SelComboByData(m_destbaseCombo, base1);
 		JumptoBase(base2);
 	}
+}
+
+//TO DO:  Make the TradeRoute Add/Remove buttons function properly.
+void CFLCompanionDlg::OnTR_Add()
+{
+	if (g_traderouteTotal != 0)
+	{
+		m_traderoute.DeleteItem(g_traderouteTotal);
+		g_traderouteTotal = 0;
+	}
+
+	int goodIndex = _ttoi(m_routes.GetItemText(SelectedItem, 6));
+
+	int nItem = m_traderoute.InsertItem(MAXLONG, m_displayNicknames ? g_goods[goodIndex].m_nickname : g_goods[goodIndex].m_caption);
+	for (size_t i = 0; i <= 8; i++)
+	{
+		m_traderoute.SetItemText(nItem, i, m_routes.GetItemText(SelectedItem, i));
+	}
+	m_traderoute.SetItemData(nItem, (DWORD)m_routes.GetItemData(SelectedItem));
+	if (m_traderoute.GetItemCount() != 0 && m_traderoute.GetItemText(0, 1) == m_traderoute.GetItemText(m_traderoute.GetItemCount() - 1, 2))
+	{
+		Calc_TotalRow();
+	}
+}
+
+void CFLCompanionDlg::OnTR_Rem()
+{
+	if (g_traderouteTotal != 0)
+	{
+		if ((int)m_traderoute.GetFirstSelectedItemPosition() - 1 == g_traderouteTotal)
+		{
+			m_traderoute.DeleteAllItems();
+		}
+		else
+		{
+			m_traderoute.DeleteItem(g_traderouteTotal);
+			g_traderouteTotal = 0;
+		}
+	}
+	m_traderoute.DeleteItem((int)m_traderoute.GetFirstSelectedItemPosition() - 1);
+	if (m_traderoute.GetItemCount() != 0 && m_traderoute.GetItemText(0, 1) == m_traderoute.GetItemText(m_traderoute.GetItemCount() - 1, 2))
+	{
+		Calc_TotalRow();
+	}
+}
+void CFLCompanionDlg::Calc_TotalRow()
+{
+
+	LONG t_profit = 0;
+	UINT t_units = 0;
+	LONG t_distance = 0;
+	for (size_t i = 0; i <= m_traderoute.GetItemCount()-1; i++)
+	{
+		CBase *from = (CBase*)_ttoi(m_traderoute.GetItemText(i, 7));
+		int goodIndex = 0;
+		goodIndex = _ttoi(m_traderoute.GetItemText(i, 6));
+		CBase *to = (CBase*)m_traderoute.GetItemData(i);
+		LONG distance = to->m_distanceToBase[from - g_bases]+ to->GetDockingDelay();
+		UINT units = m_cargoSize == 1 ? 1 : UINT(m_cargoSize / g_goods[goodIndex].m_volume);
+		LONG profit = 0;
+
+		if (units == 0)
+			return;
+		if ((m_maxInvestment > 0) && (from->m_sell[goodIndex]*units > m_maxInvestment))
+			units = UINT(m_maxInvestment / from->m_sell[goodIndex]);
+		if (g_goods[goodIndex].m_decay_time == 0)
+			profit = UINT(to->m_buy[goodIndex] - from->m_sell[goodIndex])*units;
+		else
+		{ // lets compute the effect of decaying goods:
+			UINT decay_units = distance / g_goods[goodIndex].m_decay_time;
+			if (m_cargoSize != 1)
+			{
+				if (decay_units > units)
+					continue; // all cargo would have decayed, so drop this solution
+				profit = INT(to->m_buy[goodIndex] *(units - decay_units) - from->m_sell[goodIndex] *units);
+			}
+			else // user wants a price per cargo unit => we evaluate an average profit per unit, based on a cargo of 100 units
+			{
+				if (decay_units > 100)
+					continue;
+				profit = INT(to->m_buy[goodIndex] - from->m_sell[goodIndex] - to->m_buy[goodIndex] *decay_units / 100.0);
+			}
+			if (profit < 0)
+				continue; // negative profit if decay is taken in account, drop it
+		}
+
+		//_stprintf(buf, L"$%d", profit);
+		//m_routes.SetItemText(nItem, 3, buf);
+		//m_routes.SetItemText(nItem, 4, MinuteSeconds(distance, true));
+		if (m_cargoSize == 1)
+		{
+			//_stprintf(buf, L"%d ¢/sec", profit * 100000 / distance);
+		}
+		else
+		{
+			CString ratio = DoubleToString(profit*1000.0 / distance);
+			int index = ratio.Find('.');
+			if (index > 0) ratio = ratio.Left(index + 3);
+		}
+
+		t_profit += profit;
+		t_distance += distance;
+		t_units = units;
+	}
+
+	TCHAR buf[32];
+	g_traderouteTotal = m_traderoute.InsertItem(MAXLONG, L"Total : ");
+
+	_stprintf(buf, L"$%d", t_profit);
+	m_traderoute.SetItemText(g_traderouteTotal, 3, buf);
+	m_traderoute.SetItemText(g_traderouteTotal, 4, MinuteSeconds(t_distance, true));
+	if (m_cargoSize == 1)
+	{
+		_stprintf(buf, L"%d ¢/sec", t_profit * 100000 / t_distance);
+	}
+	else
+	{
+		CString ratio = DoubleToString(t_profit*1000.0 / t_distance);
+		int index = ratio.Find('.');
+		if (index > 0) ratio = ratio.Left(index + 3);
+		_stprintf(buf, L"%s $/sec", LPCTSTR(ratio));
+	}
+	m_traderoute.SetItemText(g_traderouteTotal, 5, buf);
+	CString ratio = DoubleToString((t_profit / m_cargoSize) * 100000.00 / t_distance);
+	int index = ratio.Find('.');
+	if (index > 0) ratio = ratio.Left(index + 3);
+	_stprintf(buf, L"%s ¢/sec", LPCTSTR(ratio));
+	m_traderoute.SetItemText(g_traderouteTotal, 8, buf);
 }

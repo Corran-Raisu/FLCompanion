@@ -30,6 +30,8 @@ public:
 	UINT	m_maxInvestment;
 	CString	m_distanceText;
 	UINT	m_maxDistance;
+	CString	m_minCSUText;
+	UINT	m_minCSU;
 	//}}AFX_DATA
 
 
@@ -57,6 +59,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 private:
 	void SwitchAll(CCheckListBox& listbox, int clearallID);
+	CWndResizer m_resizer;
 };
 
 //{{AFX_INSERT_LOCATION}}

@@ -115,6 +115,7 @@
     </ClCompile>
     <ClCompile Include="System.cpp" />
     <ClCompile Include="SystemMap.cpp" />
+    <ClCompile Include="WndResizer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FLCompanion.rc" />
@@ -143,12 +144,16 @@
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="SystemMap.h" />
+    <ClInclude Include="WndResizer.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\back_arrow.ico" />
+    <Image Include="res\down_arrow.ico" />
     <Image Include="res\FLCompanion.ico" />
     <Image Include="res\jump.ico" />
+    <Image Include="res\map.ico" />
     <Image Include="res\switch_arrow.ico" />
+    <Image Include="res\up_arrow.ico" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="res\FLCompanion.rc2" />

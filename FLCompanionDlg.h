@@ -9,6 +9,7 @@
 #endif // _MSC_VER > 1000
 
 #include "System.h"
+#include "WndResizer.h"
 
 #define WM_RECALC		(WM_APP+2)
 
@@ -26,7 +27,10 @@ public:
 	enum { IDD = IDD_FLCOMPANION_DIALOG };
 	CButton	m_switchBtn;
 	CButton	m_jumpsBtn;
+	CButton	m_mapBtn;
 	CButton	m_backBtn;
+	CButton	m_TRaddBtn;
+	CButton	m_TRremBtn;
 	CComboBox	m_asteroidsCombo;
 	CListCtrl	m_systemWaypoints;
 	CComboBox	m_destsystemCombo;
@@ -35,6 +39,7 @@ public:
 	CComboBox	m_systemCombo;
 	CListCtrl	m_routes;
 	CComboBox	m_baseCombo;
+	CListCtrl   m_traderoute;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -92,6 +97,7 @@ protected:
 	afx_msg void OnModInfo();
 	afx_msg void OnUpdateModInfo(CCmdUI* pCmdUI);
 	afx_msg void OnJumps();
+	afx_msg void OnMap();
 	afx_msg void OnUpdateGameImport(CCmdUI* pCmdUI);
 	afx_msg void OnGameImportAbout();
 	afx_msg void OnGameImport(UINT nID);
@@ -99,6 +105,8 @@ protected:
 	afx_msg void OnUpdateGameImportCheckall(CCmdUI* pCmdUI);
 	afx_msg void OnActivateApp(BOOL bActive, DWORD hTask);
 	afx_msg void OnSwitch();
+	afx_msg void OnTR_Add();
+	afx_msg void OnTR_Rem();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnInitMenuPopup(CMenu *pPopupMenu, UINT nIndex,BOOL bSysMenu);
@@ -112,6 +120,7 @@ public:
 	void Recalc(DWORD flags);
 	BOOL SetMaxInvestment(UINT investment);
 	BOOL SetMaxDistance(UINT distance);
+	BOOL SetMinCSU(UINT minCSU);
 	BOOL SetCargoSize(UINT cargoSize);
 private:
 	static int SelComboByData(CComboBox &combo, void *selData);
@@ -126,14 +135,18 @@ private:
 	void JumptoBase(CBase *base);
 	void InitSystemCombos();
 	void ImportFromGame();
+	void Calc_TotalRow();
 public:
 	BOOL m_displayNicknames;
 	UINT m_cargoSize;
 	CString m_version;
+	int SelectedItem;
+	int g_traderouteTotal;
 private:
 	HACCEL m_hAccel;
 	UINT m_maxInvestment;
 	UINT m_maxDistance;
+	UINT m_minCSU;
 	BOOL m_showAllSolutions;
 	CAsteroids* m_curAsteroids;
 	CList<CBase*,CBase*> m_history;
@@ -144,6 +157,7 @@ private:
 	CSystem *m_drawnSystem;
 	DWORD m_importFromGame;
 	LONG m_recalcFlags;
+
 };
 
 extern CFLCompanionDlg* g_mainDlg;
