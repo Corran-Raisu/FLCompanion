@@ -26,7 +26,8 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 CFLCompanionDlg* g_mainDlg;
-
+bool blnMap;
+int gcx, gcy;
 #define ALL_TRADING_ROUTES
 
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +72,7 @@ void CFLCompanionDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TR_ADD, m_TRaddBtn);
 	DDX_Control(pDX, IDC_TR_REM, m_TRremBtn);
 	DDX_Control(pDX, IDC_JUMPS, m_jumpsBtn);
+	DDX_Control(pDX, IDC_OPENMAP, m_mapBtn);
 	DDX_Control(pDX, IDC_BACK, m_backBtn);
 	DDX_Control(pDX, IDC_ASTEROIDS_COMBO, m_asteroidsCombo);
 	DDX_Control(pDX, IDC_SYSTEM_WAYPOINTS, m_systemWaypoints);
@@ -126,6 +128,7 @@ BEGIN_MESSAGE_MAP(CFLCompanionDlg, CDialog)
 	ON_COMMAND(ID_MOD_INFO, OnModInfo)
 	ON_UPDATE_COMMAND_UI(ID_MOD_INFO, OnUpdateModInfo)
 	ON_BN_CLICKED(IDC_JUMPS, OnJumps)
+	ON_BN_CLICKED(IDC_OPENMAP, OnMap)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_GAME_IMPORT_PRICES, ID_GAME_IMPORT_CARGOHOLD, OnUpdateGameImport)
 	ON_COMMAND(ID_GAME_IMPORT_ABOUT, OnGameImportAbout)
 	ON_COMMAND_RANGE(ID_GAME_IMPORT_PRICES, ID_GAME_IMPORT_CARGOHOLD, OnGameImport)
@@ -153,31 +156,48 @@ void CFLCompanionDlg::OnSize(UINT nType, int cx, int cy)
 {
 	RECT rect;
 	double routes_heightmultiplier = 0.35; // 0.49
-	double systemmap_width = 0.35;
-	GetDlgItem(IDC_ROUTES)->SetWindowPos(NULL, 5, 30, 671, cy*routes_heightmultiplier, SWP_NOACTIVATE | SWP_NOZORDER); //cx*0.63
+	double left_widthmultiplier = blnMap ?  0.65 : 0.992;
+	double left_min = 675;
+	gcx = cx;
+	gcy = cy;
+	GetDlgItem(IDC_ROUTES)->SetWindowPos(NULL, 5, 30, max(cx*left_widthmultiplier, left_min), cy*routes_heightmultiplier, SWP_NOACTIVATE | SWP_NOZORDER); //cx*0.63
 	GetDlgItem(IDC_ROUTES)->GetClientRect(&rect);
 
-	GetDlgItem(IDC_TRADEROUTES)->SetWindowPos(NULL, 5, cy*routes_heightmultiplier + 55, 671, cy-((cy*routes_heightmultiplier + 100)+(cy - (cy*routes_heightmultiplier + 225))), SWP_NOACTIVATE | SWP_NOZORDER); //cx*0.63
+	GetDlgItem(IDC_TRADEROUTES)->SetWindowPos(NULL, 5, cy*routes_heightmultiplier + 55, max(cx*left_widthmultiplier, left_min), cy - ((cy*routes_heightmultiplier + 100) + (cy - (cy*routes_heightmultiplier + 225))) + +(cy - (cy*routes_heightmultiplier + 205 + min(cy - (cy*routes_heightmultiplier + 205), 225))), SWP_NOACTIVATE | SWP_NOZORDER); //cx*0.63
 	GetDlgItem(IDC_TR_ADD)->SetWindowPos(NULL, 600, cy*routes_heightmultiplier + 32, 24, 20, SWP_NOACTIVATE | SWP_NOZORDER);
 	GetDlgItem(IDC_TR_REM)->SetWindowPos(NULL, 623, cy*routes_heightmultiplier + 32, 24, 20, SWP_NOACTIVATE | SWP_NOZORDER);
 
-	GetDlgItem(IDC_WAYPOINTS)->SetWindowPos(NULL, 5, cy*routes_heightmultiplier + 205, 618, cy-(cy*routes_heightmultiplier + 205), SWP_NOACTIVATE | SWP_NOZORDER); //  cx*0.58
-	GetDlgItem(IDC_DESTSYSTEM_LABEL)->SetWindowPos(NULL, 5, cy*routes_heightmultiplier + 184, 65, 13, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_DESTBASE_LABEL)->SetWindowPos(NULL, 215, cy*routes_heightmultiplier + 184, 35, 13, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_DESTSYSTEM_COMBO)->SetWindowPos(NULL, 75, cy*routes_heightmultiplier + 182, 125, 13, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_DESTBASE_COMBO)->SetWindowPos(NULL, 255, cy*routes_heightmultiplier + 182, 175, 13, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_DESTFACTION)->SetWindowPos(NULL, 435, cy*routes_heightmultiplier + 184, 165, 13, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_SWITCH)->SetWindowPos(NULL, 600, cy*routes_heightmultiplier + 182, 28, 20, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_WAYPOINTS)->SetWindowPos(NULL, 5, cy*routes_heightmultiplier + 205 + (cy - (cy*routes_heightmultiplier + 205 + min(cy - (cy*routes_heightmultiplier + 205), 225))), 618, min(cy - (cy*routes_heightmultiplier + 205), 225), SWP_NOACTIVATE | SWP_NOZORDER); //  cx*0.58
 
 	GetDlgItem(IDC_BUY_PRICE)->SetWindowPos(NULL, 10, cy*routes_heightmultiplier + 32, 170, 13, SWP_NOACTIVATE | SWP_NOZORDER);
 	GetDlgItem(IDC_SELL_PRICE)->SetWindowPos(NULL, 425, cy*routes_heightmultiplier + 32, 170, 13, SWP_NOACTIVATE | SWP_NOZORDER);
 	GetDlgItem(IDC_PERISHABLE)->SetWindowPos(NULL, 290, cy*routes_heightmultiplier + 32, 65, 13, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_MAP)->SetWindowPos(NULL, 680, 30, cx - 685, cy - 80, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_MAP)->SetWindowPos(NULL, max((cx*left_widthmultiplier) + 10, left_min + 10), 30, cx - ((cx*left_widthmultiplier)+15), min(cy-75,cx - ((cx*left_widthmultiplier) + 15)), SWP_NOACTIVATE | SWP_NOZORDER);
 	//GetDlgItem(IDC_MAP)->GetWindowRect(&rect);
-	GetDlgItem(IDC_MINING_LABEL)->SetWindowPos(NULL, 680, cy - 23, 75, 13, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_ASTEROIDS_COMBO)->SetWindowPos(NULL, 755, cy - 26, 155, 13, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_MINING)->SetWindowPos(NULL, 910, cy - 24, 75, 16, SWP_NOACTIVATE | SWP_NOZORDER);
-	GetDlgItem(IDC_MAPINFO)->SetWindowPos(NULL, 680, cy - 45, 355, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_MINING_LABEL)->SetWindowPos(NULL, max((cx*left_widthmultiplier) + 10, left_min + 10), min(cy - 75, cx - ((cx*left_widthmultiplier) + 15)) + 55, 75, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_ASTEROIDS_COMBO)->SetWindowPos(NULL, max((cx*left_widthmultiplier) + 10, left_min + 10) + 75, min(cy - 75, cx - ((cx*left_widthmultiplier) + 15)) + 50, 155, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_MINING)->SetWindowPos(NULL, max((cx*left_widthmultiplier) + 10, left_min + 10) + 250, min(cy - 75, cx - ((cx*left_widthmultiplier) + 15)) + 50, 75, 18, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_MAPINFO)->SetWindowPos(NULL, max((cx*left_widthmultiplier) + 10, left_min + 10) + 25, min(cy - 75, cx - ((cx*left_widthmultiplier) + 15)) + 35, blnMap ? 355 : 0 , 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_MAPNAME)->SetWindowPos(NULL, max((cx*left_widthmultiplier) + 10, left_min + 10) + ((cx - ((cx*left_widthmultiplier) + 355) )/2), 10, blnMap ? 355 : 0, 13, SWP_NOACTIVATE);
+	//GetDlgItem(IDC_MAPINFO)->SetWindowPos(NULL,)
+		GetDlgItem(IDC_MAPINFO)->ShowWindow(blnMap ? SW_SHOW : SW_HIDE);
+		GetDlgItem(IDC_MAPNAME)->ShowWindow(blnMap ? SW_SHOW : SW_HIDE);
+		GetDlgItem(IDC_MINING)->ShowWindow(blnMap ? SW_SHOW : SW_HIDE);
+		GetDlgItem(IDC_ASTEROIDS_COMBO)->ShowWindow(blnMap ? SW_SHOW : SW_HIDE);
+		GetDlgItem(IDC_MINING_LABEL)->ShowWindow(blnMap ? SW_SHOW : SW_HIDE);
+		GetDlgItem(IDC_JUMPS)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_OPENMAP)->ShowWindow(SW_HIDE);
+
+	GetDlgItem(IDC_DESTSYSTEM_LABEL)->SetWindowPos(NULL, 5, cy*routes_heightmultiplier + 184 + (cy - (cy*routes_heightmultiplier + 205 + min(cy - (cy*routes_heightmultiplier + 205), 225))), 65, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_DESTBASE_LABEL)->SetWindowPos(NULL, 215, cy*routes_heightmultiplier + 184 + (cy - (cy*routes_heightmultiplier + 205 + min(cy - (cy*routes_heightmultiplier + 205), 225))), 35, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_DESTSYSTEM_COMBO)->SetWindowPos(NULL, 75, cy*routes_heightmultiplier + 182 + (cy - (cy*routes_heightmultiplier + 205 + min(cy - (cy*routes_heightmultiplier + 205), 225))), 125, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_DESTBASE_COMBO)->SetWindowPos(NULL, 255, cy*routes_heightmultiplier + 182 + (cy - (cy*routes_heightmultiplier + 205 + min(cy - (cy*routes_heightmultiplier + 205), 225))), 175, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_DESTFACTION)->SetWindowPos(NULL, 435, cy*routes_heightmultiplier + 184 + (cy - (cy*routes_heightmultiplier + 205 + min(cy - (cy*routes_heightmultiplier + 205), 225))), 165, 13, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_SWITCH)->SetWindowPos(NULL, 600, cy*routes_heightmultiplier + 182 + (cy - (cy*routes_heightmultiplier + 205 + min(cy - (cy*routes_heightmultiplier + 205), 225))), 28, 20, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_OPENMAP)->SetWindowPos(NULL, max((cx*left_widthmultiplier) + 10, left_min + 10) - 25, 8, 20, 20, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_JUMPS)->SetWindowPos(NULL, max((cx*left_widthmultiplier) + 10, left_min + 10), 8, 20, 20, SWP_NOACTIVATE | SWP_NOZORDER);
+	GetDlgItem(IDC_JUMPS)->ShowWindow(blnMap ? SW_SHOW : SW_HIDE);
+	GetDlgItem(IDC_OPENMAP)->ShowWindow(SW_SHOW);
 	if (g_logDlg.IsWindowVisible()) g_logDlg.ShowWindow(SW_HIDE);
 	ResetMapZoom();
 
@@ -320,6 +340,7 @@ BOOL CFLCompanionDlg::OnInitDialog()
 	
 	m_backBtn.SetIcon  ((HICON) LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_BACK_ARROW),IMAGE_ICON,16,16,LR_SHARED));
 	m_jumpsBtn.SetIcon ((HICON) LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_JUMP),IMAGE_ICON,16,16,LR_SHARED));
+	m_mapBtn.SetIcon   ((HICON) LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_MAP), IMAGE_ICON, 16, 16, LR_SHARED));
 	m_switchBtn.SetIcon((HICON) LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_SWITCH_ARROW),IMAGE_ICON,16,16,LR_SHARED));
 	m_TRaddBtn.SetIcon ((HICON) LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_DOWN_ARROW), IMAGE_ICON, 16, 16, LR_SHARED));
 	m_TRremBtn.SetIcon ((HICON) LoadImage(GetModuleHandle(NULL),MAKEINTRESOURCE(IDI_UP_ARROW), IMAGE_ICON, 16, 16, LR_SHARED));
@@ -1685,6 +1706,12 @@ void CFLCompanionDlg::OnUpdateModInfo(CCmdUI* pCmdUI)
 		pCmdUI->SetText(g_modInfo.name+L" info...");
 	else
 		pCmdUI->Enable(FALSE);
+}
+
+void CFLCompanionDlg::OnMap()
+{
+	blnMap = !blnMap;
+	OnSize(0, gcx, gcy);
 }
 
 void CFLCompanionDlg::OnJumps() 

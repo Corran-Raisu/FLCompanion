@@ -27,6 +27,7 @@ public:
 	enum { IDD = IDD_FLCOMPANION_DIALOG };
 	CButton	m_switchBtn;
 	CButton	m_jumpsBtn;
+	CButton	m_mapBtn;
 	CButton	m_backBtn;
 	CButton	m_TRaddBtn;
 	CButton	m_TRremBtn;
@@ -96,6 +97,7 @@ protected:
 	afx_msg void OnModInfo();
 	afx_msg void OnUpdateModInfo(CCmdUI* pCmdUI);
 	afx_msg void OnJumps();
+	afx_msg void OnMap();
 	afx_msg void OnUpdateGameImport(CCmdUI* pCmdUI);
 	afx_msg void OnGameImportAbout();
 	afx_msg void OnGameImport(UINT nID);

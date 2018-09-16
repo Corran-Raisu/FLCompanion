@@ -151,6 +151,7 @@
     <Image Include="res\down_arrow.ico" />
     <Image Include="res\FLCompanion.ico" />
     <Image Include="res\jump.ico" />
+    <Image Include="res\map.ico" />
     <Image Include="res\switch_arrow.ico" />
     <Image Include="res\up_arrow.ico" />
   </ItemGroup>

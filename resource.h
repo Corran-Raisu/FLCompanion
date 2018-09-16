@@ -121,6 +121,8 @@
 #define IDC_FRAME_Goods                 1077
 #define IDC_CHECK_ALL_GOODS             1078
 #define IDC_CLEAR_ALL_GOODS             1079
+#define IDI_MAP                         1080
+#define IDC_OPENMAP                     1081
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
