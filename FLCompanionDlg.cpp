@@ -97,6 +97,7 @@ BEGIN_MESSAGE_MAP(CFLCompanionDlg, CDialog)
 	ON_CBN_SELCHANGE(IDC_SYSTEM_COMBO, OnSelchangeSystemCombo)
 	ON_BN_CLICKED(IDC_BACK, OnBack)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_ROUTES, OnItemchangedRoutes)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_TRADEROUTES, OnTRItemchangedRoutes)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_WAYPOINTS, OnItemchangedWaypoints)
 	ON_CBN_SELCHANGE(IDC_DESTSYSTEM_COMBO, OnSelchangeDestsystemCombo)
 	ON_CBN_SELCHANGE(IDC_DESTBASE_COMBO, OnSelchangeDestbaseCombo)
@@ -863,6 +864,61 @@ void CFLCompanionDlg::OnItemchangedRoutes(NMHDR* pNMHDR, LRESULT* pResult)
 	SelComboByData(m_destbaseCombo, destination);
 }
 
+void CFLCompanionDlg::OnTRItemchangedRoutes(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	NM_LISTVIEW* pNMListView = (NM_LISTVIEW*)pNMHDR;
+	*pResult = 0;
+	if ((pNMListView->uNewState & LVIS_SELECTED) == 0)
+		return;
+	SelectedItem = pNMListView->iItem;
+	CBase *from = (CBase*)_ttoi(m_traderoute.GetItemText(pNMListView->iItem, 7));
+#ifdef ALL_TRADING_ROUTES
+	if (m_showAllSolutions)
+	{
+		SelComboByData(m_baseCombo, from);
+		SetDlgItemText(IDC_FACTION, from->m_faction ? (m_displayNicknames ? from->m_faction->m_nickname : from->m_faction->m_caption) : L"");
+		ResetMapZoom();
+	}
+#endif
+	CBase *destination = (CBase*)m_traderoute.GetItemData(pNMListView->iItem);
+	if (from && destination)
+	{
+		int goodIndex = _ttoi(m_traderoute.GetItemText(pNMListView->iItem, 6));
+		UINT units = m_cargoSize == 1 ? 1 : UINT(m_cargoSize / g_goods[goodIndex].m_volume);
+		if ((m_maxInvestment > 0) && (from->m_sell[goodIndex] * units > m_maxInvestment))
+			units = UINT(m_maxInvestment / from->m_sell[goodIndex]);
+		BOOL perishable = (g_goods[goodIndex].m_decay_time != 0);
+		SetDlgItemText(IDC_PERISHABLE, perishable ? L"*PERISHABLE*" : L"");
+		UINT distance = from->m_distanceToBase[destination - g_bases];
+		CString msg;
+		if (m_cargoSize == 1)
+			msg.FormatMessage(L"Buy one unit for $%1!d!", (int)from->m_sell[goodIndex]);
+		else
+			msg.FormatMessage(L"Buy %1!d! units for $%2!d! each", units, (int)from->m_sell[goodIndex]);
+		SetDlgItemText(IDC_BUY_PRICE, msg);
+		UINT decay_units = perishable ? distance / (g_goods[goodIndex].m_decay_time) : 0;
+		if (m_cargoSize == 1)
+			if (perishable)
+			{
+				double unit = 1.0 - decay_units / 100.0;
+				msg.Format(L"Sell %.3f unit for $%d", unit, (int)destination->m_buy[goodIndex]);
+			}
+			else
+				msg.FormatMessage(L"Sell one unit for $%1!d!", (int)destination->m_buy[goodIndex]);
+		else
+		{
+			msg.FormatMessage(L"Sell %1!d! units for $%2!d! each", units - decay_units, (int)destination->m_buy[goodIndex]);
+		}
+		SetDlgItemText(IDC_SELL_PRICE, msg);
+		SelComboByData(m_systemCombo, from->m_system);
+		OnSelchangeSystemCombo();
+		SelComboByData(m_baseCombo, from);
+		SelComboByData(m_destsystemCombo, destination->m_system);
+		OnSelchangeDestsystemCombo();
+		SelComboByData(m_destbaseCombo, destination);
+	}
+}
+
 void CFLCompanionDlg::OnSelchangeDestsystemCombo() 
 {
 	int nIndex = m_destsystemCombo.GetCurSel();
@@ -897,6 +953,7 @@ void CFLCompanionDlg::OnSelchangeDestsystemCombo()
 	if (SelComboByData(m_destbaseCombo, base) == CB_ERR)
 		m_destbaseCombo.SetCurSel(0);
 	PostMessage(WM_COMMAND, MAKELONG(IDC_DESTBASE_COMBO, CBN_SELCHANGE), (LPARAM) m_destbaseCombo.m_hWnd);
+	OnSize(0, gcx, gcy);
 }
 
 void CFLCompanionDlg::OnSelchangeDestbaseCombo() 
@@ -938,8 +995,9 @@ void CFLCompanionDlg::OnSelchangeDestbaseCombo()
 	}
 	m_waypoints.SetRedraw();
 	m_systemWaypoints.DeleteAllItems();
-
-	//DrawMap();
+	CClientDC dc(this);
+	DrawMap(dc);
+	OnSize(0, gcx, gcy);
 }
 
 void CFLCompanionDlg::OnItemchangedWaypoints(NMHDR* pNMHDR, LRESULT* pResult) 
@@ -952,6 +1010,7 @@ void CFLCompanionDlg::OnItemchangedWaypoints(NMHDR* pNMHDR, LRESULT* pResult)
 	m_mapOrigin = 0; m_zoom = 1;
 	CClientDC dc(this);
 	DrawMap(dc);
+	OnSize(0, gcx, gcy);
 
 #ifdef SYSTEM_WAYPOINTS
 	int nItem = pNMListView->iItem;
@@ -1228,6 +1287,7 @@ void CFLCompanionDlg::DrawMap(CDC &dc)
 		dc.OffsetViewportOrg(-1,-1);
 		base->Draw(dc, RGB(255,255,0), m_displayNicknames);
 	}
+
 }
 
 void CFLCompanionDlg::OnLimitations() 
