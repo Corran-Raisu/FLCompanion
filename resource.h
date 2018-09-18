@@ -123,6 +123,7 @@
 #define IDC_CLEAR_ALL_GOODS             1079
 #define IDI_MAP                         1080
 #define IDC_OPENMAP                     1081
+#define IDC_DEFAULTSPEED                1082
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
