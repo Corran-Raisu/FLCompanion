@@ -33,6 +33,7 @@ public:
 	//{{AFX_VIRTUAL(CSpeedDelaysDlg)
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual void SetDefaults();
 	//}}AFX_VIRTUAL
 
 // Implementation

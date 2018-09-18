@@ -610,7 +610,7 @@ void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell,
 	}
 	else
 	{
-		CString ratio = DoubleToString(profit*1000.0/distance/ g_goods[goodIndex].m_volume);
+		CString ratio = DoubleToString(profit*1000.0/distance);
 		int index = ratio.Find('.');
 		if (index > 0) ratio = ratio.Left(index+3);
 		_stprintf(buf, L"%s $/sec", LPCTSTR(ratio));

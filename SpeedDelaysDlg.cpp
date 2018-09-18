@@ -45,8 +45,21 @@ void CSpeedDelaysDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 
+void CSpeedDelaysDlg::SetDefaults()
+{
+	//{{AFX_DATA_INIT(CSpeedDelaysDlg)
+	SetDlgItemText(IDC_ENGINE_SPEED, L"350");
+	SetDlgItemText(IDC_LANE_SPEED, L"1900");
+	SetDlgItemText(IDC_JUMP_DELAY, L"15");
+	SetDlgItemText(IDC_HOLE_DELAY, L"15");
+	SetDlgItemText(IDC_LANE_DELAY, L"10");
+	SetDlgItemText(IDC_BASE_DELAY, L"20");
+	//}}AFX_DATA_INIT
+}
+
 BEGIN_MESSAGE_MAP(CSpeedDelaysDlg, CDialog)
 	//{{AFX_MSG_MAP(CSpeedDelaysDlg)
+	ON_BN_CLICKED(IDC_DEFAULTSPEED, SetDefaults)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
