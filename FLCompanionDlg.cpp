@@ -602,16 +602,27 @@ void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell,
 	m_routes.SetItemText(nItem, 3, buf);
 	m_routes.SetItemText(nItem, 4, MinuteSeconds(distance, true));
 	if (m_cargoSize == 1)
-		_stprintf(buf, L"%d ¢/sec", profit*100000/distance);
+	{
+		CString ratio = DoubleToString((profit / g_goods[goodIndex].m_volume) * 100000 / distance);
+		int index = ratio.Find('.');
+		if (index > 0) ratio = ratio.Left(index + 3);
+		_stprintf(buf, L"%s ¢/sec", LPCTSTR(ratio));
+	}
 	else
 	{
-		CString ratio = DoubleToString(profit*1000.0/distance);
+		CString ratio = DoubleToString(profit*1000.0/distance/ g_goods[goodIndex].m_volume);
 		int index = ratio.Find('.');
 		if (index > 0) ratio = ratio.Left(index+3);
 		_stprintf(buf, L"%s $/sec", LPCTSTR(ratio));
 	}
 	m_routes.SetItemText(nItem, 5, buf);
-	_stprintf(buf, L"%d ¢/sec", (profit/units) * 100000 / distance);
+
+	CString ratio = DoubleToString((profit / units / g_goods[goodIndex].m_volume) * 100000 / distance);
+	int index = ratio.Find('.');
+	if (index > 0) ratio = ratio.Left(index + 3);
+	_stprintf(buf, L"%s ¢/sec", LPCTSTR(ratio));
+
+	//_stprintf(buf, L"%d ¢/sec", "");
 	m_routes.SetItemText(nItem, 8, buf);
 	_stprintf(buf, L"%d", goodIndex);
 	m_routes.SetItemText(nItem, 6, buf);
@@ -1367,6 +1378,9 @@ void CFLCompanionDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 				int z = (point.y-(rect.top+rect.bottom)/2)*m_mapmax*2/rect.Height()/m_zoom+m_mapOrigin.y;
 				BeginWaitCursor();
 				CBase* base = MakeMiningBase(m_drawnSystem, x, 0, z, dlg.m_goodIndex, dlg.m_lootStat*dlg.m_miningSpeed);
+				OnSelchangeSystemCombo();
+				m_baseCombo.SetCurSel(0);
+				OnSelchangeBaseCombo();
 				Recalc(RECALC_PATHS);
 			}
 		}
@@ -1724,8 +1738,7 @@ void CFLCompanionDlg::OnMining()
 		L"Place a virtual mining operation base by double-clicking the map where you will mine.\n"
 		L"(The currently selected mining field is shown in bright yellow)\n"
 		L"Hold the CTRL key for a precise location.\n\n"
-		L"Please note that the loot probability of ~%.4g %s/asteroid might be altered by the server in multi-player game",
-		m_curAsteroids->m_lootStat, m_curAsteroids->m_good->m_caption);
+		L"Please note that the loot probability might be altered by the server in multi-player game");
 	MessageBox(msg, L"Mining operation", MB_ICONINFORMATION|MB_OK);
 }
 
