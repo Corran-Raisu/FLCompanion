@@ -40,6 +40,7 @@ public:
 	CListCtrl	m_routes;
 	CComboBox	m_baseCombo;
 	CListCtrl   m_traderoute;
+	CComboBox	m_SrcDestSwitch;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -66,6 +67,7 @@ protected:
 	afx_msg void OnItemactivateRoutes(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnItemactivateWaypoints(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnSelchangeSystemCombo();
+	afx_msg void OnSelchangeSrcDestCombo();
 	afx_msg void OnBack();
 	afx_msg void OnItemchangedRoutes(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnTRItemchangedRoutes(NMHDR* pNMHDR, LRESULT* pResult);

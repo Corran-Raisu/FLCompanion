@@ -48,23 +48,23 @@ UINT CBase::GetDockingDelay()
 		return BASE_DELAY;
 }
 
-void CBase::MakeMiningBase(CSystem *system, int x, int y, int z, UINT goodIndex)
+void CBase::MakeMiningBase(CSystem *system, int x, int y, int z, UINT goodIndex, double goodsPrice)
 {
 	CDockable::Init(L"=mining operation=", L"<Mining Operation>", system);
 	for (UINT i = 0; i < GOODS_MAX; i++) m_buy[i] = 0;
-	m_sell[goodIndex] = 0;
+	m_sell[goodIndex] = goodsPrice;
 	m_faction = NULL;
 	SetPos(x,y,z);
 }
 
-CBase* MakeMiningBase(CSystem* system, int x, int y, int z, UINT goodIndex, double miningSpeed)
+CBase* MakeMiningBase(CSystem* system, int x, int y, int z, UINT goodIndex, double miningSpeed, double goodsPrice)
 {
 	if (g_miningBase == NULL)
 		g_miningBase = &g_bases[BASES_COUNT++];
 	else
 		g_miningBase->m_system->RemoveBase(g_miningBase);
 	g_miningDelay = UINT(g_mainDlg->m_cargoSize*1000/miningSpeed);
-	g_miningBase->MakeMiningBase(system, x, y, z, goodIndex);
+	g_miningBase->MakeMiningBase(system, x, y, z, goodIndex,goodsPrice);
 	system->AddBase(g_miningBase);
 	return g_miningBase;
 }

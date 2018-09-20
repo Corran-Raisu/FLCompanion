@@ -124,6 +124,8 @@
 #define IDI_MAP                         1080
 #define IDC_OPENMAP                     1081
 #define IDC_DEFAULTSPEED                1082
+#define IDC_MININGGOODS_PRICE           1083
+#define IDC_SRCDEST_SWITCH              1084
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

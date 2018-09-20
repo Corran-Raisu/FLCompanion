@@ -25,6 +25,7 @@ public:
 	CComboBox	m_goodsCombo;
 	double	m_lootStat;
 	double	m_miningSpeed;
+	double	m_goodsPrice;
 	UINT m_goodIndex;
 	//}}AFX_DATA
 
