@@ -22,6 +22,7 @@ CMiningBaseDlg::CMiningBaseDlg(CAsteroids* asteroids, CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CMiningBaseDlg)
 	m_lootStat = asteroids->m_lootStat;
 	m_miningSpeed = 1.0;
+	m_goodsPrice = 0;
 	//}}AFX_DATA_INIT
 }
 
@@ -33,6 +34,7 @@ void CMiningBaseDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_MINING_SPEED, m_miningSpeedEdit);
 	DDX_Control(pDX, IDC_GOODS_LIST, m_goodsCombo);
 	DDX_Text(pDX, IDC_LOOT_STAT, m_lootStat);
+	DDX_Text(pDX, IDC_MININGGOODS_PRICE, m_goodsPrice);
 	DDX_Text(pDX, IDC_MINING_SPEED, m_miningSpeed);
 	//}}AFX_DATA_MAP
 }

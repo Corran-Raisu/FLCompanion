@@ -22,7 +22,7 @@ public:
 	CBase() : m_hasSell(false) { for (int i = 0; i < GOODS_MAX; i++) m_sell[i] = FLT_MAX; }
 	~CBase() {}
 	void Init(const CString &nickname, const CString &caption, CSystem *system, const CString &faction, BOOL isfreighteronly);
-	void MakeMiningBase(CSystem *system, int x, int y, int z, UINT goodIndex);
+	void MakeMiningBase(CSystem *system, int x, int y, int z, UINT goodIndex, double goodsPrice);
 	UINT GetDockingDelay();
 public:
 	//CString m_owner;
@@ -37,7 +37,7 @@ public:
 extern CBase g_bases[BASES_MAX];
 extern CSortedMap<CString,LPCTSTR,CBase*,CBase*> g_basesByNick;
 
-CBase* MakeMiningBase(CSystem* system, int x, int y, int z, UINT goodIndex, double miningSpeed);
+CBase* MakeMiningBase(CSystem* system, int x, int y, int z, UINT goodIndex, double miningSpeed, double goodsPrice);
 
 
 #endif // !defined(AFX_BASE_H__05038F85_2503_4BC3_B274_7AEA157DA550__INCLUDED_)
