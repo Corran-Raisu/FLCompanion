@@ -903,22 +903,22 @@ void CFLCompanionDlg::OnItemchangedRoutes(NMHDR* pNMHDR, LRESULT* pResult)
 		UINT distance = from->m_distanceToBase[destination-g_bases];
 		CString msg;
 		if (m_cargoSize == 1)
-			msg.FormatMessage(L"Buy one unit for $%1!d!", (int) from->m_sell[goodIndex]);
+			msg.FormatMessage(L"Buy one unit for $%1!d!", (int)(m_SrcDestSwitch.GetCurSel() == 0 ? from->m_sell[goodIndex] : destination->m_sell[goodIndex]));
 		else
-			msg.FormatMessage(L"Buy %1!d! units for $%2!d! each", units, (int) from->m_sell[goodIndex]);
+			msg.FormatMessage(L"Buy %1!d! units for $%2!d! each", units, (int) (m_SrcDestSwitch.GetCurSel() == 0 ? from->m_sell[goodIndex] : destination->m_sell[goodIndex]));
 		SetDlgItemText(IDC_BUY_PRICE, msg);
 		UINT decay_units = perishable ? distance/(g_goods[goodIndex].m_decay_time) : 0;
 		if (m_cargoSize == 1)
 			if (perishable)
 			{
 				double unit = 1.0-decay_units/100.0;
-				msg.Format(L"Sell %.3f unit for $%d", unit, (int) destination->m_buy[goodIndex]);
+				msg.Format(L"Sell %.3f unit for $%d", unit, (int) (m_SrcDestSwitch.GetCurSel() == 0 ? destination->m_buy[goodIndex] : from->m_buy[goodIndex]));
 			}
 			else
-				msg.FormatMessage(L"Sell one unit for $%1!d!", (int) destination->m_buy[goodIndex]);
+				msg.FormatMessage(L"Sell one unit for $%1!d!", (int) (m_SrcDestSwitch.GetCurSel() == 0 ? destination->m_buy[goodIndex] : from->m_buy[goodIndex]));
 		else
 		{
-			msg.FormatMessage(L"Sell %1!d! units for $%2!d! each", units-decay_units, (int) destination->m_buy[goodIndex]);
+			msg.FormatMessage(L"Sell %1!d! units for $%2!d! each", units-decay_units, (int)(m_SrcDestSwitch.GetCurSel() == 0 ? destination->m_buy[goodIndex] : from->m_buy[goodIndex]));
 		}
 		SetDlgItemText(IDC_SELL_PRICE, msg);
 	}
