@@ -283,7 +283,7 @@ void CGoodsRepoDlg::DisplayGoodPrices(CGood* good)
 		//FormatNumber(buf, long(price)); // don't use FormatNumber because it breaks ListView sorting
 		m_basesList.SetItemText(nItem, 1, buf);
 		m_basesList.SetItemText(nItem, 2, base->m_system->m_caption);
-		m_basesList.SetItemText(nItem, 3, base->m_faction->m_caption);
+		//m_basesList.SetItemText(nItem, 3, base->m_faction->m_caption);
 	}
 }
 
