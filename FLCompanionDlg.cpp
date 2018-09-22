@@ -26,6 +26,7 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 CFLCompanionDlg* g_mainDlg;
+CBase* g_miningbase;
 bool blnMap;
 int gcx, gcy;
 //#define ALL_TRADING_ROUTES
@@ -697,8 +698,9 @@ void CFLCompanionDlg::AddSolutionsForBase(CBase* base)
 						//base.m_system->m_distances[destbase->m_system-g_systems]);
 			}
 		}
-
 	}
+	if(g_miningbase != NULL)
+		AddSolution(NULL, 0, 0, base, g_miningbase, base->m_distanceToBase[g_miningbase-g_bases]+base->GetDockingDelay());
 }
 
 //#ifdef ALL_TRADING_ROUTES
@@ -1454,6 +1456,7 @@ void CFLCompanionDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 				int z = (point.y-(rect.top+rect.bottom)/2)*m_mapmax*2/rect.Height()/m_zoom+m_mapOrigin.y;
 				BeginWaitCursor();
 				CBase* base = MakeMiningBase(m_drawnSystem, x, 0, z, dlg.m_goodIndex, dlg.m_lootStat*dlg.m_miningSpeed, dlg.m_goodsPrice);
+				g_miningbase = base;
 				OnSelchangeSystemCombo();
 				m_baseCombo.SetCurSel(0);
 				OnSelchangeBaseCombo();
