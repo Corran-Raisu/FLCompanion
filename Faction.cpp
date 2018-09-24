@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "Faction.h"
 
+
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -20,4 +21,10 @@ void CFaction::Init(const CString &nickname, const CString &caption)
 {
 	m_nickname = nickname;
 	m_caption = caption;
+}
+
+void CReputation::Init(const CString &nickname, const FLOAT &reputation)
+{
+	m_nickname = nickname;
+	m_Reputation = reputation;
 }

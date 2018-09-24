@@ -125,6 +125,7 @@ BEGIN_MESSAGE_MAP(CFLCompanionDlg, CDialog)
 	ON_UPDATE_COMMAND_UI(ID_NICKNAMES, OnUpdateNicknames)
 	ON_COMMAND(ID_VISIT_WEBSITE, OnVisitWebsite)
 	ON_COMMAND(ID_SYSTEM_MAP, OnSystemMap)
+	ON_COMMAND(ID_VIEW_LOG, ShowHideLog)
 	ON_BN_CLICKED(IDC_MINING, OnMining)
 	ON_CBN_SELCHANGE(IDC_ASTEROIDS_COMBO, OnSelchangeAsteroidsCombo)
 	ON_UPDATE_COMMAND_UI(ID_GAME_LAUNCH, OnUpdateGameLaunch)
@@ -205,11 +206,23 @@ void CFLCompanionDlg::OnSize(UINT nType, int cx, int cy)
 	GetDlgItem(IDC_JUMPS)->ShowWindow(blnMap ? SW_SHOW : SW_HIDE);
 	GetDlgItem(IDC_OPENMAP)->ShowWindow(SW_SHOW);
 	GetDlgItem(IDC_BACK)->ShowWindow(SW_SHOW);
-	if (g_logDlg.IsWindowVisible()) g_logDlg.ShowWindow(SW_HIDE);
 	ResetMapZoom();
-
 }
 
+void CFLCompanionDlg::ShowHideLog()
+{
+	if (g_logDlg.IsWindowVisible())
+	{
+		theApp.WriteProfileInt(L"Settings", L"LogMinimize", TRUE);
+		g_logDlg.ShowWindow(SW_HIDE);
+	}
+	else
+	{
+		theApp.WriteProfileInt(L"Settings", L"LogMinimize", FALSE);
+		g_logDlg.ShowWindow(SW_SHOW);
+	}
+
+}
 
 void CFLCompanionDlg::OnPaint() 
 {
@@ -410,7 +423,7 @@ BOOL CFLCompanionDlg::OnInitDialog()
 		SelComboByData(m_baseCombo, base);
 	m_baseCombo.SetFocus();
 
-	if (g_logDlg.m_hWnd && theApp.GetProfileInt(L"Settings", L"LogMinimize", FALSE))
+	if (g_logDlg.m_hWnd && (theApp.GetProfileInt(L"Settings", L"LogMinimize", FALSE) == 1))
 		g_logDlg.ShowWindow(SW_HIDE);
 
 	if (g_modInfo.largeMod && !g_modInfo.FLC_info.IsEmpty())

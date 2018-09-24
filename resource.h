@@ -50,7 +50,6 @@
 #define IDC_MAPINFO                     1021
 #define IDC_BUY_PRICE                   1025
 #define IDC_AVOIDHOLES                  1025
-#define IDC_TRANSPORT                   1060
 #define IDC_SELL_PRICE                  1026
 #define IDC_INVESTMENT_CHECK            1026
 #define IDC_PERISHABLE                  1027
@@ -82,25 +81,7 @@
 #define IDC_RADIO_DESCRIPTION           1058
 #define IDC_RADIO_FLCWARNING            1059
 #define IDC_JUMPS                       1059
-#define ID_DUMP_BASE_TIMES              32771
-#define ID_BASE_INFO                    32772
-#define ID_GOODS_REPO                   32773
-#define ID_ABOUT                        32777
-#define ID_VISIT_FORUM                  32780
-#define ID_VERSION_HISTORY              32781
-#define ID_SET_FL_DIR                   32782
-#define ID_NICKNAMES                    32786
-#define ID_VISIT_WEBSITE                32787
-#define ID_LIMITATIONS                  32788
-#define ID_SPEEDDELAYS                  32789
-#define ID_SYSTEM_MAP                   32790
-#define ID_GAME_LAUNCH                  32791
-#define ID_MOD_INFO                     32792
-#define ID_GAME_IMPORT_ABOUT            32798
-#define ID_GAME_IMPORT_CHECKALL         32799
-#define ID_GAME_IMPORT_PRICES           32800
-#define ID_GAME_IMPORT_CREDITS          32801
-#define ID_GAME_IMPORT_CARGOHOLD        32802
+#define IDC_TRANSPORT                   1060
 #define IDC_DESTSYSTEM_LABEL            1060
 #define IDC_DESTBASE_LABEL              1061
 #define IDC_MINING_LABEL                1062
@@ -126,13 +107,35 @@
 #define IDC_DEFAULTSPEED                1082
 #define IDC_MININGGOODS_PRICE           1083
 #define IDC_SRCDEST_SWITCH              1084
+#define IDC_FACTION_ID                  1085
+#define ID_DUMP_BASE_TIMES              32771
+#define ID_BASE_INFO                    32772
+#define ID_GOODS_REPO                   32773
+#define ID_ABOUT                        32777
+#define ID_VISIT_FORUM                  32780
+#define ID_VERSION_HISTORY              32781
+#define ID_SET_FL_DIR                   32782
+#define ID_NICKNAMES                    32786
+#define ID_VISIT_WEBSITE                32787
+#define ID_LIMITATIONS                  32788
+#define ID_SPEEDDELAYS                  32789
+#define ID_SYSTEM_MAP                   32790
+#define ID_GAME_LAUNCH                  32791
+#define ID_MOD_INFO                     32792
+#define ID_GAME_IMPORT_ABOUT            32798
+#define ID_GAME_IMPORT_CHECKALL         32799
+#define ID_GAME_IMPORT_PRICES           32800
+#define ID_GAME_IMPORT_CREDITS          32801
+#define ID_GAME_IMPORT_CARGOHOLD        32802
+#define ID_VIEW_LOG                     32811
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        140
-#define _APS_NEXT_COMMAND_VALUE         32811
+#define _APS_NEXT_COMMAND_VALUE         32812
 #define _APS_NEXT_CONTROL_VALUE         1061
 #define _APS_NEXT_SYMED_VALUE           114
 #endif

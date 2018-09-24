@@ -45,6 +45,7 @@ void CLimitationsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_GOODS_LIST, m_goodsList);
 	DDX_Control(pDX, IDC_FACTIONS_LIST, m_factionsList);
 	DDX_Control(pDX, IDC_SYSTEMS_LIST, m_systemsList);
+	//DDX_Control(pDX, IDC_FACTION_ID, m_factionID);
 	DDX_Text(pDX, IDC_CARGO_SIZE, m_cargoSize);
 	DDX_Check(pDX, IDC_AVOIDLOCKED, m_avoidLockedGates);
 	DDX_Check(pDX, IDC_AVOIDHOLES, m_avoidHoles);
@@ -72,6 +73,7 @@ BEGIN_MESSAGE_MAP(CLimitationsDlg, CDialog)
 	ON_BN_CLICKED(IDC_CHECK_ALL_FACTIONS,	OnSwitchAllFactions)
 	ON_BN_CLICKED(IDC_CHECK_ALL_SYSTEMS,	OnSwitchAllSystems)
 	ON_BN_CLICKED(IDC_CHECK_ALL_GOODS,		OnSwitchAllGoods)
+	//ON_CBN_SELCHANGE(IDC_FACTION_ID,        OnChangeFactionID)
 	ON_CONTROL_RANGE(CLBN_CHKCHANGE, IDC_SYSTEMS_LIST, IDC_GOODS_LIST, OnChkchangeList)
 	ON_BN_CLICKED(IDC_CLEAR_ALL_SYSTEMS,	OnSwitchAllSystems)
 	ON_BN_CLICKED(IDC_CLEAR_ALL_FACTIONS,	OnSwitchAllFactions)
@@ -112,6 +114,38 @@ void UpdateClearBtn(CWnd* clearallWnd, int count)
 		str.Format(L"Clear all (%d)", count);
 		clearallWnd->SetWindowText(str);
 		clearallWnd->EnableWindow(TRUE);
+	}
+}
+template<class type> void PopulateCombobox(type entries[], int COUNT, CComboBox& listbox)
+{
+	int checkCount = 0;
+	for (int index = 0; index < COUNT; index++)
+	{
+		type* entry = &entries[index];
+		CString caption = g_mainDlg->m_displayNicknames ? entry->m_nickname : entry->m_caption;
+		caption.TrimLeft();
+		if (caption.IsEmpty()) caption = entry->m_nickname;
+		int nIndex = listbox.FindStringExact(-1, caption);
+		if (nIndex != LB_ERR)
+		{
+			type* otherEntry = reinterpret_cast<type*>(listbox.GetItemDataPtr(nIndex));
+			if (otherEntry)
+			{
+				listbox.SetItemDataPtr(nIndex, NULL);
+				nIndex = listbox.AddString(caption + L" (" + otherEntry->m_nickname + L")");
+				listbox.SetItemDataPtr(nIndex, otherEntry);
+			}
+			caption += L" (" + entry->m_nickname + L")";
+		}
+		nIndex = listbox.AddString(caption);
+		listbox.SetItemDataPtr(nIndex, entry);
+		if (entry->m_avoid) checkCount++;
+	}
+	int index = listbox.GetCount();
+	while (index--)
+	{
+		if (listbox.GetItemDataPtr(index) == NULL)
+			listbox.DeleteString(index);
 	}
 }
 
@@ -173,6 +207,7 @@ BOOL CLimitationsDlg::OnInitDialog()
 	PopulateListbox(g_systems,	SYSTEMS_COUNT,	m_systemsList);
 	PopulateListbox(g_factions, FACTIONS_COUNT, m_factionsList);
 	PopulateListbox(g_goods,	GOODS_COUNT,	m_goodsList);
+	//PopulateCombobox(g_factions, FACTIONS_COUNT, m_factionID);
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -192,6 +227,22 @@ void CLimitationsDlg::SwitchAll(CCheckListBox& listbox, int clearallID)
 	UpdateClearBtn(GetDlgItem(clearallID), nCheck ? index : 0);
 	while (index--)
 		listbox.SetCheck(index, nCheck);
+}
+
+void CLimitationsDlg::OnChangeFactionID()
+{
+	CFaction f = g_factions[m_factionID.GetCurSel()];
+	for (size_t i = 0; i <= f.m_reputationCount; i++)
+	{
+		CFaction &r = *g_factionsByNick[f.m_reputations[i].m_nickname];
+		if (&r)
+			continue;
+		if (f.m_reputations[i].m_Reputation <= -55)
+			r.m_avoid = true;
+		else
+			r.m_avoid = false;
+	}
+	PopulateListbox(g_factions, FACTIONS_COUNT, m_factionsList);
 }
 
 void CLimitationsDlg::OnSwitchAllSystems() 

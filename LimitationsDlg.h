@@ -22,6 +22,7 @@ public:
 	CCheckListBox	m_goodsList;
 	CCheckListBox	m_factionsList;
 	CCheckListBox	m_systemsList;
+	CComboBox       m_factionID;
 	UINT	m_cargoSize;
 	BOOL	m_avoidLockedGates;
 	BOOL	m_avoidHoles;
@@ -55,6 +56,7 @@ protected:
 	afx_msg void OnSwitchAllGoods();
 	afx_msg void OnChkchangeList(UINT nID);
 	afx_msg void OnChangeDistance();
+	afx_msg void OnChangeFactionID();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 private:
