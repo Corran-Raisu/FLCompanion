@@ -239,7 +239,7 @@ HANDLE OpenGameProcess()
 				return NULL;
 			if (cb == lpcbNeeded_)
 			{
-				Log(L"Not Enough: %d", cb);
+				Log(L"Searching additional processes: %d", cb);
 				cb += 256;
 			}
 			else

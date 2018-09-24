@@ -8,6 +8,16 @@
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
+class CReputation
+{
+public:
+	CReputation() {}
+	~CReputation() {}
+	void Init(const CString &nickname, const FLOAT &reputation);
+public:
+	CString m_nickname;
+	FLOAT m_Reputation;
+};
 
 class CFaction
 {
@@ -19,6 +29,9 @@ public:
 	CString m_caption;
 	CString m_nickname;
 	BOOL	m_avoid;
+	CReputation m_reputations[256];
+	UINT m_reputationCount;
+	CSortedMap<CString, LPCTSTR, CReputation*, CReputation*> repsByNick;
 };
 
 #define FACTIONS_MAX	256

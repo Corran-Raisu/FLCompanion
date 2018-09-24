@@ -138,7 +138,7 @@
     <ClInclude Include="LogDlg.h" />
     <ClInclude Include="MiningBaseDlg.h" />
     <ClInclude Include="ModInfoDlg.h" />
-    <ClInclude Include="Resource.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceProvider.h" />
     <ClInclude Include="SpeedDelaysDlg.h" />
     <ClInclude Include="StdAfx.h" />

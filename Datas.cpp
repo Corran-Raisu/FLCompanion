@@ -99,7 +99,7 @@ BOOL LoadInitialWorld(const CString &iniFilename)
 {
 	IniSection section;
 	CString name, systemname;
-	printf("\nParsing Initial World...");
+	Log(L"\nParsing Initial World...");
 	{
 		IniFile iniFile(iniFilename);
 		section = NULL;
@@ -125,7 +125,24 @@ BOOL LoadInitialWorld(const CString &iniFilename)
 				faction.Init(name, g_resourceProvider.GetStringFromID(iniFile.GetValueInt(section, "ids_name")));
 				if (g_tempExcludeList.Find(L','+name+L',') >= 0)
 					faction.m_avoid = true;
-				g_factionsByNick[name] = &faction;				
+				g_factionsByNick[name] = &faction;	
+				IniEntry entry;
+				UINT entrynumber = 0;
+				for (UINT entriesCount = iniFile.EnumEntries(section, entry); entriesCount; entriesCount--)
+				{
+					UINT valuesCount;
+					IniValue *values;
+					FLOAT rep;
+					if (iniFile.GetNextEntry(entry, valuesCount, values).CompareNoCase(L"rep") != 0)
+						continue;
+					name = iniFile.GetValue(values, 1);
+					rep = iniFile.GetValueFloat(values, 0)*100;
+					faction.m_reputations[entrynumber].Init(name, rep);
+					faction.m_reputationCount++;
+					faction.repsByNick[name] = &faction.m_reputations[entrynumber];
+					entrynumber++;
+					
+				}
 			}
 		}
 	}
@@ -136,7 +153,7 @@ BOOL LoadStationSolarArch(const CString &iniFilename)
 {
 	IniSection section;
 	CString name, type, systemname;
-	Log(L"\nParsing Solars...");
+	Log(L"Parsing Solars...");
 	{
 		IniFile iniFile(iniFilename);
 		section = NULL;
@@ -178,7 +195,7 @@ BOOL LoadSystems(const CString &iniFilename)
 {
 	IniSection section;
 	CString name, systemname;
-	printf("\nParsing Systems...");
+	Log(L"Parsing Systems...");
 	{
 		IniFile iniFile(iniFilename);
 		section = NULL;
@@ -218,7 +235,7 @@ BOOL LoadBases(const CString &iniFilename)
 {		
 	IniSection section;
 	CString name, systemname;
-	printf("\nParsing Bases...");
+	Log(L"Parsing Bases...");
 	{
 		IniFile iniFile(iniFilename);
 		section = NULL;
@@ -247,7 +264,7 @@ BOOL LoadGoods(const CString &iniFilename)
 {
 	IniSection section;
 	CString name;
-	printf("\nParsing Goods...");
+	Log(L"Parsing Goods...");
 	{ // fetch standard goods id & price
 		IniFile iniFile(iniFilename);
 		section = NULL;
@@ -356,7 +373,7 @@ BOOL LoadMarketPrices(const CString &iniFilename)
 {
 	IniSection section;
 	CString name;
-	printf("\nParsing Market prices...");
+	Log(L"Parsing Market prices...");
 	{
 		IniFile iniFile(iniFilename);
 		section = NULL;

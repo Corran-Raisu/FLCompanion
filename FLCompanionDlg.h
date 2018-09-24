@@ -93,6 +93,7 @@ protected:
 	afx_msg void OnUpdateNicknames(CCmdUI* pCmdUI);
 	afx_msg void OnVisitWebsite();
 	afx_msg void OnSystemMap();
+	afx_msg void ShowHideLog();
 	afx_msg void OnMining();
 	afx_msg void OnSelchangeAsteroidsCombo();
 	afx_msg void OnUpdateGameLaunch(CCmdUI* pCmdUI);
