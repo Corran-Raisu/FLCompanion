@@ -22,6 +22,8 @@ static char THIS_FILE[]=__FILE__;
 
 BOOL g_avoidLockedGates;
 BOOL g_avoidHoles;
+BOOL g_avoidGates;
+BOOL g_avoidLanes;
 BOOL g_isTransport;
 ModInfo g_modInfo;
 
@@ -722,6 +724,7 @@ void CalculateDirectRoutes()
 			CJump &fromjump = system.m_jumpsByNick.GetNextAssoc(pos, dummy);
 			if (g_avoidLockedGates && fromjump.m_islocked) continue;
 			if (g_avoidHoles && !fromjump.m_isgate) continue;
+			if (g_avoidGates && fromjump.m_isgate) continue;
 			if (g_isTransport && fromjump.m_isfreighteronly) continue;
 			fromjump.m_shortestPath[baseIndex] = &tobase;
 			fromjump.m_distanceToBase[baseIndex] = system.ComputeDistance(fromjump, tobase);
@@ -754,6 +757,7 @@ BOOL PropagateRoutes()
 			if (g_isTransport && tojump.m_isfreighteronly) continue;
 			if (g_avoidLockedGates && tojump.m_islocked) continue;
 			if (g_avoidHoles && !tojump.m_isgate) continue;
+			if (g_avoidGates && tojump.m_isgate) continue;
 			system.CalcLaneDistances(tojump);
 			POSITION pos = system.m_avoid ? NULL : pos2;
 			while (pos)
@@ -761,6 +765,7 @@ BOOL PropagateRoutes()
 				CJump &fromjump = system.m_jumpsByNick.GetNextAssoc(pos, dummy);
 				if (g_avoidLockedGates && fromjump.m_islocked) continue;
 				if (g_avoidHoles && !fromjump.m_isgate) continue;
+				if (g_avoidGates && fromjump.m_isgate) continue;
 				if (g_isTransport && fromjump.m_isfreighteronly) continue;
 				UINT distance = system.ComputeDistance(fromjump, tojump);
 				for (UINT baseIndex = 0; baseIndex < BASES_COUNT; baseIndex++)

@@ -330,7 +330,7 @@ int CGameInspect::DoTask(DWORD flags)
 				Log(L"Only %d bases out of %d were recognized in game", basesFound, BASES_COUNT);
 			}
 		}
-		if (HIWORD(pricesChanged))
+		//if (HIWORD(pricesChanged))
 		{
 			Log(L"Imported from game: %d changed prices", HIWORD(pricesChanged));
 			g_mainDlg->Recalc(g_mainDlg->RECALC_SOLUTIONS);
