@@ -15,6 +15,8 @@
 extern CLogDlg g_logDlg;
 extern BOOL g_avoidLockedGates;
 extern BOOL g_avoidHoles;
+extern BOOL g_avoidGates;
+extern BOOL g_avoidLanes;
 extern BOOL g_isTransport;
 extern CString g_flAppPath;
 extern CString g_tradeLaneCaption;

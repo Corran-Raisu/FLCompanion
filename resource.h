@@ -128,6 +128,9 @@
 #define ID_GAME_IMPORT_CREDITS          32801
 #define ID_GAME_IMPORT_CARGOHOLD        32802
 #define ID_VIEW_LOG                     32811
+#define ID_CLIENTREFRESH                32812
+#define IDC_AVOIDGATES                  32813
+#define IDC_AVOIDLANES                  32814
 
 // Next default values for new objects
 // 

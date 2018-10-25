@@ -51,6 +51,8 @@ CFLCompanionDlg::CFLCompanionDlg(CWnd* pParent /*=NULL*/)
 	m_showAllSolutions = true;
 	g_avoidLockedGates = theApp.GetProfileInt(L"Settings", L"AvoidLockedGates", TRUE);
 	g_avoidHoles = theApp.GetProfileInt(L"Settings", L"AvoidHoles", FALSE);
+	g_avoidGates = theApp.GetProfileInt(L"Settings", L"AvoidGates", FALSE);
+	g_avoidLanes = theApp.GetProfileInt(L"Settings", L"AvoidLanes", FALSE);
 	g_isTransport = theApp.GetProfileInt(L"Settings", L"IsTransport", FALSE);
 	ENGINE_SPEED = theApp.GetProfileInt(L"Settings", L"EngineSpeed", 280);
 	LANE_SPEED = theApp.GetProfileInt(L"Settings", L"LaneSpeed", 1900);
@@ -125,6 +127,7 @@ BEGIN_MESSAGE_MAP(CFLCompanionDlg, CDialog)
 	ON_UPDATE_COMMAND_UI(ID_NICKNAMES, OnUpdateNicknames)
 	ON_COMMAND(ID_VISIT_WEBSITE, OnVisitWebsite)
 	ON_COMMAND(ID_SYSTEM_MAP, OnSystemMap)
+	ON_COMMAND(ID_CLIENTREFRESH,OnRefreshClient)
 	ON_COMMAND(ID_VIEW_LOG, ShowHideLog)
 	ON_BN_CLICKED(IDC_MINING, OnMining)
 	ON_CBN_SELCHANGE(IDC_ASTEROIDS_COMBO, OnSelchangeAsteroidsCombo)
@@ -1401,6 +1404,8 @@ void CFLCompanionDlg::OnLimitations()
 	dlg.m_cargoSize = m_cargoSize;
 	dlg.m_avoidLockedGates = g_avoidLockedGates;
 	dlg.m_avoidHoles = g_avoidHoles;
+	dlg.m_avoidGates = g_avoidGates;
+	dlg.m_avoidLanes = g_avoidLanes;
 	dlg.m_isTransport= g_isTransport;
 	
 	dlg.m_maxInvestment = m_maxInvestment;
@@ -1411,9 +1416,13 @@ void CFLCompanionDlg::OnLimitations()
 	{
 		theApp.WriteProfileInt(L"Settings", L"AvoidLockedGates", dlg.m_avoidLockedGates);
 		theApp.WriteProfileInt(L"Settings", L"AvoidHoles", dlg.m_avoidHoles);
+		theApp.WriteProfileInt(L"Settings", L"AvoidGates", dlg.m_avoidGates);
+		theApp.WriteProfileInt(L"Settings", L"AvoidLanes", dlg.m_avoidLanes);
 		theApp.WriteProfileInt(L"Settings", L"IsTransport", dlg.m_isTransport);
 		g_avoidLockedGates = dlg.m_avoidLockedGates;
 		g_avoidHoles = dlg.m_avoidHoles;
+		g_avoidGates = dlg.m_avoidGates;
+		g_avoidLanes = dlg.m_avoidLanes;
 		g_isTransport = dlg.m_isTransport;
 		SetMaxInvestment(dlg.m_maxInvestment);
 		SetMaxDistance(dlg.m_maxDistance);
@@ -1723,6 +1732,11 @@ void CFLCompanionDlg::OnActivateApp(BOOL bActive, DWORD hTask)
 	if (bActive)
 		ImportFromGame();
 	CDialog::OnActivateApp(bActive, hTask);
+}
+
+void CFLCompanionDlg::OnRefreshClient()
+{
+	ImportFromGame();
 }
 
 void CFLCompanionDlg::OnGameImportAbout() 

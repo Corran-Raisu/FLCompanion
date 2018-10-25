@@ -186,7 +186,7 @@ UINT CSystem::ComputeDistance(CDockable &from, CDockable &to, CLane **pbestRoute
 		if (lane.m_distance >= bestDistance)
 			continue;
 		UINT dist = lane.m_distance + Distance(from.m_pos, lane) * 1000 / ENGINE_SPEED;
-		if (dist >= bestDistance)
+		if (dist >= bestDistance || g_avoidLanes)
 			continue;
 		bestDistance = dist;
 		bestRoute = &lane;

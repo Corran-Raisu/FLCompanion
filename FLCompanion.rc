@@ -112,7 +112,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,17,0,0
+ FILEVERSION 4,20,0,0
  PRODUCTVERSION 4,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -302,9 +302,12 @@ BEGIN
     CONTROL         "Maximum investment:",IDC_INVESTMENT_CHECK,"Button",BS_AUTOCHECKBOX | BS_RIGHT | WS_TABSTOP,15,205,80,12
     EDITTEXT        IDC_INVESTMENT,100,205,45,12,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
     LTEXT           " $",IDC_STATIC,145,205,25,12,SS_CENTERIMAGE
-    CONTROL         "Avoid initially locked gates",IDC_AVOIDLOCKED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,175,190,105,12
-    CONTROL         "Don't go through jump holes",IDC_AVOIDHOLES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,175,205,105,12
-    CONTROL         "Avoid freighter-only routes",IDC_TRANSPORT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,175,220,105,12
+	LTEXT           "Don't go through:", IDC_STATIC, 175, 190, 105, 12
+    CONTROL         "jump holes",IDC_AVOIDHOLES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,185,200,75,12
+	CONTROL         "jump gates", IDC_AVOIDGATES, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 185, 210, 75, 12
+	CONTROL         "trade lanes", IDC_AVOIDLANES, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 185, 220, 75, 12
+    CONTROL         "Avoid freighter-only routes",IDC_TRANSPORT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,175,230,105,12
+	CONTROL         "Avoid initially locked gates", IDC_AVOIDLOCKED, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 175, 240, 105, 12
     DEFPUSHBUTTON   "OK",IDOK,295,190,55,14
     PUSHBUTTON      "Cancel",IDCANCEL,295,211,55,14
     CONTROL         "Maximum distance:",IDC_DISTANCE_CHECK,"Button",BS_AUTOCHECKBOX | BS_RIGHT | WS_TABSTOP,15,220,80,12
@@ -492,6 +495,8 @@ BEGIN
             MENUITEM SEPARATOR
             MENUITEM "Check/Uncheck all",           ID_GAME_IMPORT_CHECKALL
             MENUITEM "About this feature...",       ID_GAME_IMPORT_ABOUT
+			MENUITEM SEPARATOR
+			MENUITEM "Refresh Data from Client &map\tCtrl+F5", ID_CLIENTREFRESH
         END
         MENUITEM SEPARATOR
         MENUITEM "&Save base-to-base travel times...", ID_DUMP_BASE_TIMES
@@ -544,6 +549,7 @@ BEGIN
     "L",            ID_LIMITATIONS,         VIRTKEY, CONTROL, NOINVERT
     "S",            ID_SPEEDDELAYS,         VIRTKEY, CONTROL, NOINVERT
     "M",            ID_SYSTEM_MAP,          VIRTKEY, CONTROL, NOINVERT
+	0x74,           ID_CLIENTREFRESH,       VIRTKEY, CONTROL, NOINVERT
     VK_LEFT,        IDC_BACK,               VIRTKEY, ALT, NOINVERT
 END
 

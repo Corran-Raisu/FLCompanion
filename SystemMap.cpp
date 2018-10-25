@@ -77,6 +77,7 @@ void CSystemMap::OnPaint()
 			if (!jump.m_isgate) continue;
 			if (g_avoidLockedGates && jump.m_islocked) continue;
 			if (g_avoidHoles && !jump.m_isgate) continue;
+			if (g_avoidGates && jump.m_isgate) continue;
 			CSystem *jumpsystem = jump.m_matchingJump->m_system;
 			if (jumpsystem == NULL) // abnormal
 			{
@@ -97,6 +98,7 @@ void CSystemMap::OnPaint()
 			if (jump.m_isgate) continue;
 			if (g_avoidLockedGates && jump.m_islocked) continue;
 			if (g_avoidHoles && !jump.m_isgate) continue;
+			if (g_avoidGates && jump.m_isgate) continue;
 			if (!jump.m_matchingJump) // abnormal
 				continue;
 			CSystem *jumpsystem = jump.m_matchingJump->m_system;

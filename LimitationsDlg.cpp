@@ -49,6 +49,8 @@ void CLimitationsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_CARGO_SIZE, m_cargoSize);
 	DDX_Check(pDX, IDC_AVOIDLOCKED, m_avoidLockedGates);
 	DDX_Check(pDX, IDC_AVOIDHOLES, m_avoidHoles);
+	DDX_Check(pDX, IDC_AVOIDGATES, m_avoidGates);
+	DDX_Check(pDX, IDC_AVOIDLANES, m_avoidLanes);
 	DDX_Check(pDX, IDC_TRANSPORT, m_isTransport);
 	DDX_Text(pDX, IDC_INVESTMENT, m_investmentText);
 	DDX_Text(pDX, IDC_DISTANCE, m_distanceText);

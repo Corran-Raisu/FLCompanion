@@ -106,6 +106,7 @@ protected:
 	afx_msg void OnGameImportAbout();
 	afx_msg void OnGameImport(UINT nID);
 	afx_msg void OnGameImportCheckall();
+	afx_msg void OnRefreshClient();
 	afx_msg void OnUpdateGameImportCheckall(CCmdUI* pCmdUI);
 	afx_msg void OnActivateApp(BOOL bActive, DWORD hTask);
 	afx_msg void OnSwitch();
