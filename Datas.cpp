@@ -552,7 +552,7 @@ void LoadSystemObjects()
 						faction.MakeLower();
 						CString dock = iniFile.GetValue(section, "archetype");
 						CBase &base = g_bases[BASES_COUNT++];
-						base.Init(name, g_resourceProvider.GetStringFromID(strid), &system, faction, ( (dock.CompareNoCase(L"dsy_comsat_planetdock") == 0) ));
+						base.Init(name, g_resourceProvider.GetStringFromID(strid), &system, faction, ((dock.Find(L"_fighter") > 0) || (dock.Find(L"_notransport") > 0) || (dock.CompareNoCase(L"dsy_comsat_planetdock") == 0) ));
 						g_basesByNick[name] = &base;
 						base.m_system->AddBase(&base);
 						base.SetPos(x,y,z);
@@ -572,7 +572,7 @@ void LoadSystemObjects()
 						jump.Init(name,
 							archType == ARCH_JUMP_GATE,
 							g_lockedGates.Find(FLHash(name)) != NULL, // true if gate is locked in initial world
-							( (dock.CompareNoCase(L"jumphole_fighter") == 0) || (dock.CompareNoCase(L"jumphole_notransport") == 0) ),
+							( (dock.Find(L"_fighter") > 0) || (dock.Find(L"_notransport") > 0)),
 							g_resourceProvider.GetStringFromID(iniFile.GetValueInt0(section, "ids_name")), // caption
 							&system); // system it is in
 						jump.SetPos(x,y,z);
