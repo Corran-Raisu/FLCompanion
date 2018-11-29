@@ -20,9 +20,18 @@ CMiningBaseDlg::CMiningBaseDlg(CAsteroids* asteroids, CWnd* pParent /*=NULL*/)
 	: CDialog(CMiningBaseDlg::IDD, pParent), m_asteroids(asteroids)
 {
 	//{{AFX_DATA_INIT(CMiningBaseDlg)
-	m_lootStat = asteroids->m_lootStat;
-	m_miningSpeed = 1.0;
-	m_goodsPrice = 0;
+	if (asteroids)
+	{
+		m_lootStat = asteroids->m_lootStat;
+		m_miningSpeed = 1.0;
+		m_goodsPrice = 0;
+	}
+	else
+	{
+		m_lootStat = 0;
+		m_miningSpeed = 1.0;
+		m_goodsPrice = 0;
+	}
 	//}}AFX_DATA_INIT
 }
 
@@ -58,8 +67,9 @@ BOOL CMiningBaseDlg::OnInitDialog()
 	{
 		int nIndex = m_goodsCombo.AddString(g_mainDlg->m_displayNicknames ? g_goods[goodIndex].m_nickname : g_goods[goodIndex].m_caption);
 		m_goodsCombo.SetItemData(nIndex, goodIndex);
-		if (*m_asteroids->m_good == goodIndex)
-			m_goodsCombo.SetCurSel(nIndex);
+		if (m_asteroids)
+			if (*m_asteroids->m_good == goodIndex)
+				m_goodsCombo.SetCurSel(nIndex);
 	}
 	CString str;
 	GetDlgItemText(IDC_CARGO_SIZE, str);

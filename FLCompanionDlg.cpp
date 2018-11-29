@@ -28,8 +28,12 @@ static char THIS_FILE[] = __FILE__;
 CFLCompanionDlg* g_mainDlg;
 CBase* g_miningbase;
 bool blnMap;
+bool blnMultiBaseSolution;
+int solutionCount;
 int gcx, gcy;
-//#define ALL_TRADING_ROUTES
+#ifdef _DEBUG
+#define ALL_TRADING_ROUTES
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // CFLCompanionDlg dialog
@@ -374,7 +378,7 @@ BOOL CFLCompanionDlg::OnInitDialog()
 	m_routes.InsertColumn(3, L"Profit", LVCFMT_RIGHT, 70);
 	m_routes.InsertColumn(4, L"Distance", LVCFMT_RIGHT, 80);
 	m_routes.InsertColumn(5, L"Profit/Distance", LVCFMT_RIGHT, 90);
-	m_routes.InsertColumn(8, L"CSU", LVCFMT_CENTER, 65);
+	m_routes.InsertColumn(8, L"CSU", LVCFMT_CENTER, 75);
 	m_routes.InsertColumn(6, NULL, LVCFMT_RIGHT, 0);			// Good index
 	m_routes.InsertColumn(7, NULL, LVCFMT_RIGHT, 0);			// "From" base pointer
 	INT order[] = { 6, 7, 1, 0, 2, 3, 4, 5, 8 }; // place 0-width columns at the beginning (so it doesn't disturb dividers dragging)
@@ -387,7 +391,7 @@ BOOL CFLCompanionDlg::OnInitDialog()
 	m_traderoute.InsertColumn(3, L"Profit", LVCFMT_RIGHT, 70);
 	m_traderoute.InsertColumn(4, L"Distance", LVCFMT_RIGHT, 80);
 	m_traderoute.InsertColumn(5, L"Profit/Distance", LVCFMT_RIGHT, 90);
-	m_traderoute.InsertColumn(8, L"CSU", LVCFMT_CENTER, 65);
+	m_traderoute.InsertColumn(8, L"CSU", LVCFMT_CENTER, 75);
 	m_traderoute.InsertColumn(6, NULL, LVCFMT_RIGHT, 0);			// Good index
 	m_traderoute.InsertColumn(7, NULL, LVCFMT_RIGHT, 0);			// "From" base pointer
 	m_traderoute.SetColumnOrderArray(_countof(order), order);
@@ -633,7 +637,7 @@ void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell,
 		if (profit < 0)
 			return; // negative profit if decay is taken in account, drop it
 	}
-	if (((profit / units) * 100000 / distance) < m_minCSU)
+	if (((profit / units) * 100000 / distance) < m_minCSU && destbase!=g_miningbase)
 		return;
 	int nItem = m_routes.InsertItem(MAXLONG, m_displayNicknames ? g_goods[goodIndex].m_nickname : g_goods[goodIndex].m_caption);
 //#ifdef ALL_TRADING_ROUTES
@@ -678,13 +682,15 @@ void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell,
 	_stprintf(buf, L"%d", (int) srcbase);
 	m_routes.SetItemText(nItem, 7, buf);
 	m_routes.SetItemData(nItem, (DWORD) destbase);
+	solutionCount++;
 }
 
 void CFLCompanionDlg::AddSolutionsForBase(CBase* base)
 {
 	// build up the buying price array
 	float *sell = base->m_sell;
-	
+	if (!blnMultiBaseSolution)
+		solutionCount = 0;
 	for (int index = 0; index < SYSTEMS_COUNT; index++)
 	{
 		CSystem *system = &g_systems[index];
@@ -717,13 +723,16 @@ void CFLCompanionDlg::AddSolutionsForBase(CBase* base)
 	}
 	if(g_miningbase != NULL)
 		AddSolution(NULL, 0, 0, base, g_miningbase, base->m_distanceToBase[g_miningbase-g_bases]+base->GetDockingDelay());
+	if(!blnMultiBaseSolution)
+		Log(L"Solutions for %s (as source) loaded: %d" , m_displayNicknames ? base->m_nickname : base->m_caption, solutionCount);
 }
 
 //#ifdef ALL_TRADING_ROUTES
 void CFLCompanionDlg::ShowAllSolutions() 
 {
+	blnMultiBaseSolution = true;
+	solutionCount = 0;
 	UpdateData();
-
 	m_waypoints.DeleteAllItems();
 	m_systemWaypoints.DeleteAllItems();
 	ResetMapZoom();
@@ -755,6 +764,14 @@ void CFLCompanionDlg::ShowAllSolutions()
 
 	m_routes.SetRedraw();
 	PostMessage(WM_COMMAND, MAKELONG(IDC_DESTBASE_COMBO, CBN_SELCHANGE), (LPARAM) m_destbaseCombo.m_hWnd);
+	int nIndex = m_baseCombo.GetCurSel();
+	CBase *base = (CBase*)m_baseCombo.GetItemDataPtr(nIndex);
+
+	if (m_SrcDestSwitch.GetCurSel() == 1)
+		Log(L"Solutions for %s (as destination) loaded: %d", m_displayNicknames ? base->m_nickname : base->m_caption, solutionCount);
+	else
+		Log(L"All solutions loaded: %d", solutionCount);
+	blnMultiBaseSolution = false;
 }
 //#endif // ALL_TRADING_ROUTES
 
@@ -1469,7 +1486,7 @@ void CFLCompanionDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 	ScreenToClient(rect);
 	if (rect.PtInRect(point))
 	{
-		if (m_curAsteroids && ::IsWindowEnabled(::GetDlgItem(*this, IDC_MINING)))
+		//if (m_curAsteroids && ::IsWindowEnabled(::GetDlgItem(*this, IDC_MINING)))
 		{
 			CMiningBaseDlg dlg(m_curAsteroids, this);
 			if (dlg.DoModal() == IDOK)
