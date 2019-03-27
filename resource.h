@@ -89,6 +89,7 @@
 #define IDC_TR_ADD                      1064
 #define IDC_TR_REM                      1065
 #define IDI_UP_ARROW                    1066
+#define IDC_MFCMENUBUTTON1              1066
 #define IDI_DOWN_ARROW                  1067
 #define IDC_MINCSU                      1068
 #define IDC_FRAME_Systems               1069
@@ -131,6 +132,7 @@
 #define ID_CLIENTREFRESH                32812
 #define IDC_AVOIDGATES                  32813
 #define IDC_AVOIDLANES                  32814
+#define ID_DUMP_SOLUTIONS               32815
 
 // Next default values for new objects
 // 
@@ -139,7 +141,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        140
 #define _APS_NEXT_COMMAND_VALUE         32812
-#define _APS_NEXT_CONTROL_VALUE         1061
+#define _APS_NEXT_CONTROL_VALUE         1067
 #define _APS_NEXT_SYMED_VALUE           114
 #endif
 #endif

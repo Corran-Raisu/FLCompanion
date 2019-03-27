@@ -11,6 +11,7 @@
 #include "System.h"
 #include <Psapi.h>
 #include <memory>
+#include "ScopedPtr.h"
 #pragma comment(lib, "psapi.lib")
 
 #ifdef _DEBUG
@@ -133,10 +134,10 @@ struct FlFactionInfo
 #define FLCREDITS_ADDR		0x00673364
 #define FLPLAYERSHIP_ADDR	0x0067337C
 #define FLFACTIONS_ADDR		0x064018EC
-#define FLPLAYERS_ADDR		0x064018C4	// FlTree des joueurs
+#define FLPLAYERS_ADDR		0x064018C4 //0x064018C4	// FlTree des joueurs
 // 0x64018D8 = currentNode
 #define READFLMEM(structure,addr)	if (!ReadProcessMemory(m_hflProcess, LPCVOID(addr), &structure, sizeof(structure), NULL)) return 0;
-#define READFLPTR(ptr,addr,size)	if (!ReadProcessMemory(m_hflProcess, LPCVOID(addr), ptr, size, NULL)) return 0;
+#define READFLPTR(ptr,addr,size)	if (!ReadProcessMemory(m_hflProcess, LPCVOID(addr), LPVOID(ptr), size, NULL)) return 0;
 
 UINT CGameInspect::CollectGoodPrice(DWORD id, LPVOID ptr)
 {
@@ -154,6 +155,9 @@ UINT CGameInspect::CollectGoodPrice(DWORD id, LPVOID ptr)
 		if (m_base->m_sell[goodIndex] != sellPrice)
 			result = MAKELONG(1, 1);
 		m_base->m_sell[goodIndex] = sellPrice;
+
+		if (sellPrice < 1)
+			ProblemFound(L"Client-Imported MarketGood entry (%s, %s) with value less than 1 credit from server", m_base->m_nickname, g_goods[goodIndex].m_nickname);
 		if ((goodData.iTransType == TransactionType_Sell) && !m_base->m_hasSell)
 		{
 			m_base->m_hasSell = true;
@@ -274,147 +278,157 @@ HANDLE OpenGameProcess()
 
 int CGameInspect::DoTask(DWORD flags)
 {
-	m_hflProcess = OpenGameProcess();
-	static BOOL signalAccessDenied = true;
-	if (!m_hflProcess)
+	if (g_triggeredImport)
 	{
-		if (signalAccessDenied)
+		m_hflProcess = OpenGameProcess();
+		static BOOL signalAccessDenied = true;
+		if (!m_hflProcess)
 		{
-			Log(L"Could not find or access \"Freelancer.exe\" process! You may need to Run FLC as Administrator");
-			signalAccessDenied = false;
+			if (signalAccessDenied)
+			{
+				Log(L"Could not find or access \"Freelancer.exe\" process! You may need to Run FLC as Administrator");
+				signalAccessDenied = false;
+			}
+			return 0;
 		}
-		return 0;
-	}
-	HANDLE hflProcess = m_hflProcess; // Leak! closehandle on function return
-	signalAccessDenied = true;
-	DWORD dwPriorityClass = GetPriorityClass(m_hflProcess);
-	SetPriorityClass(m_hflProcess, IDLE_PRIORITY_CLASS);
+		HANDLE hflProcess = m_hflProcess; // Leak! closehandle on function return
+		signalAccessDenied = true;
+		DWORD dwPriorityClass = GetPriorityClass(m_hflProcess);
+		SetPriorityClass(m_hflProcess, IDLE_PRIORITY_CLASS);
 
-	if (flags & IMPORT_PRICES)
-	{
-		CMap<DWORD,DWORD,CBase*,CBase*> idBaseMap;
-		UINT i;
-		for (i = 0; i < BASES_COUNT; i++)
-			idBaseMap[FLHash(g_bases[i].m_nickname)] = &g_bases[i];
-		for (i = 0; i < GOODS_COUNT; i++)
-			m_idGoodMap[FLHash(g_goods[i].m_nickname)] = i;
-		FlBaseDataList* baseDataListPtr;
-		READFLMEM(baseDataListPtr, FLBASEDATALIST_ADDR);
-		FlBaseDataList baseDataList;
-		READFLMEM(baseDataList, baseDataListPtr);
-		FlBaseDataNode* baseDataNodePtr = baseDataList._Head;
-		UINT basesFound = 0;
-		UINT pricesChanged = 0;
-		for (i = 0; i < baseDataList._Size; i++)
+		if (flags & IMPORT_PRICES)
 		{
-			FlBaseDataNode baseDataNode;
-			READFLMEM(baseDataNode, baseDataNodePtr);
-			if (baseDataNode._Value)
+			CMap<DWORD, DWORD, CBase*, CBase*> idBaseMap;
+			UINT i;
+			for (i = 0; i < BASES_COUNT; i++)
+				idBaseMap[FLHash(g_bases[i].m_nickname)] = &g_bases[i];
+			for (i = 0; i < GOODS_COUNT; i++)
+				m_idGoodMap[FLHash(g_goods[i].m_nickname)] = i;
+			FlBaseDataList* baseDataListPtr;
+			READFLMEM(baseDataListPtr, FLBASEDATALIST_ADDR);
+			FlBaseDataList baseDataList;
+			READFLMEM(baseDataList, baseDataListPtr);
+			FlBaseDataNode* baseDataNodePtr = baseDataList._Head;
+			UINT basesFound = 0;
+			UINT pricesChanged = 0;
+			for (i = 0; i < baseDataList._Size; i++)
 			{
-				FlBaseData baseData;
-				READFLMEM(baseData, baseDataNode._Value);
-				if (idBaseMap.Lookup(baseData._base_id, m_base))
+				FlBaseDataNode baseDataNode;
+				READFLMEM(baseDataNode, baseDataNodePtr);
+				if (baseDataNode._Value)
 				{
-					basesFound++;
-					pricesChanged += TreeForEach(baseData._market, &CGameInspect::CollectGoodPrice);
-				}
-			}
-			baseDataNodePtr = baseDataNode._Next;
-		}
-		if (basesFound != BASES_COUNT)
-		{
-			static BOOL signalBadBases = true;
-			if (signalBadBases)
-			{
-				signalBadBases = false;
-				Log(L"Only %d bases out of %d were recognized in game", basesFound, BASES_COUNT);
-			}
-		}
-		//if (HIWORD(pricesChanged))
-		{
-			Log(L"Imported from game: %d changed prices", HIWORD(pricesChanged));
-			g_mainDlg->Recalc(g_mainDlg->RECALC_SOLUTIONS);
-		}
-	}
-	if (flags & IMPORT_CREDITS)
-	{
-		DWORD credits;
-		READFLMEM(credits, FLCREDITS_ADDR);
-		if (credits && g_mainDlg->SetMaxInvestment(credits))
-			Log(L"Imported from game: Investment set to %d credits", credits);
-	}
-	if (flags & IMPORT_CARGOHOLD)
-	{
-		DWORD playerShipId;
-		READFLMEM(playerShipId, FLPLAYERSHIP_ADDR);
-		FlTree shipsTree;
-		READFLMEM(shipsTree, FLSHIPSTREE_ADDR);
-		LPVOID ptr = TreeFind(shipsTree, playerShipId);
-		if (ptr)
-		{
-			Archetype::Ship* shipPtr;
-			READFLMEM(shipPtr, ptr);
-			if (shipPtr)
-			{
-				Archetype::Ship ship;
-				READFLMEM(ship, shipPtr);
-				UINT cargoSize = UINT(ship.fHoldSize);
-				if (g_mainDlg->SetCargoSize(cargoSize))
-					Log(L"Imported from game: Cargo hold size set to %d units", cargoSize);
-			}
-		}
-	}
-#if 0
-	if (flags & IMPORT_FACTIONS)
-	{
-		UINT changed = 0;
-		CMap<DWORD,DWORD,CFaction*,CFaction*> idFactionMap;
-		UINT i;
-		for (i = 0; i < FACTIONS_COUNT; i++)
-			idFactionMap[FLFactionHash(g_factions[i].m_nickname)] = &g_factions[i];
-
-		FlTree factionsTree;
-		READFLMEM(factionsTree, FLFACTIONS_ADDR);
-/*
-		LPBYTE ptr;
-		READFLMEM(ptr, 0x61e0260);
-		DWORD player_id;
-		READFLMEM(player_id, ptr+0x318);
-*//*
-		FlTree playersTree;
-		READFLMEM(playersTree, FLPLAYERS_ADDR);
-		FlNode playerNode;
-		READFLMEM(playerNode, playersTree._Head);
-		READFLMEM(playerNode, playerNode._Parent);
-		LPVOID playerPtr = TreeFind(playersTree, 1);
-		if (playerPtr)
-		{
-			FlPlayer player;
-			READFLMEM(player, playerPtr);
-			int count = player._repsEnd-player._repsBegin;
-			CScopedArray<FlRep> reps = new FlRep[count];
-			READFLPTR(reps,player._repsBegin,  count*sizeof(FlRep));
-			for (int index = 0; index < count; index++)
-				if (reps[index]._rep <= -0.6)
-				{
-					CFaction *faction = idFactionMap[reps[index]._faction_id];
-					if (!faction->m_avoid)
+					FlBaseData baseData;
+					READFLMEM(baseData, baseDataNode._Value);
+					if (idBaseMap.Lookup(baseData._base_id, m_base))
 					{
-						changed++;
-						faction->m_avoid = true;
+						basesFound++;
+						pricesChanged += TreeForEach(baseData._market, &CGameInspect::CollectGoodPrice);
 					}
 				}
+				baseDataNodePtr = baseDataNode._Next;
+			}
+			if (basesFound != BASES_COUNT)
+			{
+				static BOOL signalBadBases = true;
+				if (signalBadBases)
+				{
+					signalBadBases = false;
+					Log(L"Only %d bases out of %d were recognized in game", basesFound, BASES_COUNT);
+				}
+			}
+			//if (HIWORD(pricesChanged))
+			{
+				Log(L"Imported from game: %d changed prices", HIWORD(pricesChanged));
+				g_mainDlg->Recalc(g_mainDlg->RECALC_SOLUTIONS);
+			}
 		}
-		if (changed)
+		if (flags & IMPORT_CREDITS)
 		{
-			Log(L"Imported from game: %d factions to avoid", changed);
-			g_mainDlg->Recalc(g_mainDlg->RECALC_PATHS);
+			DWORD credits;
+			READFLMEM(credits, FLCREDITS_ADDR);
+			if (credits && g_mainDlg->SetMaxInvestment(credits))
+				Log(L"Imported from game: Investment set to %d credits", credits);
 		}
-*/
-	}
-#endif
+		if (flags & IMPORT_CARGOHOLD)
+		{
+			DWORD playerShipId;
+			READFLMEM(playerShipId, FLPLAYERSHIP_ADDR);
+			FlTree shipsTree;
+			READFLMEM(shipsTree, FLSHIPSTREE_ADDR);
+			LPVOID ptr = TreeFind(shipsTree, playerShipId);
+			if (ptr)
+			{
+				Archetype::Ship* shipPtr;
+				READFLMEM(shipPtr, ptr);
+				if (shipPtr)
+				{
+					Archetype::Ship ship;
+					READFLMEM(ship, shipPtr);
+					UINT cargoSize = UINT(ship.fHoldSize);
+					if (g_mainDlg->SetCargoSize(cargoSize))
+						Log(L"Imported from game: Cargo hold size set to %d units", cargoSize);
+				}
+			}
+		}
+#if 0
+		/*
+		if (true) //(flags & IMPORT_FACTIONS)
+		{
+			UINT changed = 0;
+			CMap<DWORD, DWORD, CFaction*, CFaction*> idFactionMap;
+			UINT i;
+			for (i = 0; i < FACTIONS_COUNT; i++)
+				idFactionMap[FLFactionHash(g_factions[i].m_nickname)] = &g_factions[i];
 
-	SetPriorityClass(m_hflProcess, dwPriorityClass);
+			FlTree factionsTree;
+			READFLMEM(factionsTree, FLFACTIONS_ADDR);
+
+					LPBYTE ptr;
+					READFLMEM(ptr, 0x61e0260);
+					DWORD player_id;
+					int oset = 0;
+					player_id = 0;
+					while (player_id==0)
+					{
+						READFLMEM(player_id, ptr + (4+ oset));
+						oset += 4;
+					}
+
+					FlTree playersTree;
+					READFLMEM(playersTree, FLPLAYERS_ADDR);
+					FlNode playerNode;
+					READFLMEM(playerNode, playersTree._Head);
+					READFLMEM(playerNode, playerNode._Parent);
+					LPVOID playerPtr = TreeFind(playersTree, 1);
+					if (playerPtr)
+					{
+						FlPlayer player;
+						READFLMEM(player, playerPtr);
+						int count = player._repsEnd-player._repsBegin;
+						//CScopedArray<FlRep> reps = new FlRep[count];
+						//READFLPTR(reps,player._repsBegin,  count*sizeof(FlRep));
+						for (int index = 0; index < count; index++)
+							//if (reps[index]._rep <= -0.6)
+							{
+								//CFaction *faction = idFactionMap[reps[index]._faction_id];
+								////if (!faction->m_avoid)
+								{
+									changed++;
+									//faction->m_avoid = true;
+								}
+							}
+					}
+					if (changed)
+					{
+						Log(L"Imported from game: %d factions to avoid", changed);
+						g_mainDlg->Recalc(g_mainDlg->RECALC_PATHS);
+					}
+
+		}
+		*/
+#endif
+		SetPriorityClass(m_hflProcess, dwPriorityClass);
+	}
 	return 1;
 }
 

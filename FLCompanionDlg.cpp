@@ -119,6 +119,7 @@ BEGIN_MESSAGE_MAP(CFLCompanionDlg, CDialog)
 	ON_WM_WINDOWPOSCHANGED()
 	ON_NOTIFY(HDN_BEGINTRACK, 0, OnBegintrackRoutes)
 	ON_COMMAND(ID_DUMP_BASE_TIMES, OnDumpBaseTimes)
+	ON_COMMAND(ID_DUMP_SOLUTIONS, OnDumpSolutions)
 	ON_COMMAND(ID_BASE_INFO, OnBaseInfo)
 	ON_COMMAND(ID_GOODS_REPO, OnGoodsRepo)
 	ON_COMMAND(ID_ABOUT, OnAbout)
@@ -439,7 +440,7 @@ BOOL CFLCompanionDlg::OnInitDialog()
 		if (hash != theApp.GetProfileInt(L"Settings", L"DisplayModInfo", 0))
 			PostMessage(WM_COMMAND, ID_MOD_INFO);
 	}
-
+	ImportFromGame();
 	return FALSE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -714,8 +715,10 @@ void CFLCompanionDlg::AddSolutionsForBase(CBase* base)
 			{
 				if (g_goods[goodIndex].m_avoid)
 					continue;
+				double destbuy = max(destbase->m_buy[goodIndex], 1);
+				double srcsell = max(sell[goodIndex], 1);
 				if (destbase->m_buy[goodIndex] > sell[goodIndex]) // destination buying price is higher than initial sell price
-					AddSolution(goodIndex, destbase->m_buy[goodIndex], sell[goodIndex], base, destbase, 
+					AddSolution(goodIndex, destbuy, srcsell, base, destbase,
 						base->m_distanceToBase[destbase-g_bases]+base->GetDockingDelay());
 						//base.m_system->m_distances[destbase->m_system-g_systems]);
 			}
@@ -931,16 +934,16 @@ void CFLCompanionDlg::OnItemchangedRoutes(NMHDR* pNMHDR, LRESULT* pResult)
 	{
 		int goodIndex = _ttoi(m_routes.GetItemText(pNMListView->iItem, 6));
 		UINT units = m_cargoSize == 1 ? 1 : UINT(m_cargoSize/g_goods[goodIndex].m_volume);
-		if ((m_maxInvestment > 0) && (from->m_sell[goodIndex]*units > m_maxInvestment))
-			units = UINT(m_maxInvestment/from->m_sell[goodIndex]);
+		if ((m_maxInvestment > 0) && (max(from->m_sell[goodIndex], 1)*units > m_maxInvestment))
+			units = UINT(m_maxInvestment/ max(from->m_sell[goodIndex], 1));
 		BOOL perishable = (g_goods[goodIndex].m_decay_time != 0);
 		SetDlgItemText(IDC_PERISHABLE, perishable ? L"*PERISHABLE*" : L"");
 		UINT distance = from->m_distanceToBase[destination-g_bases];
 		CString msg;
 		if (m_cargoSize == 1)
-			msg.FormatMessage(L"Buy one unit for $%1!d!", (int)(m_SrcDestSwitch.GetCurSel() == 0 ? from->m_sell[goodIndex] : destination->m_sell[goodIndex]));
+			msg.FormatMessage(L"Buy one unit for $%1!d!", (int)(m_SrcDestSwitch.GetCurSel() == 0 ? max(from->m_sell[goodIndex],1) : max(destination->m_sell[goodIndex],1)));
 		else
-			msg.FormatMessage(L"Buy %1!d! units for $%2!d! each", units, (int) (m_SrcDestSwitch.GetCurSel() == 0 ? from->m_sell[goodIndex] : destination->m_sell[goodIndex]));
+			msg.FormatMessage(L"Buy %1!d! units for $%2!d! each", units, (int) (m_SrcDestSwitch.GetCurSel() == 0 ? max(from->m_sell[goodIndex],1) : max(destination->m_sell[goodIndex],1)));
 		SetDlgItemText(IDC_BUY_PRICE, msg);
 		UINT decay_units = perishable ? distance/(g_goods[goodIndex].m_decay_time) : 0;
 		if (m_cargoSize == 1)
@@ -984,16 +987,16 @@ void CFLCompanionDlg::OnTRItemchangedRoutes(NMHDR* pNMHDR, LRESULT* pResult)
 	{
 		int goodIndex = _ttoi(m_traderoute.GetItemText(pNMListView->iItem, 6));
 		UINT units = m_cargoSize == 1 ? 1 : UINT(m_cargoSize / g_goods[goodIndex].m_volume);
-		if ((m_maxInvestment > 0) && (from->m_sell[goodIndex] * units > m_maxInvestment))
-			units = UINT(m_maxInvestment / from->m_sell[goodIndex]);
+		if ((m_maxInvestment > 0) && (max(from->m_sell[goodIndex], 1) * units > m_maxInvestment))
+			units = UINT(m_maxInvestment / max(from->m_sell[goodIndex], 1));
 		BOOL perishable = (g_goods[goodIndex].m_decay_time != 0);
 		SetDlgItemText(IDC_PERISHABLE, perishable ? L"*PERISHABLE*" : L"");
 		UINT distance = from->m_distanceToBase[destination - g_bases];
 		CString msg;
 		if (m_cargoSize == 1)
-			msg.FormatMessage(L"Buy one unit for $%1!d!", (int)from->m_sell[goodIndex]);
+			msg.FormatMessage(L"Buy one unit for $%1!d!", (int)max(from->m_sell[goodIndex], 1));
 		else
-			msg.FormatMessage(L"Buy %1!d! units for $%2!d! each", units, (int)from->m_sell[goodIndex]);
+			msg.FormatMessage(L"Buy %1!d! units for $%2!d! each", units, (int)max(from->m_sell[goodIndex], 1));
 		SetDlgItemText(IDC_BUY_PRICE, msg);
 		UINT decay_units = perishable ? distance / (g_goods[goodIndex].m_decay_time) : 0;
 		if (m_cargoSize == 1)
@@ -1522,6 +1525,21 @@ void CFLCompanionDlg::OnLButtonDown(UINT nFlags, CPoint point)
 		CDialog::OnLButtonDown(nFlags, point);
 }
 
+void CFLCompanionDlg::OnRButtonDown(UINT nFlags, CPoint point)
+{
+	CRect rect;
+	::GetWindowRect(::GetDlgItem(*this, IDC_MAP), rect);
+	ScreenToClient(rect);
+	if (rect.PtInRect(point))
+	{
+		if (nFlags & MK_CONTROL)
+		{
+			int x = (point.x - (rect.left + rect.right) / 2)*m_mapmax * 2 / rect.Width() / m_zoom + m_mapOrigin.x;
+			int z = (point.y - (rect.top + rect.bottom) / 2)*m_mapmax * 2 / rect.Height() / m_zoom + m_mapOrigin.y;
+			::ShowWindow(::GetDlgItem(*this, IDC_MAPINFO), SW_SHOW);
+		}
+	}
+}
 void CFLCompanionDlg::OnMouseMove(UINT nFlags, CPoint point) 
 {
 	if (m_mapMouseCoords.x)
@@ -1692,7 +1710,7 @@ void CFLCompanionDlg::OnBegintrackRoutes(NMHDR* pNMHDR, LRESULT* pResult)
 
 void CFLCompanionDlg::OnDumpBaseTimes() 
 {
-	CFileDialog fileDialog(FALSE, L"csv", L"dump.csv", OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT, L"Comma Separated Values (*.csv)|*.csv||", this);
+	CFileDialog fileDialog(FALSE, L"csv", L"traveltimes.csv", OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT, L"Comma Separated Values (*.csv)|*.csv||", this);
 	if (fileDialog.DoModal() == IDOK)
 	{
 		CString path = fileDialog.GetPathName();
@@ -1714,6 +1732,134 @@ void CFLCompanionDlg::OnDumpBaseTimes()
 		}
 		
 	}	
+}
+
+void CFLCompanionDlg::OnDumpSolutions()
+{
+	if (AfxMessageBox(L"Saving all trading solutions can take some time to calculate!\r\n\r\nAre you sure?", MB_YESNO | MB_ICONEXCLAMATION) == IDYES)
+	{
+		CFileDialog fileDialog(FALSE, L"csv", L"solutions.csv", OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, L"Comma Separated Values (*.csv)|*.csv||", this);
+		if (fileDialog.DoModal() == IDOK)
+		{
+			CString path = fileDialog.GetPathName();
+			CStdioFile file(path, CFile::modeCreate | CFile::modeWrite);
+			blnMultiBaseSolution = true;
+			for (int index = 0; index < BASES_COUNT; index++)
+			{
+				CBase &base = g_bases[index];
+				if (!base.m_hasSell || (g_isTransport && base.m_isfreighteronly) || base.m_system->m_avoid) continue;
+
+				// build up the buying price array
+				float *sell = base.m_sell;
+				if (!blnMultiBaseSolution)
+					solutionCount = 0;
+				for (int index = 0; index < SYSTEMS_COUNT; index++)
+				{
+					CSystem *system = &g_systems[index];
+					if (system->m_avoid)
+						continue;
+					// scan all bases in this system
+					POSITION pos = system->m_bases.GetHeadPosition();
+					while (pos)
+					{
+						CBase *destbase = system->m_bases.GetNext(pos);
+						if (!destbase->m_hasSell)
+							continue; // not interesting to go to bases that doesn't sell anything
+						if (base.m_shortestPath[destbase - g_bases] == NULL)
+							continue; // no route to destination;
+						if (m_maxDistance && (base.m_distanceToBase[destbase - g_bases] >= m_maxDistance))
+							continue; // route too distant
+						if (m_SrcDestSwitch.GetCurSel() == 1 && destbase != (CBase*)m_baseCombo.GetItemDataPtr(m_baseCombo.GetCurSel()))
+							continue;
+						// scan the buying prices for this destination base
+						for (UINT goodIndex = 0; goodIndex < GOODS_COUNT; goodIndex++)
+						{
+							if (g_goods[goodIndex].m_avoid)
+								continue;
+							double destbuy = max(destbase->m_buy[goodIndex], 1);
+							double srcsell = max(sell[goodIndex], 1);
+							if (destbuy > srcsell) // destination buying price is higher than initial sell price
+							{
+								//AddSolution(int goodIndex, double destbuy, double srcsell, CBase *srcbase, CBase *destbase, LONG distance)
+								//(goodIndex, destbase->m_buy[goodIndex], sell[goodIndex], base, destbase,base->m_distanceToBase[destbase - g_bases] + base->GetDockingDelay());
+
+								//CBase *srcbase;
+								//CBase *destbase;
+								LONG distance = base.m_distanceToBase[destbase - g_bases] + base.GetDockingDelay();
+								LONG profit;
+
+								UINT units = m_cargoSize == 1 ? 1 : UINT(m_cargoSize / g_goods[goodIndex].m_volume);
+								if (units == 0)
+									continue;
+								if ((m_maxInvestment > 0) && (srcsell*units > m_maxInvestment))
+									units = UINT(m_maxInvestment / srcsell);
+								if (g_goods[goodIndex].m_decay_time == 0)
+									profit = UINT(destbuy - srcsell)*units;
+								else
+								{ // lets compute the effect of decaying goods:
+									UINT decay_units = distance / g_goods[goodIndex].m_decay_time;
+									if (m_cargoSize != 1)
+									{
+										if (decay_units > units)
+											continue; // all cargo would have decayed, so drop this solution
+										profit = INT(destbuy*(units - decay_units) - srcsell * units);
+									}
+									else // user wants a price per cargo unit => we evaluate an average profit per unit, based on a cargo of 100 units
+									{
+										if (decay_units > 100)
+											continue;
+										profit = INT(destbuy - srcsell - destbuy * decay_units / 100.0);
+									}
+									if (profit < 0)
+										continue; // negative profit if decay is taken in account, drop it
+								}
+								if (((profit / units) * 100000 / distance) < m_minCSU && destbase != g_miningbase)
+									continue;
+								file.WriteString(L"\"");
+								file.WriteString(m_displayNicknames ? g_goods[goodIndex].m_nickname : g_goods[goodIndex].m_caption);
+								file.WriteString(L"\",\"");
+								file.WriteString(m_displayNicknames ? base.m_system->m_nickname + ": " + base.m_nickname : base.m_system->m_caption + ": " + base.m_caption);
+								file.WriteString(L"\",\"");
+								file.WriteString(m_displayNicknames ? destbase->m_system->m_nickname + ": " + destbase->m_nickname : destbase->m_system->m_caption + ": " + destbase->m_caption);
+								file.WriteString(L"\",");
+								file.WriteString(IntToString(profit));
+								file.WriteString(L",\"");
+								file.WriteString(MinuteSeconds(distance, true));
+								file.WriteString(L",");
+
+								TCHAR buf[32];
+								if (m_cargoSize == 1)
+								{
+									CString ratio = DoubleToString((profit / g_goods[goodIndex].m_volume) * 100000 / distance);
+									int index = ratio.Find('.');
+									if (index > 0) ratio = ratio.Left(index + 0);
+									file.WriteString(LPCTSTR(ratio));
+								}
+								else
+								{
+									CString ratio = DoubleToString(profit*1000.0 / distance);
+									int index = ratio.Find('.');
+									if (index > 0) ratio = ratio.Left(index + 0);
+									file.WriteString(LPCTSTR(ratio));
+								}
+								file.WriteString(L",");
+								CString ratio = DoubleToString((profit / units / g_goods[goodIndex].m_volume) * 100000 / distance);
+								int index = ratio.Find('.');
+								if (index > 0) ratio = ratio.Left(index + 0);
+								file.WriteString(LPCTSTR(ratio));
+								file.WriteString(L"\n");
+								solutionCount++;
+							}
+							//base.m_system->m_distances[destbase->m_system-g_systems]);
+						}
+					}
+				}
+			}
+			blnMultiBaseSolution = false;
+		}
+		Log(L"All solutions have been saved to file.");
+		AfxMessageBox(L"All solutions complete.", MB_OK | MB_ICONEXCLAMATION);
+	}
 }
 
 void CFLCompanionDlg::OnBaseInfo() 
@@ -1741,19 +1887,21 @@ void CFLCompanionDlg::ImportFromGame()
 	if (m_importFromGame == 0)
 			return;
 	CGameInspect gameInspect;
+	g_triggeredImport = true;
 	gameInspect.DoTask(m_importFromGame);
+	g_triggeredImport = false;
 }
 
 void CFLCompanionDlg::OnActivateApp(BOOL bActive, DWORD hTask)
 {
-	if (bActive)
-		ImportFromGame();
 	CDialog::OnActivateApp(bActive, hTask);
 }
 
 void CFLCompanionDlg::OnRefreshClient()
 {
+	g_triggeredImport = true;
 	ImportFromGame();
+	g_triggeredImport = false;
 }
 
 void CFLCompanionDlg::OnGameImportAbout() 
@@ -1780,7 +1928,9 @@ void CFLCompanionDlg::OnGameImportCheckall()
 	else
 		m_importFromGame = (1<<(ID_GAME_IMPORT_CARGOHOLD-ID_GAME_IMPORT_PRICES+1))-1;
 	theApp.WriteProfileInt(L"Settings", L"ImportFromGame", m_importFromGame);
+	g_triggeredImport = true;
 	ImportFromGame();
+	g_triggeredImport = false;
 }
 
 void CFLCompanionDlg::OnUpdateGameImport(CCmdUI* pCmdUI) 
@@ -1795,7 +1945,9 @@ void CFLCompanionDlg::OnGameImport(UINT nID)
 	nID -= ID_GAME_IMPORT_PRICES;
 	m_importFromGame ^= (1 << nID);
 	theApp.WriteProfileInt(L"Settings", L"ImportFromGame", m_importFromGame);
+	g_triggeredImport = true;
 	ImportFromGame();
+	g_triggeredImport = false;
 }
 
 void CFLCompanionDlg::OnAbout() 
@@ -2021,10 +2173,10 @@ void CFLCompanionDlg::Calc_TotalRow()
 
 		if (units == 0)
 			return;
-		if ((m_maxInvestment > 0) && (from->m_sell[goodIndex]*units > m_maxInvestment))
-			units = UINT(m_maxInvestment / from->m_sell[goodIndex]);
+		if ((m_maxInvestment > 0) && (max(from->m_sell[goodIndex], 1)*units > m_maxInvestment))
+			units = UINT(m_maxInvestment / max(from->m_sell[goodIndex], 1));
 		if (g_goods[goodIndex].m_decay_time == 0)
-			profit = UINT(to->m_buy[goodIndex] - from->m_sell[goodIndex])*units;
+			profit = UINT(to->m_buy[goodIndex] - max(from->m_sell[goodIndex],1))*units;
 		else
 		{ // lets compute the effect of decaying goods:
 			UINT decay_units = distance / g_goods[goodIndex].m_decay_time;
@@ -2032,13 +2184,13 @@ void CFLCompanionDlg::Calc_TotalRow()
 			{
 				if (decay_units > units)
 					continue; // all cargo would have decayed, so drop this solution
-				profit = INT(to->m_buy[goodIndex] *(units - decay_units) - from->m_sell[goodIndex] *units);
+				profit = INT(to->m_buy[goodIndex] *(units - decay_units) - max(from->m_sell[goodIndex], 1) *units);
 			}
 			else // user wants a price per cargo unit => we evaluate an average profit per unit, based on a cargo of 100 units
 			{
 				if (decay_units > 100)
 					continue;
-				profit = INT(to->m_buy[goodIndex] - from->m_sell[goodIndex] - to->m_buy[goodIndex] *decay_units / 100.0);
+				profit = INT(to->m_buy[goodIndex] - max(from->m_sell[goodIndex], 1) - to->m_buy[goodIndex] *decay_units / 100.0);
 			}
 			if (profit < 0)
 				continue; // negative profit if decay is taken in account, drop it

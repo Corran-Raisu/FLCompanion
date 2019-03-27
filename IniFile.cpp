@@ -637,3 +637,26 @@ float IniFile::GetValueFloat(IniValue *value, UINT indice)
 		}
 	}
 }
+DWORD IniFile::GetValueDWORD(IniValue *value, UINT indice)
+{
+	if (m_textMode)
+	{
+		LPSTR scan = reinterpret_cast<LPSTR>(value);
+		while (indice)
+			indice--, scan = strchr(scan, ',') + 1;
+		return (DWORD)atof(scan);
+	}
+	else
+	{
+		value += indice;
+		if (value->type == IniValue::vtdword)
+			return value->vtdword;
+		else if (value->type == IniValue::vtInt)
+			return (float)value->vInt;
+		else
+		{
+			BadType(value - indice, indice, L"dword");
+			return 0.0;
+		}
+	}
+}
