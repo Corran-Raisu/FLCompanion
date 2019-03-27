@@ -140,6 +140,7 @@
     <ClInclude Include="ModInfoDlg.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceProvider.h" />
+    <ClInclude Include="ScopedPtr.h" />
     <ClInclude Include="SpeedDelaysDlg.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="System.h" />

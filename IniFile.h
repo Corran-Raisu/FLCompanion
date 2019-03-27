@@ -17,10 +17,11 @@ typedef LPWORD IniEntry;
 #pragma pack(push,1)
 struct IniValue
 {
-	BYTE type;	enum { vtInt = 1, vtFloat = 2, vtString = 3 };
+	BYTE type;	enum { vtInt = 1, vtFloat = 2, vtString = 3, vtdword };
 	union {
 		int vInt;
 		float vFloat;
+		DWORD vDWORD;
 	};
 };
 #pragma pack(pop)
@@ -53,6 +54,7 @@ public:
 	CString	GetValue(IniValue *value, UINT indice);
 	int		GetValueInt(IniValue *value, UINT indice);
 	float	GetValueFloat(IniValue *value, UINT indice);
+	DWORD   GetValueDWORD(IniValue *value, UINT indice);
 
 private:
 	CString EntryToString(IniValue *value);

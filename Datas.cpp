@@ -25,6 +25,7 @@ BOOL g_avoidHoles;
 BOOL g_avoidGates;
 BOOL g_avoidLanes;
 BOOL g_isTransport;
+BOOL g_triggeredImport;
 ModInfo g_modInfo;
 
 UINT BASE_DELAY = 20*1000;
@@ -67,7 +68,7 @@ DWORD FLHash(LPCTSTR str)
 	}
 	return (_byteswap_ulong(crc) >> 2) | 0x80000000ul;
 }
-/*
+
 WORD FactionIDHashTable[256];
 
 WORD FLFactionHash(LPCTSTR str)
@@ -95,7 +96,7 @@ void InitializeHashTable()
         FactionIDHashTable[index] = WORD(hash);
     }
 }
-*/
+
 
 BOOL LoadInitialWorld(const CString &iniFilename)
 {
@@ -116,7 +117,7 @@ BOOL LoadInitialWorld(const CString &iniFilename)
 					IniValue *values;
 					if (iniFile.GetNextEntry(entry, valuesCount, values).CompareNoCase(L"locked_gate") != 0)
 						continue;
-					g_lockedGates.AddTail(iniFile.GetValueInt(values,0));
+					g_lockedGates.AddTail(iniFile.GetValueDWORD(values,0));
 				}
 			}
 			else if (name.CompareNoCase(L"group") == 0)
@@ -415,7 +416,8 @@ BOOL LoadMarketPrices(const CString &iniFilename)
 				UINT buyonly = iniFile.GetValueInt(values,5);
 				if ((buyonly != 0) && (buyonly != 1)) ProblemFound(L"MarketGood entry (%s on %s) with 6th value (buy only) different than 0 or 1 (%d)", name, base.m_nickname, buyonly);
 				float price = (good.m_defaultPrice*iniFile.GetValueFloat(values,6));
-
+				if(price < 1)
+					ProblemFound(L"MarketGood entry (%s, %s) with value less than 1 credit %s", base.m_nickname, name, iniFilename);
 				//if (base.m_buy[good] != 0) ProblemFound(L"MarketGood entry (%s on %s) is defined twice", name, base.m_nickname);
 				
 				if (buyonly)
@@ -571,7 +573,7 @@ void LoadSystemObjects()
 						CString dock = iniFile.GetValue(section, "archetype");
 						jump.Init(name,
 							archType == ARCH_JUMP_GATE,
-							g_lockedGates.Find(FLHash(name)) != NULL, // true if gate is locked in initial world
+							g_lockedGates.Find(FLHash(name.MakeLower())) != NULL, // true if gate is locked in initial world
 							( (dock.Find(L"_fighter") > 0) || (dock.Find(L"_notransport") > 0)),
 							g_resourceProvider.GetStringFromID(iniFile.GetValueInt0(section, "ids_name")), // caption
 							&system); // system it is in
