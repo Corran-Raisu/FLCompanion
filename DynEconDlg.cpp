@@ -131,6 +131,7 @@ struct FlFactionInfo
 
 #define FLBASEDATALIST_ADDR 0x063FBB70
 #define FLSHIPSTREE_ADDR	0x063FCAC0
+#define FLCLIENTID_ADDR     0x00673344
 #define FLCREDITS_ADDR		0x00673364
 #define FLPLAYERSHIP_ADDR	0x0067337C
 #define FLFACTIONS_ADDR		0x064018EC
@@ -371,7 +372,7 @@ int CGameInspect::DoTask(DWORD flags)
 			}
 		}
 #if 0
-		/*
+		
 		if (true) //(flags & IMPORT_FACTIONS)
 		{
 			UINT changed = 0;
@@ -425,7 +426,7 @@ int CGameInspect::DoTask(DWORD flags)
 					}
 
 		}
-		*/
+		
 #endif
 		SetPriorityClass(m_hflProcess, dwPriorityClass);
 	}

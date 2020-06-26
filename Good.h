@@ -11,9 +11,11 @@
 
 #define GOODS_MAX	1024
 extern UINT GOODS_COUNT;
+extern UINT EQUIP_COUNT;
 
 class CGood;
 extern CGood g_goods[GOODS_MAX];
+extern CGood g_equip[GOODS_MAX];
 
 class CGood
 {
@@ -33,5 +35,6 @@ public:
 };
 
 extern CSortedMap<CString,LPCTSTR,CGood*,CGood*> g_goodsByNick;
+extern CSortedMap<CString, LPCTSTR, CGood*, CGood*> g_equipByNick;
 
 #endif // !defined(AFX_GOOD_H__E114EA7A_5A62_445E_A87F_D4E8891CDE7D__INCLUDED_)

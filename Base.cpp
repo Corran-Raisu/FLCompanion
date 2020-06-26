@@ -26,6 +26,10 @@ CSortedMap<CString,LPCTSTR,CBase*,CBase*> g_basesByNick;
 
 void CBase::Init(const CString &nickname, const CString &caption, CSystem *system, const CString &faction, BOOL isfreighteronly)
 {
+	if (caption == L" ")
+	{
+		ProblemFound(L"Universe entry (%s, %s) is missing a name in %s", system->m_nickname, nickname, system->m_file);
+	}
 	CDockable::Init(nickname, caption, system);
 	m_isfreighteronly = isfreighteronly;
 	for (UINT i = 0; i < GOODS_MAX; i++)	
@@ -52,8 +56,9 @@ void CBase::MakeMiningBase(CSystem *system, int x, int y, int z, UINT goodIndex,
 {
 	CDockable::Init(L"=mining operation=", L"<Mining Operation>", system);
 	for (UINT i = 0; i < GOODS_MAX; i++) m_buy[i] = 0;
+	for (UINT i = 0; i < GOODS_MAX; i++) m_sell[i] = 3.40282347e+38;
 	m_sell[goodIndex] = goodsPrice;
-	m_faction = NULL;
+	m_faction = g_factionsByNick["fc_admin"];
 	SetPos(x,y,z);
 }
 

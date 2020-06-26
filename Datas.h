@@ -14,6 +14,7 @@
 
 extern CLogDlg g_logDlg;
 extern BOOL g_avoidLockedGates;
+extern BOOL g_jumptrade;
 extern BOOL g_avoidHoles;
 extern BOOL g_avoidGates;
 extern BOOL g_avoidLanes;

@@ -127,6 +127,7 @@ public:
 	void Recalc(DWORD flags);
 	BOOL SetMaxInvestment(UINT investment);
 	BOOL SetMaxDistance(UINT distance);
+	BOOL SetJumpTradeTime(UINT jumptradeTime);
 	BOOL SetMinCSU(UINT minCSU);
 	BOOL SetCargoSize(UINT cargoSize);
 private:
@@ -149,10 +150,12 @@ public:
 	CString m_version;
 	int SelectedItem;
 	int g_traderouteTotal;
+	int g_traderouteTotalHour;
 private:
 	HACCEL m_hAccel;
 	UINT m_maxInvestment;
 	UINT m_maxDistance;
+	UINT m_jumptradeTime;
 	UINT m_minCSU;
 	BOOL m_showAllSolutions;
 	CAsteroids* m_curAsteroids;

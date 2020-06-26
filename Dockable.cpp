@@ -16,6 +16,7 @@ static char THIS_FILE[]=__FILE__;
 
 UINT BASES_COUNT;
 UINT GOODS_COUNT;
+UINT EQUIP_COUNT;
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -29,6 +30,10 @@ void CDockable::ResetPath()
 
 void CDockable::Init(const CString &nickname, const CString &caption, CSystem *system)
 {
+	if (caption == L" ")
+	{
+		ProblemFound(L"Universe entry (%s, %s) is missing a name in %s", system->m_nickname, nickname, system->m_file);
+	}
 	m_nickname = nickname;
 	m_caption = caption;
 	m_system = system;

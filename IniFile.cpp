@@ -4,7 +4,7 @@
 
 #include "stdafx.h"
 #include "IniFile.h"
-
+#include "resource.h"
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -23,10 +23,18 @@ CString IniFile::g_basePath;
 IniFile::IniFile(const CString &path)
 {
 	m_path = path;
-	CString fullpath = PathIsRelative(path) ? g_basePath+path : path;
-	if (!PathFileExists(fullpath))
-		FatalError(L"File "+path+L" not found");
-	CHECKERR((m_hFile = CreateFile(fullpath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL)) != INVALID_HANDLE_VALUE);
+	if (path.Left(4) == "res\\")
+	{
+		GetResource();
+		CHECKERR((m_hFile = CreateFile(g_basePath + "tempFLC.ini", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_DELETE_ON_CLOSE, NULL)) != INVALID_HANDLE_VALUE);
+	}
+	else
+	{
+		CString fullpath = PathIsRelative(path) ? g_basePath + path : path;
+		if (!PathFileExists(fullpath))
+			FatalError(L"File " + path + L" not found");
+		CHECKERR((m_hFile = CreateFile(fullpath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL)) != INVALID_HANDLE_VALUE);
+	}
 	DWORD size = GetFileSize(m_hFile, NULL);
 	if (size == 0)
 	{
@@ -49,7 +57,6 @@ IniFile::IniFile(const CString &path)
 		m_textMode = (header->magic != INIFILE_MAGIC);
 		if (!m_textMode)
 		{
-			
 			if (header->version != INIFILE_VERSION)
 				ProblemFound(L"%s: Unexpected BINI header version (%d)", path, header->version);
 			m_stringtable = m_baseAddress+header->stringtableOffset;
@@ -659,4 +666,32 @@ DWORD IniFile::GetValueDWORD(IniValue *value, UINT indice)
 			return 0.0;
 		}
 	}
+}
+
+void IniFile::LoadFileInResource(int name, int type, DWORD& size, const char*& data)
+{
+	HMODULE handle = ::GetModuleHandle(NULL);
+	HRSRC rc = ::FindResource(handle, MAKEINTRESOURCE(name),MAKEINTRESOURCE(type));
+	HGLOBAL rcData = ::LoadResource(handle, rc);
+	size = ::SizeofResource(handle, rc);
+	data = static_cast<const char*>(::LockResource(rcData));
+}
+
+// Usage example
+wchar_t IniFile::GetResource()
+{
+	DWORD size = 0;
+	DWORD dwWritten = 0;
+	const char* data = NULL;
+	LoadFileInResource(IDR_MYTEXTFILE, TEXTFILE, size, data);
+	/* Access bytes in data - here's a simple example involving text output*/
+	// The text stored in the resource might not be NULL terminated.
+	char* buffer = new char[size + 1];
+	::memcpy(buffer, data, size);
+	buffer[size] = 0; // NULL terminator
+	HANDLE iniFile = ::CreateFile(g_basePath + L"tempFLC.ini", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	::WriteFile(iniFile,buffer,size,&dwWritten,NULL); // Print as ASCII text
+	::CloseHandle(iniFile);
+	delete[] buffer;
+	return 0;
 }
