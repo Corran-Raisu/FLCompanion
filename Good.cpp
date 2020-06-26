@@ -15,7 +15,9 @@ static char THIS_FILE[]=__FILE__;
 #endif
 
 CGood g_goods[GOODS_MAX];
+CGood g_equip[GOODS_MAX];
 CSortedMap<CString,LPCTSTR,CGood*,CGood*> g_goodsByNick;
+CSortedMap<CString, LPCTSTR, CGood*, CGood*> g_equipByNick;
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

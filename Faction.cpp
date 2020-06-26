@@ -16,6 +16,9 @@ UINT FACTIONS_COUNT;
 CFaction g_factions[FACTIONS_MAX];
 CSortedMap<CString,LPCTSTR,CFaction*,CFaction*> g_factionsByNick;
 
+UINT ID_COUNT;
+CFaction g_ID[FACTIONS_MAX];
+CSortedMap<CString, LPCTSTR, CFaction*, CFaction*> g_IDByNick;
 
 void CFaction::Init(const CString &nickname, const CString &caption)
 {

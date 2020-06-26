@@ -19,6 +19,8 @@
 #define IDR_ACCELERATOR                 137
 #define IDI_JUMP                        138
 #define IDI_SWITCH_ARROW                139
+#define TEXTFILE                        256
+#define IDR_MYTEXTFILE                  101
 #define IDC_BASE_COMBO                  1000
 #define IDC_ROUTES                      1001
 #define IDC_SYSTEM_COMBO                1002
@@ -91,6 +93,7 @@
 #define IDI_UP_ARROW                    1066
 #define IDC_MFCMENUBUTTON1              1066
 #define IDI_DOWN_ARROW                  1067
+#define IDC_EDIT1                       1067
 #define IDC_MINCSU                      1068
 #define IDC_FRAME_Systems               1069
 #define IDC_SYSTEMS_LIST                1070
@@ -109,6 +112,9 @@
 #define IDC_MININGGOODS_PRICE           1083
 #define IDC_SRCDEST_SWITCH              1084
 #define IDC_FACTION_ID                  1085
+#define IDR_CUSTOMBASEMENU              1086
+#define IDM_MININGBASE                  1087
+#define IDM_CUSTOMBASE                  1088
 #define ID_DUMP_BASE_TIMES              32771
 #define ID_BASE_INFO                    32772
 #define ID_GOODS_REPO                   32773
@@ -133,15 +139,17 @@
 #define IDC_AVOIDGATES                  32813
 #define IDC_AVOIDLANES                  32814
 #define ID_DUMP_SOLUTIONS               32815
+#define IDC_JUMPTRADE_CHECK             32816
+#define IDC_JUMPTRADE_TIME              32817
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        140
+#define _APS_NEXT_RESOURCE_VALUE        141
 #define _APS_NEXT_COMMAND_VALUE         32812
-#define _APS_NEXT_CONTROL_VALUE         1067
+#define _APS_NEXT_CONTROL_VALUE         1068
 #define _APS_NEXT_SYMED_VALUE           114
 #endif
 #endif

@@ -130,8 +130,10 @@ BOOL CGoodsRepoDlg::FindEquipNames(const CString &iniFilename)
 			caption.TrimLeft();
 			if (caption.IsEmpty()) caption = nickname;
 			CGood* good = NULL;
-			if ((m_kind == "Commodity") && g_goodsByNick.Lookup(nickname, good))
-				caption = '*'+caption;
+			if ((m_kind != "Commodity") || !g_goodsByNick.Lookup(nickname, good))
+				caption = "*" + caption;
+			else
+				caption = " " + caption;
 			LVFINDINFO fi;
 			fi.flags = LVFI_STRING;
 			fi.psz = caption;

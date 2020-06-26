@@ -21,6 +21,7 @@ static char THIS_FILE[]=__FILE__;
 #endif
 
 BOOL g_avoidLockedGates;
+BOOL g_jumptrade;
 BOOL g_avoidHoles;
 BOOL g_avoidGates;
 BOOL g_avoidLanes;
@@ -268,6 +269,12 @@ BOOL LoadGoods(const CString &iniFilename)
 	IniSection section;
 	CString name;
 	Log(L"Parsing Goods...");
+	{
+		//Add a blank item at ID 0 for returns with no commodity.
+		CGood &good = g_goods[GOODS_COUNT++];
+		good.InitPrice(0);
+		good.Init("return_novalue", "Return with No Commodity", 1, 0);
+	}
 	{ // fetch standard goods id & price
 		IniFile iniFile(iniFilename);
 		section = NULL;
@@ -367,6 +374,16 @@ BOOL LoadEquip(const CString &iniFilename)
 					iniFile.GetValueFloat(section, "volume"),
 					decay_per_second == 0.0 ? 0 : UINT((1000*iniFile.GetValueFloat(section, "hit_pts"))/decay_per_second));
 			}
+			if (name.CompareNoCase(L"Tractor") == 0)
+			{
+				name = iniFile.GetValue(section, "nickname");
+				if (name.Find(L"license") > 0)
+				{
+					CGood &equip = g_equip[EQUIP_COUNT++];
+					equip.Init(name, g_resourceProvider.GetStringFromID(iniFile.GetValueInt(section, "ids_name")), 1, 0);
+					g_equipByNick[name] = &equip;
+				}
+			}
 		}
 	}
 	return TRUE;
@@ -417,7 +434,7 @@ BOOL LoadMarketPrices(const CString &iniFilename)
 				if ((buyonly != 0) && (buyonly != 1)) ProblemFound(L"MarketGood entry (%s on %s) with 6th value (buy only) different than 0 or 1 (%d)", name, base.m_nickname, buyonly);
 				float price = (good.m_defaultPrice*iniFile.GetValueFloat(values,6));
 				if(price < 1)
-					ProblemFound(L"MarketGood entry (%s, %s) with value less than 1 credit %s", base.m_nickname, name, iniFilename);
+					ProblemFound(L"MarketGood entry (%s, %s) with value less than 1 credit in %s", base.m_nickname, name, iniFilename);
 				//if (base.m_buy[good] != 0) ProblemFound(L"MarketGood entry (%s on %s) is defined twice", name, base.m_nickname);
 				
 				if (buyonly)
@@ -462,6 +479,46 @@ BOOL LoadShips(const CString &iniFilename)
 				info.m_hold_size = iniFile.GetValueInt(section, "hold_size");
 				info.m_ids_name = iniFile.GetValueInt(section, "ids_name");
 			}
+		}
+	}
+	return TRUE;
+}
+
+BOOL LoadIDHacks()
+{
+	//WIP
+	Log(L"Parsing ID Rep Hacks");
+	IniSection section;
+	CString sectionname;
+	CString entryname;
+	CString name;
+	{
+		IniFile iniFile(L"res\\IDHacks.ini");
+		section = NULL;
+		while (iniFile.GetNextSection(section, sectionname))
+		{
+			CString IDName = g_equipByNick[sectionname]->m_caption;
+			CFaction &ID = g_ID[ID_COUNT++];
+			ID.Init(sectionname, g_equipByNick[sectionname]->m_caption);
+			IniEntry entry;
+			UINT entrynumber = 0;
+			for (UINT entriesCount = iniFile.EnumEntries(section, entry); entriesCount; entriesCount--)
+			{
+				UINT valuesCount;
+				IniValue *values;
+				FLOAT rep;
+				name = iniFile.GetNextEntry(entry, valuesCount, values);
+				if (valuesCount == 0)
+					rep = 0;
+				else
+					rep = iniFile.GetValueFloat(values, 0) * 100;
+				ID.m_reputations[entrynumber].Init(name, rep);
+				ID.m_reputationCount++;
+				ID.repsByNick[name] = &ID.m_reputations[entrynumber];
+				entrynumber++;
+
+			}
+			g_IDByNick[name] = &ID;
 		}
 	}
 	return TRUE;
@@ -1115,7 +1172,8 @@ BOOL LoadAppDatas(CWnd *wnd)
 	SYSTEMS_COUNT = 0;
 	BASES_COUNT = 0;
 	GOODS_COUNT = 0;
-	
+	EQUIP_COUNT = 0;
+
 	//InitializeHashTable();
 	DetectMod();
 
@@ -1135,6 +1193,7 @@ BOOL LoadAppDatas(CWnd *wnd)
 	LoadFiles(LoadEquip, L"equipment");		// read more info on goods
 	LoadFiles(LoadMarketPrices, L"markets");// parse bases price
 	LoadFiles(LoadShips, L"ships");			// read more info on ships
+	LoadIDHacks();
 	g_resourceProvider.Free();
 	
 	return true;

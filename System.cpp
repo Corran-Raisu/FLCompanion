@@ -32,6 +32,10 @@ CSystem::~CSystem()
 
 void CSystem::Init(const CString &nickname, const CString &caption, const CString &file)
 {
+	if (caption == L" ")
+	{
+		ProblemFound(L"Universe entry (%s) is missing a name in %s", nickname, file);
+	}
 	m_nickname = nickname;
 	m_caption = caption;
 	m_file = file;

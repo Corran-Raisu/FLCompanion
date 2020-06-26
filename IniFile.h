@@ -55,7 +55,9 @@ public:
 	int		GetValueInt(IniValue *value, UINT indice);
 	float	GetValueFloat(IniValue *value, UINT indice);
 	DWORD   GetValueDWORD(IniValue *value, UINT indice);
-
+	void LoadFileInResource(int name, int type, DWORD & size, const char *& data);
+	//void LoadFileInResource(int name, int type, DWORD& size, const wchar_t *& data);
+	wchar_t GetResource();
 private:
 	CString EntryToString(IniValue *value);
 	void	BadType(IniValue *value, UINT indice, LPCTSTR expected);

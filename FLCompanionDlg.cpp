@@ -15,6 +15,9 @@
 #include "AboutDlg.h"
 #include "MiningBaseDlg.h"
 #include "ModInfoDlg.h"
+#include <locale>
+#include <iostream>
+#include <iomanip>
 
 #define M_PI       3.1415926535897932384626433832795L
 #define M_2PI      6.283185307179586476925286766559L
@@ -35,12 +38,18 @@ int gcx, gcy;
 #define ALL_TRADING_ROUTES
 #endif
 
+struct space_out : std::numpunct<char> {
+	char do_thousands_sep()   const { return ' '; }  // separate with spaces
+	std::string do_grouping() const { return "\1"; } // groups of 1 digit
+};
+
 /////////////////////////////////////////////////////////////////////////////
 // CFLCompanionDlg dialog
 
 CFLCompanionDlg::CFLCompanionDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CFLCompanionDlg::IDD, pParent), m_mapOrigin(0,0), m_recalcFlags(0)
 {
+	setlocale(LC_NUMERIC, "");
 	//{{AFX_DATA_INIT(CFLCompanionDlg)
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
@@ -50,10 +59,12 @@ CFLCompanionDlg::CFLCompanionDlg(CWnd* pParent /*=NULL*/)
 	m_cargoSize = theApp.GetProfileInt(L"Settings", L"CargoSize", 1);
 	m_maxInvestment = theApp.GetProfileInt(L"Settings", L"MaxInvestment", 0);
 	m_maxDistance = theApp.GetProfileInt(L"Settings", L"MaxDistance", 0);
+	m_jumptradeTime = theApp.GetProfileInt(L"Settings", L"JumpTradeTime", 0);
 	m_minCSU = theApp.GetProfileInt(L"Settings", L"MinCSU", 0);
 	m_displayNicknames = FALSE;
 	m_showAllSolutions = true;
 	g_avoidLockedGates = theApp.GetProfileInt(L"Settings", L"AvoidLockedGates", TRUE);
+	g_jumptrade = theApp.GetProfileInt(L"Settings", L"JumpTrade", FALSE);
 	g_avoidHoles = theApp.GetProfileInt(L"Settings", L"AvoidHoles", FALSE);
 	g_avoidGates = theApp.GetProfileInt(L"Settings", L"AvoidGates", FALSE);
 	g_avoidLanes = theApp.GetProfileInt(L"Settings", L"AvoidLanes", FALSE);
@@ -114,6 +125,8 @@ BEGIN_MESSAGE_MAP(CFLCompanionDlg, CDialog)
 	ON_WM_SIZE()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONDBLCLK()
+	ON_WM_RBUTTONDOWN()
+	ON_WM_RBUTTONUP()
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
 	ON_WM_WINDOWPOSCHANGED()
@@ -638,7 +651,9 @@ void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell,
 		if (profit < 0)
 			return; // negative profit if decay is taken in account, drop it
 	}
-	if (((profit / units) * 100000 / distance) < m_minCSU && destbase!=g_miningbase)
+	if (distance == 0)
+		return;
+	if (((profit / units) * 100000 / distance) < m_minCSU && destbase!=g_miningbase && goodIndex!=0)
 		return;
 	int nItem = m_routes.InsertItem(MAXLONG, m_displayNicknames ? g_goods[goodIndex].m_nickname : g_goods[goodIndex].m_caption);
 //#ifdef ALL_TRADING_ROUTES
@@ -688,6 +703,13 @@ void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell,
 
 void CFLCompanionDlg::AddSolutionsForBase(CBase* base)
 {
+	if (m_traderoute.GetItemCount() != 0) 
+// && m_traderoute.GetItemText(0, 1) == m_traderoute.GetItemText(m_traderoute.GetItemCount() - 1, 2))
+	{
+		//Add the Return with No Commodity solution as the first in the list.
+		CBase *destbase = (CBase*)_ttoi(m_traderoute.GetItemText(0, 7));
+		AddSolution(0, 0, 0, base, destbase, base->m_distanceToBase[destbase - g_bases] + base->GetDockingDelay());
+	}
 	// build up the buying price array
 	float *sell = base->m_sell;
 	if (!blnMultiBaseSolution)
@@ -695,7 +717,7 @@ void CFLCompanionDlg::AddSolutionsForBase(CBase* base)
 	for (int index = 0; index < SYSTEMS_COUNT; index++)
 	{
 		CSystem *system = &g_systems[index];
-		if (system->m_avoid)
+		if (system->m_avoid || base->m_faction->m_avoid == true)
 			continue;
 		// scan all bases in this system
 		POSITION pos = system->m_bases.GetHeadPosition();
@@ -718,14 +740,14 @@ void CFLCompanionDlg::AddSolutionsForBase(CBase* base)
 				double destbuy = max(destbase->m_buy[goodIndex], 1);
 				double srcsell = max(sell[goodIndex], 1);
 				if (destbase->m_buy[goodIndex] > sell[goodIndex]) // destination buying price is higher than initial sell price
-					AddSolution(goodIndex, destbuy, srcsell, base, destbase,
+					AddSolution(goodIndex, destbuy, srcsell, base, destbase, g_jumptrade ? m_jumptradeTime : 
 						base->m_distanceToBase[destbase-g_bases]+base->GetDockingDelay());
 						//base.m_system->m_distances[destbase->m_system-g_systems]);
 			}
 		}
 	}
 	if(g_miningbase != NULL)
-		AddSolution(NULL, 0, 0, base, g_miningbase, base->m_distanceToBase[g_miningbase-g_bases]+base->GetDockingDelay());
+		AddSolution(0, 0, 0, base, g_miningbase, base->m_distanceToBase[g_miningbase-g_bases]+base->GetDockingDelay());
 	if(!blnMultiBaseSolution)
 		Log(L"Solutions for %s (as source) loaded: %d" , m_displayNicknames ? base->m_nickname : base->m_caption, solutionCount);
 }
@@ -881,7 +903,15 @@ void CFLCompanionDlg::JumptoBase(CBase *base)
 void CFLCompanionDlg::OnItemactivateRoutes(NMHDR* pNMHDR, LRESULT* pResult) 
 {
 	NM_LISTVIEW* pNMListView = (NM_LISTVIEW*)pNMHDR;
-	JumptoBase((CBase*) m_routes.GetItemData(pNMListView->iItem));
+	switch (m_SrcDestSwitch.GetCurSel())
+	{
+	case 0:
+		JumptoBase((CBase*)m_routes.GetItemData(pNMListView->iItem));
+		break;
+	case 1:
+		JumptoBase((CBase*)_ttoi(m_routes.GetItemText(pNMListView->iItem, 7)));
+		break;
+	}
 	*pResult = 0;
 }
 
@@ -920,7 +950,7 @@ void CFLCompanionDlg::OnItemchangedRoutes(NMHDR* pNMHDR, LRESULT* pResult)
 		destination = (CBase*)_ttoi(m_routes.GetItemText(pNMListView->iItem, 7));
 		from = (CBase*)m_routes.GetItemData(pNMListView->iItem);
 		break;
-}
+	}
 
 #ifdef ALL_TRADING_ROUTES
 	if (m_showAllSolutions)
@@ -939,26 +969,27 @@ void CFLCompanionDlg::OnItemchangedRoutes(NMHDR* pNMHDR, LRESULT* pResult)
 		BOOL perishable = (g_goods[goodIndex].m_decay_time != 0);
 		SetDlgItemText(IDC_PERISHABLE, perishable ? L"*PERISHABLE*" : L"");
 		UINT distance = from->m_distanceToBase[destination-g_bases];
-		CString msg;
-		if (m_cargoSize == 1)
-			msg.FormatMessage(L"Buy one unit for $%1!d!", (int)(m_SrcDestSwitch.GetCurSel() == 0 ? max(from->m_sell[goodIndex],1) : max(destination->m_sell[goodIndex],1)));
-		else
-			msg.FormatMessage(L"Buy %1!d! units for $%2!d! each", units, (int) (m_SrcDestSwitch.GetCurSel() == 0 ? max(from->m_sell[goodIndex],1) : max(destination->m_sell[goodIndex],1)));
-		SetDlgItemText(IDC_BUY_PRICE, msg);
+		CString buymsg;
+		CString sellmsg;
 		UINT decay_units = perishable ? distance/(g_goods[goodIndex].m_decay_time) : 0;
 		if (m_cargoSize == 1)
+		{
+			buymsg.FormatMessage(L"Buy one unit for $%1!d!", (int)(m_SrcDestSwitch.GetCurSel() == 0 ? max(from->m_sell[goodIndex] == FLT_MAX ? 0 : from->m_sell[goodIndex], 0) : max(destination->m_sell[goodIndex] == FLT_MAX ? 0 : destination->m_sell[goodIndex], 0)));
 			if (perishable)
 			{
-				double unit = 1.0-decay_units/100.0;
-				msg.Format(L"Sell %.3f unit for $%d", unit, (int) (m_SrcDestSwitch.GetCurSel() == 0 ? destination->m_buy[goodIndex] : from->m_buy[goodIndex]));
+				double unit = 1.0 - decay_units / 100.0;
+				sellmsg.Format(L"Sell %.3f unit for $%d", unit, (int)(m_SrcDestSwitch.GetCurSel() == 0 ? max(destination->m_buy[goodIndex] == FLT_MAX ? 0 : destination->m_buy[goodIndex], 0) : max(from->m_buy[goodIndex] == FLT_MAX ? 0 : from->m_buy[goodIndex], 0)));
 			}
 			else
-				msg.FormatMessage(L"Sell one unit for $%1!d!", (int) (m_SrcDestSwitch.GetCurSel() == 0 ? destination->m_buy[goodIndex] : from->m_buy[goodIndex]));
+				sellmsg.FormatMessage(L"Sell one unit for $%1!d!", (int)(m_SrcDestSwitch.GetCurSel() == 0 ? max(destination->m_buy[goodIndex] == FLT_MAX ? 0 : destination->m_buy[goodIndex], 0) : max(from->m_buy[goodIndex] == FLT_MAX ? 0 : from->m_buy[goodIndex], 0)));
+		}
 		else
 		{
-			msg.FormatMessage(L"Sell %1!d! units for $%2!d! each", units-decay_units, (int)(m_SrcDestSwitch.GetCurSel() == 0 ? destination->m_buy[goodIndex] : from->m_buy[goodIndex]));
+			buymsg.FormatMessage(L"Buy %1!d! units for $%2!d! each", units, (int)(m_SrcDestSwitch.GetCurSel() == 0 ? max(from->m_sell[goodIndex] == FLT_MAX ? 0 : from->m_sell[goodIndex], 0) : max(destination->m_sell[goodIndex] == FLT_MAX ? 0 : destination->m_sell[goodIndex], 0)));
+			sellmsg.FormatMessage(L"Sell %1!d! units for $%2!d! each", units-decay_units, (int)(m_SrcDestSwitch.GetCurSel() == 0 ? max(destination->m_buy[goodIndex] == FLT_MAX ? 0 : destination->m_buy[goodIndex], 0) : max(from->m_buy[goodIndex] == FLT_MAX ? 0 : from->m_buy[goodIndex], 0)));
 		}
-		SetDlgItemText(IDC_SELL_PRICE, msg);
+		SetDlgItemText(IDC_BUY_PRICE, buymsg);
+		SetDlgItemText(IDC_SELL_PRICE, sellmsg);
 	}
 
 	SelComboByData(m_destsystemCombo, destination->m_system);
@@ -973,7 +1004,16 @@ void CFLCompanionDlg::OnTRItemchangedRoutes(NMHDR* pNMHDR, LRESULT* pResult)
 	if ((pNMListView->uNewState & LVIS_SELECTED) == 0)
 		return;
 	SelectedItem = pNMListView->iItem;
-	CBase *from = (CBase*)_ttoi(m_traderoute.GetItemText(pNMListView->iItem, 7));
+	CBase *from;
+	switch (m_SrcDestSwitch.GetCurSel())
+	{
+	case 0:
+		from = (CBase*)_ttoi(m_routes.GetItemText(pNMListView->iItem, 7));
+		break;
+	case 1:
+		from = (CBase*)m_routes.GetItemData(pNMListView->iItem);
+		break;
+	}
 #ifdef ALL_TRADING_ROUTES
 	if (m_showAllSolutions)
 	{
@@ -1025,11 +1065,12 @@ void CFLCompanionDlg::OnSelchangeDestsystemCombo()
 {
 	int nIndex = m_destsystemCombo.GetCurSel();
 	if (nIndex == CB_ERR)
-		nIndex = m_destsystemCombo.SelectString(-1, L" (All systems)");
+		nIndex = m_destsystemCombo.SelectString(0, L" (All systems)");
 	CSystem *system = reinterpret_cast<CSystem*>(m_destsystemCombo.GetItemDataPtr(nIndex));
 	
 	nIndex = m_destbaseCombo.GetCurSel();
-	CBase *base = (nIndex == CB_ERR) ? NULL : (CBase*) m_destbaseCombo.GetItemDataPtr(nIndex);
+	CBase *base = (nIndex == CB_ERR) ? NULL : (CBase*)m_destbaseCombo.GetItemDataPtr(nIndex);
+	nIndex = m_destbaseCombo.GetCurSel();
 
 	CString nickname;
 	m_destbaseCombo.ResetContent();
@@ -1079,7 +1120,7 @@ void CFLCompanionDlg::OnSelchangeDestbaseCombo()
 	}
 
 	if (nIndex == CB_ERR) return;
-	SetDlgItemText(IDC_DESTFACTION, destination->m_faction ? (m_displayNicknames ? destination->m_faction->m_nickname : destination->m_faction->m_caption) : L"");
+	SetDlgItemText(IDC_DESTFACTION, m_SrcDestSwitch.GetCurSel()==0 ? (destination->m_faction ? (m_displayNicknames ? destination->m_faction->m_nickname : destination->m_faction->m_caption) : L"") : (fromBase->m_faction ? (m_displayNicknames ? fromBase->m_faction->m_nickname : fromBase->m_faction->m_caption) : L""));
 	CDockable *from = fromBase;
 	int baseIndex = destination-g_bases;
 	m_waypoints.SetRedraw(FALSE);
@@ -1423,6 +1464,7 @@ void CFLCompanionDlg::OnLimitations()
 	CLimitationsDlg dlg;
 	dlg.m_cargoSize = m_cargoSize;
 	dlg.m_avoidLockedGates = g_avoidLockedGates;
+	dlg.m_jumptrade = g_jumptrade;
 	dlg.m_avoidHoles = g_avoidHoles;
 	dlg.m_avoidGates = g_avoidGates;
 	dlg.m_avoidLanes = g_avoidLanes;
@@ -1430,22 +1472,26 @@ void CFLCompanionDlg::OnLimitations()
 	
 	dlg.m_maxInvestment = m_maxInvestment;
 	dlg.m_maxDistance = m_maxDistance;
+	dlg.m_jumptradeTime = m_jumptradeTime;
 	dlg.m_minCSU = m_minCSU;
 
 	if (dlg.DoModal() == IDOK)
 	{
 		theApp.WriteProfileInt(L"Settings", L"AvoidLockedGates", dlg.m_avoidLockedGates);
+		theApp.WriteProfileInt(L"Settings", L"JumpTrade", dlg.m_jumptrade);
 		theApp.WriteProfileInt(L"Settings", L"AvoidHoles", dlg.m_avoidHoles);
 		theApp.WriteProfileInt(L"Settings", L"AvoidGates", dlg.m_avoidGates);
 		theApp.WriteProfileInt(L"Settings", L"AvoidLanes", dlg.m_avoidLanes);
 		theApp.WriteProfileInt(L"Settings", L"IsTransport", dlg.m_isTransport);
 		g_avoidLockedGates = dlg.m_avoidLockedGates;
+		g_jumptrade = dlg.m_jumptrade;
 		g_avoidHoles = dlg.m_avoidHoles;
 		g_avoidGates = dlg.m_avoidGates;
 		g_avoidLanes = dlg.m_avoidLanes;
 		g_isTransport = dlg.m_isTransport;
 		SetMaxInvestment(dlg.m_maxInvestment);
 		SetMaxDistance(dlg.m_maxDistance);
+		SetJumpTradeTime(dlg.m_jumptradeTime);
 		SetMinCSU(dlg.m_minCSU);
 		SetCargoSize(dlg.m_cargoSize);
 		Recalc(RECALC_PATHS);
@@ -1527,6 +1573,30 @@ void CFLCompanionDlg::OnLButtonDown(UINT nFlags, CPoint point)
 
 void CFLCompanionDlg::OnRButtonDown(UINT nFlags, CPoint point)
 {
+#if 0
+	// TODO: Add your message handler code here
+	// Load the desired menu
+	CMenu mnuPopupSubmit;
+	mnuPopupSubmit.LoadMenu(IDR_CUSTOMBASEMENU);
+
+	// Get a pointer to the button
+	CButton *pButton;
+	pButton = reinterpret_cast<CButton *>(GetDlgItem(IDC_MAP));
+
+	// Find the rectangle around the button
+	CRect rectSubmitButton;
+	pButton->GetWindowRect(&rectSubmitButton);
+
+	// Get a pointer to the first item of the menu
+	CMenu *mnuPopupMenu = mnuPopupSubmit.GetSubMenu(0);
+	ASSERT(mnuPopupMenu);
+
+	// Find out if the user right-clicked the button
+	// because we are interested only in the button
+	//if (rectSubmitButton.PtInRect(point)) // Since the user right-clicked the button, display the context menu
+		mnuPopupMenu->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, this);
+
+	/*
 	CRect rect;
 	::GetWindowRect(::GetDlgItem(*this, IDC_MAP), rect);
 	ScreenToClient(rect);
@@ -1534,11 +1604,14 @@ void CFLCompanionDlg::OnRButtonDown(UINT nFlags, CPoint point)
 	{
 		if (nFlags & MK_CONTROL)
 		{
-			int x = (point.x - (rect.left + rect.right) / 2)*m_mapmax * 2 / rect.Width() / m_zoom + m_mapOrigin.x;
-			int z = (point.y - (rect.top + rect.bottom) / 2)*m_mapmax * 2 / rect.Height() / m_zoom + m_mapOrigin.y;
-			::ShowWindow(::GetDlgItem(*this, IDC_MAPINFO), SW_SHOW);
+			//int x = (point.x - (rect.left + rect.right) / 2)*m_mapmax * 2 / rect.Width() / m_zoom + m_mapOrigin.x;
+			//int z = (point.y - (rect.top + rect.bottom) / 2)*m_mapmax * 2 / rect.Height() / m_zoom + m_mapOrigin.y;
+			//::ShowWindow(::GetDlgItem(*this, IDC_MAPINFO), SW_SHOW);
 		}
+		TrackPopupMenu(IDR_CUSTOMBASEMENU, nFlags, point.x, point.y, 0, *this, NULL);
 	}
+	*/
+#endif
 }
 void CFLCompanionDlg::OnMouseMove(UINT nFlags, CPoint point) 
 {
@@ -1643,6 +1716,16 @@ BOOL CFLCompanionDlg::SetMaxDistance(UINT distance)
 	return true;
 }
 
+BOOL CFLCompanionDlg::SetJumpTradeTime(UINT jumptradeTIme)
+{
+	if (m_jumptradeTime == jumptradeTIme)
+		return false;
+	m_jumptradeTime = jumptradeTIme;
+	theApp.WriteProfileInt(L"Settings", L"JumpTradeTime", m_jumptradeTime);
+	Recalc(RECALC_SOLUTIONS);
+	return true;
+}
+
 BOOL CFLCompanionDlg::SetMinCSU(UINT minCSU)
 {
 	if (m_minCSU == minCSU)
@@ -1687,6 +1770,7 @@ LRESULT CFLCompanionDlg::OnRecalc(WPARAM, LPARAM)
 	{
 		OnSelchangeBaseCombo();
 	}
+	OnSelchangeSrcDestCombo();
 	EndWaitCursor();
 	return 0;
 }
@@ -2117,7 +2201,9 @@ void CFLCompanionDlg::OnTR_Add()
 {
 	if (g_traderouteTotal != 0)
 	{
+		m_traderoute.DeleteItem(g_traderouteTotalHour);
 		m_traderoute.DeleteItem(g_traderouteTotal);
+		g_traderouteTotalHour = 0;
 		g_traderouteTotal = 0;
 	}
 
@@ -2139,14 +2225,16 @@ void CFLCompanionDlg::OnTR_Rem()
 {
 	if (g_traderouteTotal != 0)
 	{
-		if ((int)m_traderoute.GetFirstSelectedItemPosition() - 1 == g_traderouteTotal)
+		if ((int)m_traderoute.GetFirstSelectedItemPosition() - 1 == g_traderouteTotal || (int)m_traderoute.GetFirstSelectedItemPosition() - 1 == g_traderouteTotalHour)
 		{
 			m_traderoute.DeleteAllItems();
 		}
 		else
 		{
+			m_traderoute.DeleteItem(g_traderouteTotalHour);
 			m_traderoute.DeleteItem(g_traderouteTotal);
 			g_traderouteTotal = 0;
+			g_traderouteTotalHour = 0;
 		}
 	}
 	m_traderoute.DeleteItem((int)m_traderoute.GetFirstSelectedItemPosition() - 1);
@@ -2167,7 +2255,7 @@ void CFLCompanionDlg::Calc_TotalRow()
 		int goodIndex = 0;
 		goodIndex = _ttoi(m_traderoute.GetItemText(i, 6));
 		CBase *to = (CBase*)m_traderoute.GetItemData(i);
-		LONG distance = to->m_distanceToBase[from - g_bases]+ to->GetDockingDelay();
+		LONG distance = goodIndex != 0 && g_jumptrade ? m_jumptradeTime : to->m_distanceToBase[from - g_bases] + to->GetDockingDelay();
 		UINT units = m_cargoSize == 1 ? 1 : UINT(m_cargoSize / g_goods[goodIndex].m_volume);
 		LONG profit = 0;
 
@@ -2238,4 +2326,11 @@ void CFLCompanionDlg::Calc_TotalRow()
 	if (index > 0) ratio = ratio.Left(index + 3);
 	_stprintf(buf, L"%s ¢/sec", LPCTSTR(ratio));
 	m_traderoute.SetItemText(g_traderouteTotal, 8, buf);
+	g_traderouteTotalHour = m_traderoute.InsertItem(MAXLONG, L"Approx. per Hour : ");
+
+	ratio = DoubleToString(((60.0 / ((t_distance + 500) / 1000 / 60))) * t_profit);
+	index = ratio.Find('.');
+	if (index > 0) ratio = ratio.Left(index);
+	_stprintf(buf, L"$%s", LPCTSTR(ratio));
+	m_traderoute.SetItemText(g_traderouteTotalHour, 3, buf);
 }

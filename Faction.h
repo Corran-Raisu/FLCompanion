@@ -38,6 +38,9 @@ public:
 extern UINT FACTIONS_COUNT;
 extern CFaction g_factions[FACTIONS_MAX];
 extern CSortedMap<CString,LPCTSTR,CFaction*,CFaction*> g_factionsByNick;
+extern UINT ID_COUNT;
+extern CFaction g_ID[FACTIONS_MAX];
+extern CSortedMap<CString, LPCTSTR, CFaction*, CFaction*> g_IDByNick;
 
 
 #endif // !defined(AFX_FACTION_H__05038F85_2503_4BC3_B274_7AEA157DA550__INCLUDED_)

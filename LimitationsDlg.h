@@ -25,6 +25,7 @@ public:
 	CComboBox       m_factionID;
 	UINT	m_cargoSize;
 	BOOL	m_avoidLockedGates;
+	BOOL	m_jumptrade;
 	BOOL	m_avoidHoles;
 	BOOL	m_avoidGates;
 	BOOL	m_avoidLanes;
@@ -33,6 +34,8 @@ public:
 	UINT	m_maxInvestment;
 	CString	m_distanceText;
 	UINT	m_maxDistance;
+	CString	m_jumptradeText;
+	UINT	m_jumptradeTime;
 	CString	m_minCSUText;
 	UINT	m_minCSU;
 	//}}AFX_DATA
@@ -58,6 +61,7 @@ protected:
 	afx_msg void OnSwitchAllGoods();
 	afx_msg void OnChkchangeList(UINT nID);
 	afx_msg void OnChangeDistance();
+	afx_msg void OnChangeJumpTrade();
 	afx_msg void OnChangeFactionID();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
