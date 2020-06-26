@@ -105,6 +105,11 @@ BOOL LoadInitialWorld(const CString &iniFilename)
 	CString name, systemname;
 	Log(L"\nParsing Initial World...");
 	{
+		CFaction &faction = g_factions[FACTIONS_COUNT++];
+		faction.Init("fc_player_grp", "The Player");
+		g_factionsByNick["fc_player_grp"] = &faction;
+	}
+	{
 		IniFile iniFile(iniFilename);
 		section = NULL;
 		while (iniFile.GetNextSection(section, name))

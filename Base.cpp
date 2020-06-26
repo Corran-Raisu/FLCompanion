@@ -58,7 +58,7 @@ void CBase::MakeMiningBase(CSystem *system, int x, int y, int z, UINT goodIndex,
 	for (UINT i = 0; i < GOODS_MAX; i++) m_buy[i] = 0;
 	for (UINT i = 0; i < GOODS_MAX; i++) m_sell[i] = 3.40282347e+38;
 	m_sell[goodIndex] = goodsPrice;
-	m_faction = g_factionsByNick["fc_admin"];
+	m_faction = g_factionsByNick["fc_player_grp"];
 	SetPos(x,y,z);
 }
 
