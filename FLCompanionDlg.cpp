@@ -155,9 +155,9 @@ BEGIN_MESSAGE_MAP(CFLCompanionDlg, CDialog)
 	ON_UPDATE_COMMAND_UI(ID_MOD_INFO, OnUpdateModInfo)
 	ON_BN_CLICKED(IDC_JUMPS, OnJumps)
 	ON_BN_CLICKED(IDC_OPENMAP, OnMap)
-	ON_UPDATE_COMMAND_UI_RANGE(ID_GAME_IMPORT_PRICES, ID_GAME_IMPORT_CARGOHOLD, OnUpdateGameImport)
+	ON_UPDATE_COMMAND_UI_RANGE(ID_GAME_IMPORT_PRICES, ID_GAME_IMPORT_FACTIONS, OnUpdateGameImport)
 	ON_COMMAND(ID_GAME_IMPORT_ABOUT, OnGameImportAbout)
-	ON_COMMAND_RANGE(ID_GAME_IMPORT_PRICES, ID_GAME_IMPORT_CARGOHOLD, OnGameImport)
+	ON_COMMAND_RANGE(ID_GAME_IMPORT_PRICES, ID_GAME_IMPORT_FACTIONS, OnGameImport)
 	ON_COMMAND(ID_GAME_IMPORT_CHECKALL, OnGameImportCheckall)
 	ON_UPDATE_COMMAND_UI(ID_GAME_IMPORT_CHECKALL, OnUpdateGameImportCheckall)
 	ON_WM_ACTIVATEAPP()
@@ -627,10 +627,10 @@ void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell,
 {
 	LONG profit;
 	UINT units = m_cargoSize == 1 ? 1 : UINT(m_cargoSize/g_goods[goodIndex].m_volume);
-	if (units == 0)
-		return;
 	if ((m_maxInvestment > 0) && (srcsell*units > m_maxInvestment))
 		units = UINT(m_maxInvestment/srcsell);
+	if (units == 0)
+		return;
 	if (g_goods[goodIndex].m_decay_time == 0)
 		profit = UINT(destbuy-srcsell)*units;
 	else
@@ -2010,7 +2010,7 @@ void CFLCompanionDlg::OnGameImportCheckall()
 	if (m_importFromGame)
 		m_importFromGame = 0;
 	else
-		m_importFromGame = (1<<(ID_GAME_IMPORT_CARGOHOLD-ID_GAME_IMPORT_PRICES+1))-1;
+		m_importFromGame = (1<<(ID_GAME_IMPORT_FACTIONS-ID_GAME_IMPORT_PRICES+1))-1;
 	theApp.WriteProfileInt(L"Settings", L"ImportFromGame", m_importFromGame);
 	g_triggeredImport = true;
 	ImportFromGame();
