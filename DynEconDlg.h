@@ -29,6 +29,7 @@ public:
 	int DoTask(DWORD flags);
 private:
 	UINT CollectGoodPrice(DWORD id, LPVOID ptr);
+	UINT FoundPlayer(DWORD id, LPVOID ptr);
 	UINT CollectFactions(DWORD id, LPVOID ptr);
 	UINT CGameInspect::TreeForEachRecurse(FlNode* nodePtr, FlNode* nodeNil, UINT (CGameInspect::*callback)(DWORD id, LPVOID ptr));
 	UINT TreeForEach(FlTree& tree, UINT (CGameInspect::*callback)(DWORD id, LPVOID ptr));

@@ -277,6 +277,24 @@ HANDLE OpenGameProcess()
 	return NULL;
 }
 
+UINT CGameInspect::FoundPlayer(DWORD id, LPVOID ptr)
+{
+	FlPlayer player;
+	READFLMEM(player, ptr);
+	Log(L"Found player (ID %d): %s", id, player._playerName);
+
+/*
+	LPVOID playerPtr = TreeFind(playersTree, player_id);
+	if (playerPtr)
+	{
+		FlPlayer player;
+		READFLMEM(player, playerPtr);
+*/
+
+	Log(L"Done with a found player");
+	return 0;
+}
+
 int CGameInspect::DoTask(DWORD flags)
 {
 	if (g_triggeredImport)
@@ -386,9 +404,9 @@ int CGameInspect::DoTask(DWORD flags)
 
 			FlTree playersTree;
 			READFLMEM(playersTree, FLPLAYERS_ADDR);
-			FlNode playerNode;
-			READFLMEM(playerNode, playersTree._Head);
-			READFLMEM(playerNode, playerNode._Parent);
+
+			TreeForEach(playersTree, &CGameInspect::FoundPlayer);
+
 			LPVOID playerPtr = TreeFind(playersTree, player_id);
 			if (playerPtr)
 			{
