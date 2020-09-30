@@ -24,11 +24,12 @@ public:
 		IMPORT_PRICES		= 0x01,
 		IMPORT_CREDITS		= 0x02,
 		IMPORT_CARGOHOLD	= 0x04,
-		//IMPORT_FACTIONS		= 0x08,
+		IMPORT_FACTIONS		= 0x08,
 	};
 	int DoTask(DWORD flags);
 private:
 	UINT CollectGoodPrice(DWORD id, LPVOID ptr);
+	UINT FoundPlayer(DWORD id, LPVOID ptr);
 	UINT CollectFactions(DWORD id, LPVOID ptr);
 	UINT CGameInspect::TreeForEachRecurse(FlNode* nodePtr, FlNode* nodeNil, UINT (CGameInspect::*callback)(DWORD id, LPVOID ptr));
 	UINT TreeForEach(FlTree& tree, UINT (CGameInspect::*callback)(DWORD id, LPVOID ptr));
