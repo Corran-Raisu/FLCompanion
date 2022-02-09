@@ -58,6 +58,7 @@
 #define IDC_INVESTMENT                  1027
 #define IDC_HOLE_DELAY                  1028
 #define IDC_DISTANCE_CHECK              1028
+#define IDC_AVOIDUNSTABLEHOLES          1029
 #define IDC_GOODS_LIST                  1031
 #define IDC_EQUIP_LIST                  1032
 #define IDC_DISTANCE                    1032

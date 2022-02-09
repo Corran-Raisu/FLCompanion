@@ -29,6 +29,7 @@ public:
 	BOOL	m_avoidHoles;
 	BOOL	m_avoidGates;
 	BOOL	m_avoidLanes;
+	BOOL	m_avoidUnstableHoles;
 	BOOL	m_isTransport;
 	CString	m_investmentText;
 	UINT	m_maxInvestment;

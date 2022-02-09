@@ -23,6 +23,7 @@ static char THIS_FILE[]=__FILE__;
 BOOL g_avoidLockedGates;
 BOOL g_jumptrade;
 BOOL g_avoidHoles;
+BOOL g_avoidUnstableHoles;
 BOOL g_avoidGates;
 BOOL g_avoidLanes;
 BOOL g_isTransport;

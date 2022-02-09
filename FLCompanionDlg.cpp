@@ -66,6 +66,7 @@ CFLCompanionDlg::CFLCompanionDlg(CWnd* pParent /*=NULL*/)
 	g_avoidLockedGates = theApp.GetProfileInt(L"Settings", L"AvoidLockedGates", TRUE);
 	g_jumptrade = theApp.GetProfileInt(L"Settings", L"JumpTrade", FALSE);
 	g_avoidHoles = theApp.GetProfileInt(L"Settings", L"AvoidHoles", FALSE);
+	g_avoidUnstableHoles = theApp.GetProfileInt(L"Settings", L"AvoidUnstableHoles", FALSE);
 	g_avoidGates = theApp.GetProfileInt(L"Settings", L"AvoidGates", FALSE);
 	g_avoidLanes = theApp.GetProfileInt(L"Settings", L"AvoidLanes", FALSE);
 	g_isTransport = theApp.GetProfileInt(L"Settings", L"IsTransport", FALSE);
@@ -1466,6 +1467,7 @@ void CFLCompanionDlg::OnLimitations()
 	dlg.m_avoidLockedGates = g_avoidLockedGates;
 	dlg.m_jumptrade = g_jumptrade;
 	dlg.m_avoidHoles = g_avoidHoles;
+	dlg.m_avoidUnstableHoles = g_avoidUnstableHoles;
 	dlg.m_avoidGates = g_avoidGates;
 	dlg.m_avoidLanes = g_avoidLanes;
 	dlg.m_isTransport= g_isTransport;
@@ -1480,12 +1482,14 @@ void CFLCompanionDlg::OnLimitations()
 		theApp.WriteProfileInt(L"Settings", L"AvoidLockedGates", dlg.m_avoidLockedGates);
 		theApp.WriteProfileInt(L"Settings", L"JumpTrade", dlg.m_jumptrade);
 		theApp.WriteProfileInt(L"Settings", L"AvoidHoles", dlg.m_avoidHoles);
+		theApp.WriteProfileInt(L"Settings", L"AvoidUnstableHoles", dlg.m_avoidUnstableHoles);
 		theApp.WriteProfileInt(L"Settings", L"AvoidGates", dlg.m_avoidGates);
 		theApp.WriteProfileInt(L"Settings", L"AvoidLanes", dlg.m_avoidLanes);
 		theApp.WriteProfileInt(L"Settings", L"IsTransport", dlg.m_isTransport);
 		g_avoidLockedGates = dlg.m_avoidLockedGates;
 		g_jumptrade = dlg.m_jumptrade;
 		g_avoidHoles = dlg.m_avoidHoles;
+		g_avoidUnstableHoles = dlg.m_avoidUnstableHoles;
 		g_avoidGates = dlg.m_avoidGates;
 		g_avoidLanes = dlg.m_avoidLanes;
 		g_isTransport = dlg.m_isTransport;
