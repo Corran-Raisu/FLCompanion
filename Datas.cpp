@@ -789,6 +789,7 @@ void CalculateDirectRoutes()
 			CJump &fromjump = system.m_jumpsByNick.GetNextAssoc(pos, dummy);
 			if (g_avoidLockedGates && fromjump.m_islocked) continue;
 			if (g_avoidHoles && !fromjump.m_isgate) continue;
+			if (g_avoidUnstableHoles && !fromjump.m_isgate && fromjump.m_caption == "Unstable Jump Hole") continue;
 			if (g_avoidGates && fromjump.m_isgate) continue;
 			if (g_isTransport && fromjump.m_isfreighteronly) continue;
 			fromjump.m_shortestPath[baseIndex] = &tobase;
@@ -822,6 +823,7 @@ BOOL PropagateRoutes()
 			if (g_isTransport && tojump.m_isfreighteronly) continue;
 			if (g_avoidLockedGates && tojump.m_islocked) continue;
 			if (g_avoidHoles && !tojump.m_isgate) continue;
+			if (g_avoidUnstableHoles && !tojump.m_isgate && tojump.m_caption == "Unstable Jump Hole") continue;
 			if (g_avoidGates && tojump.m_isgate) continue;
 			system.CalcLaneDistances(tojump);
 			POSITION pos = system.m_avoid ? NULL : pos2;
@@ -830,6 +832,7 @@ BOOL PropagateRoutes()
 				CJump &fromjump = system.m_jumpsByNick.GetNextAssoc(pos, dummy);
 				if (g_avoidLockedGates && fromjump.m_islocked) continue;
 				if (g_avoidHoles && !fromjump.m_isgate) continue;
+				if (g_avoidUnstableHoles && !fromjump.m_isgate && fromjump.m_caption == "Unstable Jump Hole") continue;
 				if (g_avoidGates && fromjump.m_isgate) continue;
 				if (g_isTransport && fromjump.m_isfreighteronly) continue;
 				UINT distance = system.ComputeDistance(fromjump, tojump);
