@@ -53,6 +53,7 @@ void CLimitationsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_AVOIDLOCKED, m_avoidLockedGates);
 	DDX_Check(pDX, IDC_JUMPTRADE_CHECK, m_jumptrade);
 	DDX_Check(pDX, IDC_AVOIDHOLES, m_avoidHoles);
+	DDX_Check(pDX, IDC_AVOIDUNSTABLEHOLES, m_avoidUnstableHoles);
 	DDX_Check(pDX, IDC_AVOIDGATES, m_avoidGates);
 	DDX_Check(pDX, IDC_AVOIDLANES, m_avoidLanes);
 	DDX_Check(pDX, IDC_TRANSPORT, m_isTransport);
