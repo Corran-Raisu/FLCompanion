@@ -112,8 +112,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,30,0,0
- PRODUCTVERSION 4,0,0,0
+ FILEVERSION 4,30,1,0
+ PRODUCTVERSION 4,0,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -131,12 +131,12 @@ BEGIN
             VALUE "Comments", "This software is freeware."
             VALUE "CompanyName", "Olivier Marcoux"
             VALUE "FileDescription", "Freelancer Companion"
-            VALUE "FileVersion", "3.0.0.0"
+            VALUE "FileVersion", "4.30.1.0"
             VALUE "InternalName", "FLCompanion"
             VALUE "LegalCopyright", "Copyright © 2006-2016 Olivier Marcoux"
             VALUE "OriginalFilename", "FLCompanion.exe"
             VALUE "ProductName", "Freelancer Companion"
-            VALUE "ProductVersion", "3.0.0.0"
+            VALUE "ProductVersion", "4.0.1.0"
             VALUE "URLInfoAbout", "http://wizou.fr"
             VALUE "URLUpdateInfo", "http://wiz0u.free.fr/prog/flc"
         END
@@ -214,10 +214,10 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// IDConfig
+// 256
 //
 
-IDR_MYTEXTFILE           TEXTFILE                "res\\IDHacks.ini"
+IDR_MYTEXTFILE          256                     "res\\IDHacks.ini"
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
@@ -294,8 +294,7 @@ BEGIN
     PUSHBUTTON      "Clear all",IDC_CLEAR_ALL_SYSTEMS,60,157,50,15
     GROUPBOX        "Exclude base by factions:",IDC_STATIC,125,15,110,160
     RTEXT           "Select Faction ID : ",IDC_STATIC,63,3,60,12
-	COMBOBOX        IDC_FACTION_ID, 125, 0, 150, 12, CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    //LTEXT           "[disabled]",IDC_STATIC,125,3,50,12
+    COMBOBOX        IDC_FACTION_ID,125,0,150,12,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     LISTBOX         IDC_FACTIONS_LIST,130,25,100,131,LBS_SORT | LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "Check all",IDC_CHECK_ALL_FACTIONS,130,157,50,15
     PUSHBUTTON      "Clear all",IDC_CLEAR_ALL_FACTIONS,180,157,50,15
@@ -312,7 +311,7 @@ BEGIN
     LTEXT           " $",IDC_STATIC,145,205,25,12,SS_CENTERIMAGE
     LTEXT           "Don't go through:",IDC_STATIC,175,190,105,12
     CONTROL         "jump holes",IDC_AVOIDHOLES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,185,200,75,12
-    CONTROL         "unstable jump holes", IDC_AVOIDUNSTABLEHOLES, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 185, 210, 75, 12
+    CONTROL         "unstable jump holes",IDC_AVOIDUNSTABLEHOLES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,185,210,75,12
     CONTROL         "jump gates",IDC_AVOIDGATES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,185,220,75,12
     CONTROL         "trade lanes",IDC_AVOIDLANES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,185,230,75,12
     CONTROL         "Avoid freighter-only routes",IDC_TRANSPORT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,175,240,105,12
