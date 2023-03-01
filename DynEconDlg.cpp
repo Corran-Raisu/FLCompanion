@@ -2,16 +2,14 @@
 //
 
 #include "stdafx.h"
-#include "FLCompanion.h"
 #include "FLCompanionDlg.h"
 #include "DynEconDlg.h"
 #include "Base.h"
-#include "IniFile.h"
 #include "Datas.h"
 #include "System.h"
 #include <Psapi.h>
 #include <memory>
-#include "ScopedPtr.h"
+#include <TlHelp32.h>
 #pragma comment(lib, "psapi.lib")
 
 #ifdef _DEBUG
@@ -231,57 +229,67 @@ LPVOID CGameInspect::TreeFind(FlTree& tree, DWORD id)
 	if (node._Parent == nodeNil) return NULL;
 	return TreeFindRecurse(node._Parent, id, nodeNil);
 }
-DWORD cb = 0;
-HANDLE OpenGameProcess()
+
+HANDLE OpenGameProcess(DWORD* procID)
 {
-	if (cb == 0)
+	const HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (snapshot && snapshot != INVALID_HANDLE_VALUE)
 	{
-		while (true)
+		PROCESSENTRY32 pe;
+		pe.dwSize = sizeof(pe);
+		if (Process32First(snapshot, &pe))
 		{
-			DWORD lpcbNeeded_;
-			std::unique_ptr<DWORD[]> _dwProcessIDs(new DWORD[cb]);
-			if (EnumProcesses(_dwProcessIDs.get(), cb, &lpcbNeeded_) == FALSE)
-				return NULL;
-			if (cb == lpcbNeeded_)
+			do
 			{
-				Log(L"Searching additional processes: %d", cb);
-				cb += 256;
-			}
-			else
-			{
-				break;
-			}
+				if (!wcscmp(pe.szExeFile, L"Freelancer.exe"))
+				{
+					CloseHandle(snapshot);
+					*procID = pe.th32ProcessID;
+					return OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ|PROCESS_SET_INFORMATION, FALSE, *procID);
+				}
+			} while (Process32Next(snapshot, &pe));
 		}
 	}
-	DWORD lpcbNeeded;
-	std::unique_ptr<DWORD[]> dwProcessIDs(new DWORD[cb]);
-	if (EnumProcesses(dwProcessIDs.get(), cb, &lpcbNeeded) == FALSE)
-		return NULL;
-	lpcbNeeded /= sizeof(DWORD);
-	for (size_t idx = 0; idx < lpcbNeeded; idx++)
+	return nullptr;
+}
+
+void* GetModuleBase(const wchar_t* ModuleName, DWORD procID)
+{
+	MODULEENTRY32 ModuleEntry = { 0 };
+	const HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, procID);
+
+	if (!snapshot) return nullptr;
+
+	ModuleEntry.dwSize = sizeof(ModuleEntry);
+
+	if (!Module32First(snapshot, &ModuleEntry)) return nullptr;
+
+	do
 	{
-		DWORD dwProcessID = dwProcessIDs[idx];
-
-		HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ|PROCESS_SET_INFORMATION, FALSE, dwProcessID);
-
-		if (!hProcess) hProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, FALSE, dwProcessID);
-		if (hProcess)
+		if (!wcscmp(ModuleEntry.szModule, ModuleName))
 		{
-			TCHAR filename[MAX_PATH];
-			if (GetModuleBaseName(hProcess, NULL, filename, _countof(filename)))
-				if (lstrcmpi(filename, L"Freelancer.exe") == 0)
-					return hProcess;
-			CloseHandle(hProcess);
+			CloseHandle(snapshot);
+			return ModuleEntry.modBaseAddr;
 		}
-	}
-	return NULL;
+	} while (Module32Next(snapshot, &ModuleEntry));
+
+	CloseHandle(snapshot);
+	return nullptr;
 }
 
 int CGameInspect::DoTask(DWORD flags)
 {
 	if (g_triggeredImport)
 	{
-		m_hflProcess = OpenGameProcess();
+		if (m_hflProcess != nullptr)
+		{
+			CloseHandle(m_hflProcess);
+			m_hflProcess = nullptr;
+			m_mpRepBase = nullptr;
+		}
+		DWORD procId;
+		m_hflProcess = OpenGameProcess(&procId);
+		m_mpRepBase = GetModuleBase(L"mprep.dll", procId);
 		static BOOL signalAccessDenied = true;
 		if (!m_hflProcess)
 		{
@@ -292,7 +300,6 @@ int CGameInspect::DoTask(DWORD flags)
 			}
 			return 0;
 		}
-		HANDLE hflProcess = m_hflProcess; // Leak! closehandle on function return
 		signalAccessDenied = true;
 		DWORD dwPriorityClass = GetPriorityClass(m_hflProcess);
 		SetPriorityClass(m_hflProcess, IDLE_PRIORITY_CLASS);

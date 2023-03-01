@@ -35,9 +35,10 @@ private:
 	LPVOID TreeFindRecurse(FlNode* nodePtr, DWORD id, FlNode* nodeNil);
 	LPVOID TreeFind(FlTree& tree, DWORD id);
 private:
-	HANDLE						m_hflProcess;
+	HANDLE						m_hflProcess = nullptr;
 	CBase*						m_base;
 	CMap<DWORD,DWORD,UINT,UINT> m_idGoodMap;
+	void*						m_mpRepBase = nullptr;
 };
 
 //{{AFX_INSERT_LOCATION}}
