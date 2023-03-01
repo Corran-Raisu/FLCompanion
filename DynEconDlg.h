@@ -24,7 +24,7 @@ public:
 		IMPORT_PRICES		= 0x01,
 		IMPORT_CREDITS		= 0x02,
 		IMPORT_CARGOHOLD	= 0x04,
-		//IMPORT_FACTIONS		= 0x08,
+		IMPORT_FACTIONS		= 0x08,
 	};
 	int DoTask(DWORD flags);
 private:

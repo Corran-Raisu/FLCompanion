@@ -294,8 +294,7 @@ BEGIN
     PUSHBUTTON      "Clear all",IDC_CLEAR_ALL_SYSTEMS,60,157,50,15
     GROUPBOX        "Exclude base by factions:",IDC_STATIC,125,15,110,160
     RTEXT           "Select Faction ID : ",IDC_STATIC,63,3,60,12
-	COMBOBOX        IDC_FACTION_ID, 125, 0, 150, 12, CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    //LTEXT           "[disabled]",IDC_STATIC,125,3,50,12
+    COMBOBOX        IDC_FACTION_ID,125,0,150,12,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     LISTBOX         IDC_FACTIONS_LIST,130,25,100,131,LBS_SORT | LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "Check all",IDC_CHECK_ALL_FACTIONS,130,157,50,15
     PUSHBUTTON      "Clear all",IDC_CLEAR_ALL_FACTIONS,180,157,50,15
@@ -503,6 +502,7 @@ BEGIN
             MENUITEM "Bases prices (dynamic economy)", ID_GAME_IMPORT_PRICES, CHECKED
             MENUITEM "Your credits (max investment)", ID_GAME_IMPORT_CREDITS, CHECKED
             MENUITEM "Your ship's cargo hold size", ID_GAME_IMPORT_CARGOHOLD, CHECKED
+            MENUITEM "Your reputation (exclude hostile factions)", ID_GAME_IMPORT_FACTIONS, CHECKED
             MENUITEM SEPARATOR
             MENUITEM "Check/Uncheck all",           ID_GAME_IMPORT_CHECKALL
             MENUITEM "About this feature...",       ID_GAME_IMPORT_ABOUT

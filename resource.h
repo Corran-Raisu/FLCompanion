@@ -134,6 +134,7 @@
 #define ID_GAME_IMPORT_PRICES           32800
 #define ID_GAME_IMPORT_CREDITS          32801
 #define ID_GAME_IMPORT_CARGOHOLD        32802
+#define ID_GAME_IMPORT_FACTIONS         32803
 #define ID_VIEW_LOG                     32811
 #define ID_CLIENTREFRESH                32812
 #define IDC_AVOIDGATES                  32813
@@ -148,7 +149,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        141
-#define _APS_NEXT_COMMAND_VALUE         32812
+#define _APS_NEXT_COMMAND_VALUE         32818
 #define _APS_NEXT_CONTROL_VALUE         1068
 #define _APS_NEXT_SYMED_VALUE           114
 #endif
