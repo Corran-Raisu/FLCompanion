@@ -1909,7 +1909,7 @@ void CFLCompanionDlg::OnDumpSolutions()
 								file.WriteString(IntToString(profit));
 								file.WriteString(L",\"");
 								file.WriteString(MinuteSeconds(distance, true));
-								file.WriteString(L",");
+								file.WriteString(L"\",");
 
 								TCHAR buf[32];
 								if (m_cargoSize == 1)
