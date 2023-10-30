@@ -2,6 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by FLCompanion.rc
 //
+#define IDR_MYTEXTFILE                  101
 #define IDD_FLCOMPANION_DIALOG          102
 #define IDD_SPEEDDELAYS_DIALOG          103
 #define IDD_SYSTEMMAP_DIALOG            104
@@ -20,7 +21,6 @@
 #define IDI_JUMP                        138
 #define IDI_SWITCH_ARROW                139
 #define TEXTFILE                        256
-#define IDR_MYTEXTFILE                  101
 #define IDC_BASE_COMBO                  1000
 #define IDC_ROUTES                      1001
 #define IDC_SYSTEM_COMBO                1002
@@ -134,6 +134,7 @@
 #define ID_GAME_IMPORT_PRICES           32800
 #define ID_GAME_IMPORT_CREDITS          32801
 #define ID_GAME_IMPORT_CARGOHOLD        32802
+#define ID_GAME_IMPORT_FACTIONS         32803
 #define ID_VIEW_LOG                     32811
 #define ID_CLIENTREFRESH                32812
 #define IDC_AVOIDGATES                  32813
@@ -148,7 +149,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        141
-#define _APS_NEXT_COMMAND_VALUE         32812
+#define _APS_NEXT_COMMAND_VALUE         32814
 #define _APS_NEXT_CONTROL_VALUE         1068
 #define _APS_NEXT_SYMED_VALUE           114
 #endif
