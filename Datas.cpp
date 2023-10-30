@@ -1179,7 +1179,7 @@ BOOL LoadAppDatas(CWnd *wnd)
 	GOODS_COUNT = 0;
 	EQUIP_COUNT = 0;
 
-	//InitializeHashTable();
+	InitializeHashTable();
 	DetectMod();
 
 	g_resourceProvider.Init(g_flAppPath);

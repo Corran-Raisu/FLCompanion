@@ -2,16 +2,14 @@
 //
 
 #include "stdafx.h"
-#include "FLCompanion.h"
 #include "FLCompanionDlg.h"
 #include "DynEconDlg.h"
 #include "Base.h"
-#include "IniFile.h"
 #include "Datas.h"
 #include "System.h"
 #include <Psapi.h>
 #include <memory>
-#include "ScopedPtr.h"
+#include <TlHelp32.h>
 #pragma comment(lib, "psapi.lib")
 
 #ifdef _DEBUG
@@ -135,7 +133,11 @@ struct FlFactionInfo
 #define FLCREDITS_ADDR		0x00673364
 #define FLPLAYERSHIP_ADDR	0x0067337C
 #define FLFACTIONS_ADDR		0x064018EC
-#define FLPLAYERS_ADDR		0x064018C4 //0x064018C4	// FlTree des joueurs
+#define FLPLAYERS_ADDR		0x064018C4
+
+#define MPREP_REPCOUNT_ADDR 0x303C
+#define MPREP_REP_ADDR		0x3034
+
 // 0x64018D8 = currentNode
 #define READFLMEM(structure,addr)	if (!ReadProcessMemory(m_hflProcess, LPCVOID(addr), &structure, sizeof(structure), NULL)) return 0;
 #define READFLPTR(ptr,addr,size)	if (!ReadProcessMemory(m_hflProcess, LPCVOID(addr), LPVOID(ptr), size, NULL)) return 0;
@@ -231,57 +233,67 @@ LPVOID CGameInspect::TreeFind(FlTree& tree, DWORD id)
 	if (node._Parent == nodeNil) return NULL;
 	return TreeFindRecurse(node._Parent, id, nodeNil);
 }
-DWORD cb = 0;
-HANDLE OpenGameProcess()
+
+HANDLE OpenGameProcess(DWORD* procID)
 {
-	if (cb == 0)
+	const HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (snapshot && snapshot != INVALID_HANDLE_VALUE)
 	{
-		while (true)
+		PROCESSENTRY32 pe;
+		pe.dwSize = sizeof(pe);
+		if (Process32First(snapshot, &pe))
 		{
-			DWORD lpcbNeeded_;
-			std::unique_ptr<DWORD[]> _dwProcessIDs(new DWORD[cb]);
-			if (EnumProcesses(_dwProcessIDs.get(), cb, &lpcbNeeded_) == FALSE)
-				return NULL;
-			if (cb == lpcbNeeded_)
+			do
 			{
-				Log(L"Searching additional processes: %d", cb);
-				cb += 256;
-			}
-			else
-			{
-				break;
-			}
+				if (!wcscmp(pe.szExeFile, L"Freelancer.exe"))
+				{
+					CloseHandle(snapshot);
+					*procID = pe.th32ProcessID;
+					return OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ|PROCESS_SET_INFORMATION, FALSE, *procID);
+				}
+			} while (Process32Next(snapshot, &pe));
 		}
 	}
-	DWORD lpcbNeeded;
-	std::unique_ptr<DWORD[]> dwProcessIDs(new DWORD[cb]);
-	if (EnumProcesses(dwProcessIDs.get(), cb, &lpcbNeeded) == FALSE)
-		return NULL;
-	lpcbNeeded /= sizeof(DWORD);
-	for (size_t idx = 0; idx < lpcbNeeded; idx++)
+	return nullptr;
+}
+
+void* GetModuleBase(const wchar_t* ModuleName, DWORD procID)
+{
+	MODULEENTRY32 ModuleEntry = { 0 };
+	const HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, procID);
+
+	if (!snapshot) return nullptr;
+
+	ModuleEntry.dwSize = sizeof(ModuleEntry);
+
+	if (!Module32First(snapshot, &ModuleEntry)) return nullptr;
+
+	do
 	{
-		DWORD dwProcessID = dwProcessIDs[idx];
-
-		HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ|PROCESS_SET_INFORMATION, FALSE, dwProcessID);
-
-		if (!hProcess) hProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, FALSE, dwProcessID);
-		if (hProcess)
+		if (!wcscmp(ModuleEntry.szModule, ModuleName))
 		{
-			TCHAR filename[MAX_PATH];
-			if (GetModuleBaseName(hProcess, NULL, filename, _countof(filename)))
-				if (lstrcmpi(filename, L"Freelancer.exe") == 0)
-					return hProcess;
-			CloseHandle(hProcess);
+			CloseHandle(snapshot);
+			return ModuleEntry.modBaseAddr;
 		}
-	}
-	return NULL;
+	} while (Module32Next(snapshot, &ModuleEntry));
+
+	CloseHandle(snapshot);
+	return nullptr;
 }
 
 int CGameInspect::DoTask(DWORD flags)
 {
 	if (g_triggeredImport)
 	{
-		m_hflProcess = OpenGameProcess();
+		if (m_hflProcess != nullptr)
+		{
+			CloseHandle(m_hflProcess);
+			m_hflProcess = nullptr;
+			m_mpRepBase = nullptr;
+		}
+		DWORD procId;
+		m_hflProcess = OpenGameProcess(&procId);
+		m_mpRepBase = GetModuleBase(L"mprep.dll", procId);
 		static BOOL signalAccessDenied = true;
 		if (!m_hflProcess)
 		{
@@ -292,7 +304,6 @@ int CGameInspect::DoTask(DWORD flags)
 			}
 			return 0;
 		}
-		HANDLE hflProcess = m_hflProcess; // Leak! closehandle on function return
 		signalAccessDenied = true;
 		DWORD dwPriorityClass = GetPriorityClass(m_hflProcess);
 		SetPriorityClass(m_hflProcess, IDLE_PRIORITY_CLASS);
@@ -371,63 +382,78 @@ int CGameInspect::DoTask(DWORD flags)
 				}
 			}
 		}
-#if 0
 		
-		if (true) //(flags & IMPORT_FACTIONS)
+		if (flags & IMPORT_FACTIONS)
 		{
-			UINT changed = 0;
 			CMap<DWORD, DWORD, CFaction*, CFaction*> idFactionMap;
 			UINT i;
 			for (i = 0; i < FACTIONS_COUNT; i++)
 				idFactionMap[FLFactionHash(g_factions[i].m_nickname)] = &g_factions[i];
 
-			FlTree factionsTree;
-			READFLMEM(factionsTree, FLFACTIONS_ADDR);
+			FlTree playersTree{};
+			READFLMEM(playersTree, FLPLAYERS_ADDR)
+			
+			FlRep* reps = nullptr;
+			unsigned int count = 0;
+			if (m_mpRepBase != nullptr)
+			{
+				READFLMEM(count, static_cast<char*>(m_mpRepBase) + MPREP_REPCOUNT_ADDR)
+				unsigned int bytes = count * sizeof(FlRep);
+				reps = static_cast<FlRep*>(malloc(bytes));
+				DWORD repsAddress;
+				READFLMEM(repsAddress, static_cast<char*>(m_mpRepBase) + MPREP_REP_ADDR)
+				READFLPTR(reps, repsAddress, bytes)
+			}
+			else
+			{
+				DWORD player_id;
+				READFLMEM(player_id, FLCLIENTID_ADDR)
+				
+				LPVOID player_ptr = TreeFind(playersTree, player_id);
+				if (player_ptr)
+				{
+					FlPlayer player{};
+					READFLMEM(player, player_ptr)
+					unsigned int bytes = reinterpret_cast<int>(player._repsEnd) - reinterpret_cast<int>(player._repsBegin);
+					count = bytes / sizeof(FlRep);
+					reps = static_cast<FlRep*>(malloc(bytes));
+					READFLPTR(reps, player._repsBegin, bytes)
+				}
+			}
 
-					LPBYTE ptr;
-					READFLMEM(ptr, 0x61e0260);
-					DWORD player_id;
-					int oset = 0;
-					player_id = 0;
-					while (player_id==0)
-					{
-						READFLMEM(player_id, ptr + (4+ oset));
-						oset += 4;
+			if (reps != nullptr)
+			{
+				UINT removedAvoids = 0;
+				UINT addedAvoids = 0;
+				
+				for (i = 0; i < FACTIONS_COUNT; i++) {
+					if (g_factions[i].m_avoid) {
+						g_factions[i].m_avoid = false;
+						removedAvoids++;
 					}
+				}
 
-					FlTree playersTree;
-					READFLMEM(playersTree, FLPLAYERS_ADDR);
-					FlNode playerNode;
-					READFLMEM(playerNode, playersTree._Head);
-					READFLMEM(playerNode, playerNode._Parent);
-					LPVOID playerPtr = TreeFind(playersTree, 1);
-					if (playerPtr)
+				for (unsigned int index = 0; index < count; index++) {
+					if (reps[index]._rep <= -0.55f)
 					{
-						FlPlayer player;
-						READFLMEM(player, playerPtr);
-						int count = player._repsEnd-player._repsBegin;
-						//CScopedArray<FlRep> reps = new FlRep[count];
-						//READFLPTR(reps,player._repsBegin,  count*sizeof(FlRep));
-						for (int index = 0; index < count; index++)
-							//if (reps[index]._rep <= -0.6)
-							{
-								//CFaction *faction = idFactionMap[reps[index]._faction_id];
-								////if (!faction->m_avoid)
-								{
-									changed++;
-									//faction->m_avoid = true;
-								}
-							}
+						CFaction *faction = idFactionMap[reps[index]._faction_id];
+						if (faction != nullptr)
+						{
+							addedAvoids++;
+							faction->m_avoid = true;
+						}
 					}
-					if (changed)
-					{
-						Log(L"Imported from game: %d factions to avoid", changed);
-						g_mainDlg->Recalc(g_mainDlg->RECALC_PATHS);
-					}
-
+				}
+				
+				if (removedAvoids > 0 || addedAvoids > 0)
+				{
+					Log(L"Imported from game: %d factions no longer avoided, %d new factions to avoid", removedAvoids, addedAvoids);
+					g_mainDlg->Recalc(g_mainDlg->RECALC_PATHS);
+				}
+				free(reps);
+			}
 		}
 		
-#endif
 		SetPriorityClass(m_hflProcess, dwPriorityClass);
 	}
 	return 1;
