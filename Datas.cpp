@@ -489,45 +489,6 @@ BOOL LoadShips(const CString &iniFilename)
 	return TRUE;
 }
 
-BOOL LoadIDHacks()
-{
-	//WIP
-	Log(L"Parsing ID Rep Hacks");
-	IniSection section;
-	CString sectionname;
-	CString entryname;
-	CString name;
-	{
-		IniFile iniFile(L"res\\IDHacks.ini");
-		section = NULL;
-		while (iniFile.GetNextSection(section, sectionname))
-		{
-			CString IDName = g_equipByNick[sectionname]->m_caption;
-			CFaction &ID = g_ID[ID_COUNT++];
-			ID.Init(sectionname, g_equipByNick[sectionname]->m_caption);
-			IniEntry entry;
-			UINT entrynumber = 0;
-			for (UINT entriesCount = iniFile.EnumEntries(section, entry); entriesCount; entriesCount--)
-			{
-				UINT valuesCount;
-				IniValue *values;
-				FLOAT rep;
-				name = iniFile.GetNextEntry(entry, valuesCount, values);
-				if (valuesCount == 0)
-					rep = 0;
-				else
-					rep = iniFile.GetValueFloat(values, 0) * 100;
-				ID.m_reputations[entrynumber].Init(name, rep);
-				ID.m_reputationCount++;
-				ID.repsByNick[name] = &ID.m_reputations[entrynumber];
-				entrynumber++;
-
-			}
-			g_IDByNick[name] = &ID;
-		}
-	}
-	return TRUE;
-}
 
 BOOL LoadAsteroids(const CString &iniFilename, CAsteroids& asteroids)
 {
@@ -1179,7 +1140,7 @@ BOOL LoadAppDatas(CWnd *wnd)
 	GOODS_COUNT = 0;
 	EQUIP_COUNT = 0;
 
-	//InitializeHashTable();
+	InitializeHashTable();
 	DetectMod();
 
 	g_resourceProvider.Init(g_flAppPath);
@@ -1198,7 +1159,6 @@ BOOL LoadAppDatas(CWnd *wnd)
 	LoadFiles(LoadEquip, L"equipment");		// read more info on goods
 	LoadFiles(LoadMarketPrices, L"markets");// parse bases price
 	LoadFiles(LoadShips, L"ships");			// read more info on ships
-	LoadIDHacks();
 	g_resourceProvider.Free();
 	
 	return true;

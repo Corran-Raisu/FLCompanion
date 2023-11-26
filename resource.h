@@ -111,7 +111,6 @@
 #define IDC_DEFAULTSPEED                1082
 #define IDC_MININGGOODS_PRICE           1083
 #define IDC_SRCDEST_SWITCH              1084
-#define IDC_FACTION_ID                  1085
 #define IDR_CUSTOMBASEMENU              1086
 #define IDM_MININGBASE                  1087
 #define IDM_CUSTOMBASE                  1088
@@ -134,6 +133,7 @@
 #define ID_GAME_IMPORT_PRICES           32800
 #define ID_GAME_IMPORT_CREDITS          32801
 #define ID_GAME_IMPORT_CARGOHOLD        32802
+#define ID_GAME_IMPORT_FACTIONS        32803
 #define ID_VIEW_LOG                     32811
 #define ID_CLIENTREFRESH                32812
 #define IDC_AVOIDGATES                  32813

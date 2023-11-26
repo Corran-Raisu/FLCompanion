@@ -22,7 +22,6 @@ public:
 	CCheckListBox	m_goodsList;
 	CCheckListBox	m_factionsList;
 	CCheckListBox	m_systemsList;
-	CComboBox       m_factionID;
 	UINT	m_cargoSize;
 	BOOL	m_avoidLockedGates;
 	BOOL	m_jumptrade;

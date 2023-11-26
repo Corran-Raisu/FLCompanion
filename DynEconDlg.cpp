@@ -114,12 +114,27 @@ struct FlRep
 struct FlPlayer
 {
 	DWORD		_faction_id;
-	char		_dummy[64];
+	float		_reptoPlayer;
+	uint* _dummy[15];
 	WCHAR		_playerName[24];
 	DWORD		_dummy2;
 	BYTE		_dummy3;
 	FlRep*		_repsBegin;
 	FlRep*		_repsEnd;
+};
+struct FlMPlayer
+{
+	DWORD		_faction_id;
+	char		_dummy[4];
+	uint		_client_id;
+	BYTE		_dummyX[102];
+	DWORD		_dummy2;
+	BYTE		_dummy3;
+	FlRep* _dummy4[11];
+	//FlRep*		_repsBegin;
+	//FlRep*		_repsEnd;
+	//WCHAR		_playerName[24];
+
 };
 struct FlFactionInfo
 {
@@ -129,6 +144,10 @@ struct FlFactionInfo
 	FlTree		_reput;
 };
 
+DWORD foundID = 0;
+DWORD player_id;
+CMap<DWORD, DWORD, CFaction*, CFaction*> idFactionMap;
+
 #define FLBASEDATALIST_ADDR 0x063FBB70
 #define FLSHIPSTREE_ADDR	0x063FCAC0
 #define FLCLIENTID_ADDR     0x00673344
@@ -136,9 +155,14 @@ struct FlFactionInfo
 #define FLPLAYERSHIP_ADDR	0x0067337C
 #define FLFACTIONS_ADDR		0x064018EC
 #define FLPLAYERS_ADDR		0x064018C4 //0x064018C4	// FlTree des joueurs
+#define FLPLAYERNAME_ADDR	0x006732F0
+#define FLSINGLEPLAYER_ADDR 0x063ed17c
+#define FLTESTPLAYER_ADDR   0x12d0eb58
 // 0x64018D8 = currentNode
+//#define READFLMEM(structure,addr)	if (!ReadProcessMemory(m_hflProcess, LPCVOID(addr), &structure, sizeof(structure), NULL)) return 0;
+//#define READFLPTR(ptr,addr,size)	if (!ReadProcessMemory(m_hflProcess, LPCVOID(addr), LPVOID(ptr), size, NULL)) return 0;
 #define READFLMEM(structure,addr)	if (!ReadProcessMemory(m_hflProcess, LPCVOID(addr), &structure, sizeof(structure), NULL)) return 0;
-#define READFLPTR(ptr,addr,size)	if (!ReadProcessMemory(m_hflProcess, LPCVOID(addr), LPVOID(ptr), size, NULL)) return 0;
+#define READFLPTR(ptr,addr,size)	if (!ReadProcessMemory(m_hflProcess, addr, ptr, size, NULL)) return 0;
 
 UINT CGameInspect::CollectGoodPrice(DWORD id, LPVOID ptr)
 {
@@ -232,13 +256,15 @@ LPVOID CGameInspect::TreeFind(FlTree& tree, DWORD id)
 	return TreeFindRecurse(node._Parent, id, nodeNil);
 }
 DWORD cb = 0;
+int baseaddr = 0;
+int mprepbaseaddr = 0;
+DWORD lpcbNeeded_;
 HANDLE OpenGameProcess()
 {
 	if (cb == 0)
 	{
 		while (true)
 		{
-			DWORD lpcbNeeded_;
 			std::unique_ptr<DWORD[]> _dwProcessIDs(new DWORD[cb]);
 			if (EnumProcesses(_dwProcessIDs.get(), cb, &lpcbNeeded_) == FALSE)
 				return NULL;
@@ -262,15 +288,43 @@ HANDLE OpenGameProcess()
 	{
 		DWORD dwProcessID = dwProcessIDs[idx];
 
-		HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ|PROCESS_SET_INFORMATION, FALSE, dwProcessID);
+		HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | PROCESS_SET_INFORMATION, FALSE, dwProcessID);
 
-		if (!hProcess) hProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, FALSE, dwProcessID);
+		if (!hProcess) hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcessID);
+
 		if (hProcess)
 		{
 			TCHAR filename[MAX_PATH];
 			if (GetModuleBaseName(hProcess, NULL, filename, _countof(filename)))
 				if (lstrcmpi(filename, L"Freelancer.exe") == 0)
+				{
+					HMODULE hmods[1024];
+					if (EnumProcessModules(hProcess, hmods, sizeof(hmods), &lpcbNeeded)) {
+						for (size_t i = 0; i < (lpcbNeeded_ / sizeof(HMODULE)); i++) {
+							TCHAR szModName[MAX_PATH];
+							if (GetModuleFileNameEx(hProcess, hmods[i], szModName, sizeof(szModName) / sizeof(TCHAR))) {
+								if (wcsstr(szModName, L"Freelancer.exe") != 0) {
+									MODULEINFO lModInfo = { 0 };
+									if (GetModuleInformation(hProcess, hmods[i], &lModInfo, sizeof(lModInfo))) {
+										baseaddr = (DWORD)lModInfo.lpBaseOfDll;
+									}
+								}
+								else {
+									if (wcsstr(szModName, L"mprep.dll") != 0) {
+										MODULEINFO lModInfo = { 0 };
+										if (GetModuleInformation(hProcess, hmods[i], &lModInfo, sizeof(lModInfo))) {
+											mprepbaseaddr = (DWORD)lModInfo.lpBaseOfDll;
+										}
+									}
+								}
+							}
+							else {
+							}
+						}
+					}
+
 					return hProcess;
+				}
 			CloseHandle(hProcess);
 		}
 	}
@@ -371,66 +425,98 @@ int CGameInspect::DoTask(DWORD flags)
 				}
 			}
 		}
-#if 0
 		
-		if (true) //(flags & IMPORT_FACTIONS)
+		if (flags & IMPORT_FACTIONS)
 		{
-			UINT changed = 0;
-			CMap<DWORD, DWORD, CFaction*, CFaction*> idFactionMap;
+			UINT removedAvoids = 0;
+			UINT addedAvoids = 0;
 			UINT i;
 			for (i = 0; i < FACTIONS_COUNT; i++)
-				idFactionMap[FLFactionHash(g_factions[i].m_nickname)] = &g_factions[i];
+			{
+				idFactionMap[FLFactionHash(g_factions[i].m_nickname.MakeLower())] = &g_factions[i];
+				//Log(L"%s = %d", g_factions[i].m_nickname.MakeLower(), FLFactionHash(g_factions[i].m_nickname.MakeLower()));
+			}
+			bool isSinglePlayer;
+			READFLMEM(isSinglePlayer, FLSINGLEPLAYER_ADDR);
+			READFLMEM(player_id, FLCLIENTID_ADDR);
 
-			FlTree factionsTree;
-			READFLMEM(factionsTree, FLFACTIONS_ADDR);
+			FlTree playersTree;
+			READFLMEM(playersTree, FLPLAYERS_ADDR);
 
-					LPBYTE ptr;
-					READFLMEM(ptr, 0x61e0260);
-					DWORD player_id;
-					int oset = 0;
-					player_id = 0;
-					while (player_id==0)
-					{
-						READFLMEM(player_id, ptr + (4+ oset));
-						oset += 4;
+			TreeForEach(playersTree, &CGameInspect::FoundPlayer);
+
+			LPVOID playerPtr = TreeFind(playersTree, foundID);
+			if (playerPtr)
+			{
+				FlPlayer player;
+				READFLMEM(player, playerPtr);
+
+				int bytes = 0;
+				int count = 0;
+				FlRep* reps;
+				if (isSinglePlayer)
+				{
+					READFLMEM(player, playerPtr);
+					bytes = (reinterpret_cast<int>(player._repsEnd) - reinterpret_cast<int>(player._repsBegin));
+					count = bytes / sizeof(FlRep);
+					reps = (FlRep*)malloc(bytes);
+					READFLPTR(reps, player._repsBegin, bytes);
+					Log(L"%u", &player);
+				}
+				else
+				{
+					DWORD* ptr = 0;
+					READFLMEM(ptr, (LPCVOID)(mprepbaseaddr + 0x00003034));
+					bytes = FACTIONS_COUNT * sizeof(FlRep);
+					count = FACTIONS_COUNT;
+					reps = (FlRep*)malloc(bytes);
+					READFLPTR(reps, ptr, bytes);
+				}
+				for (i = 0; i < FACTIONS_COUNT; i++) {
+					if (g_factions[i].m_avoid) {
+						g_factions[i].m_avoid = false;
+						removedAvoids++;
 					}
-
-					FlTree playersTree;
-					READFLMEM(playersTree, FLPLAYERS_ADDR);
-					FlNode playerNode;
-					READFLMEM(playerNode, playersTree._Head);
-					READFLMEM(playerNode, playerNode._Parent);
-					LPVOID playerPtr = TreeFind(playersTree, 1);
-					if (playerPtr)
+				}
+				for (int index = 0; index < count; index++) {
+					if (reps[index]._rep <= -0.55)
 					{
-						FlPlayer player;
-						READFLMEM(player, playerPtr);
-						int count = player._repsEnd-player._repsBegin;
-						//CScopedArray<FlRep> reps = new FlRep[count];
-						//READFLPTR(reps,player._repsBegin,  count*sizeof(FlRep));
-						for (int index = 0; index < count; index++)
-							//if (reps[index]._rep <= -0.6)
-							{
-								//CFaction *faction = idFactionMap[reps[index]._faction_id];
-								////if (!faction->m_avoid)
-								{
-									changed++;
-									//faction->m_avoid = true;
-								}
-							}
+						CFaction* faction = idFactionMap[reps[index]._faction_id];
+						if (faction != nullptr)
+						{
+							addedAvoids++;
+							faction->m_avoid = true;
+						}
+						else 
+							Log(L"Why did we hit this error? Faction ID: %d", reps[index]._faction_id);
 					}
-					if (changed)
-					{
-						Log(L"Imported from game: %d factions to avoid", changed);
-						g_mainDlg->Recalc(g_mainDlg->RECALC_PATHS);
-					}
+				}
 
+				free(reps);
+			}
+			if (removedAvoids > 0 || addedAvoids > 0)
+			{
+				Log(L"Imported from game: %d factions no longer avoided, %d new factions to avoid", removedAvoids, addedAvoids);
+				g_mainDlg->Recalc(g_mainDlg->RECALC_PATHS);
+			}
 		}
 		
-#endif
 		SetPriorityClass(m_hflProcess, dwPriorityClass);
 	}
 	return 1;
+}
+
+UINT CGameInspect::FoundPlayer(DWORD id, LPVOID ptr)
+{
+	FlPlayer player;
+	FlMPlayer mplayer;
+	READFLMEM(player, ptr);
+	READFLMEM(mplayer, ptr);
+	if (mplayer._client_id == player_id)
+	{
+		foundID = id;
+	}
+	return 0;
 }
 
 // v10			v11
