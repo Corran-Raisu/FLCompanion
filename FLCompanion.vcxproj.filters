@@ -195,7 +195,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
-    <Text Include="res\IDHacks.ini" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="res\FLCompanion.rc2">

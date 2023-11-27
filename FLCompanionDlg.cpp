@@ -63,7 +63,7 @@ CFLCompanionDlg::CFLCompanionDlg(CWnd* pParent /*=NULL*/)
 	m_minCSU = theApp.GetProfileInt(L"Settings", L"MinCSU", 0);
 	m_displayNicknames = FALSE;
 	m_showAllSolutions = true;
-	g_avoidLockedGates = theApp.GetProfileInt(L"Settings", L"AvoidLockedGates", TRUE);
+	g_avoidLockedGates = theApp.GetProfileInt(L"Settings", L"AvoidLockedGates", FALSE);
 	g_jumptrade = theApp.GetProfileInt(L"Settings", L"JumpTrade", FALSE);
 	g_avoidHoles = theApp.GetProfileInt(L"Settings", L"AvoidHoles", FALSE);
 	g_avoidGates = theApp.GetProfileInt(L"Settings", L"AvoidGates", FALSE);
@@ -440,7 +440,10 @@ BOOL CFLCompanionDlg::OnInitDialog()
 		SelComboByData(m_systemCombo, system);
 	OnSelchangeSystemCombo();
 	CBase* base;
-	if (g_basesByNick.Lookup(theApp.GetProfileString(L"Settings", L"BaseCombo", L""), base))
+	
+	//CRASHER: If the saved value of SystemCombo is blank, but BaseCombo has a value, app will close on launch.
+	//Fix: Only restore BaseCombo selection if SystemCombo isn't blank.
+	if (theApp.GetProfileString(L"Settings", L"SystemCombo", L"") != "" && g_basesByNick.Lookup(theApp.GetProfileString(L"Settings", L"BaseCombo", L""), base))
 		SelComboByData(m_baseCombo, base);
 	m_baseCombo.SetFocus();
 
@@ -653,7 +656,8 @@ void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell,
 	}
 	if (distance == 0)
 		return;
-	if (((profit / units) * 100000 / distance) < m_minCSU && destbase!=g_miningbase && goodIndex!=0)
+	FLOAT calcCSU = (profit / units / g_goods[goodIndex].m_volume) * 100000 / distance;
+	if (calcCSU < m_minCSU && destbase!=g_miningbase && goodIndex!=0)
 		return;
 	int nItem = m_routes.InsertItem(MAXLONG, m_displayNicknames ? g_goods[goodIndex].m_nickname : g_goods[goodIndex].m_caption);
 //#ifdef ALL_TRADING_ROUTES
@@ -672,7 +676,7 @@ void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell,
 	m_routes.SetItemText(nItem, 4, MinuteSeconds(distance, true));
 	if (m_cargoSize == 1)
 	{
-		CString ratio = DoubleToString((profit / g_goods[goodIndex].m_volume) * 100000 / distance);
+		CString ratio = DoubleToString(calcCSU*units);
 		int index = ratio.Find('.');
 		if (index > 0) ratio = ratio.Left(index + 3);
 		_stprintf(buf, L"%s ¢/sec", LPCTSTR(ratio));
@@ -686,7 +690,7 @@ void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell,
 	}
 	m_routes.SetItemText(nItem, 5, buf);
 
-	CString ratio = DoubleToString((profit / units / g_goods[goodIndex].m_volume) * 100000 / distance);
+	CString ratio = DoubleToString(calcCSU);
 	int index = ratio.Find('.');
 	if (index > 0) ratio = ratio.Left(index + 3);
 	_stprintf(buf, L"%s ¢/sec", LPCTSTR(ratio));
@@ -709,6 +713,7 @@ void CFLCompanionDlg::AddSolutionsForBase(CBase* base)
 		//Add the Return with No Commodity solution as the first in the list.
 		CBase *destbase = (CBase*)_ttoi(m_traderoute.GetItemText(0, 7));
 		AddSolution(0, 0, 0, base, destbase, base->m_distanceToBase[destbase - g_bases] + base->GetDockingDelay());
+		
 	}
 	// build up the buying price array
 	float *sell = base->m_sell;
