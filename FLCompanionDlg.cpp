@@ -441,9 +441,7 @@ BOOL CFLCompanionDlg::OnInitDialog()
 	OnSelchangeSystemCombo();
 	CBase* base;
 	
-	//CRASHER: If the saved value of SystemCombo is blank, but BaseCombo has a value, app will close on launch.
-	//Fix: Only restore BaseCombo selection if SystemCombo isn't blank.
-	if (theApp.GetProfileString(L"Settings", L"SystemCombo", L"") != "" && g_basesByNick.Lookup(theApp.GetProfileString(L"Settings", L"BaseCombo", L""), base))
+	if (g_basesByNick.Lookup(theApp.GetProfileString(L"Settings", L"BaseCombo", L""), base))
 		SelComboByData(m_baseCombo, base);
 	m_baseCombo.SetFocus();
 
@@ -630,10 +628,13 @@ void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell,
 {
 	LONG profit;
 	UINT units = m_cargoSize == 1 ? 1 : UINT(m_cargoSize/g_goods[goodIndex].m_volume);
-	if (units == 0)
-		return;
+
+	//CRASHER: Max Investment value resulting in 0 units was not being caught. This resulted in division by zero errors later on.
+	//FIX: units==0 check moved to be after the Max Investment check and calculation. 
 	if ((m_maxInvestment > 0) && (srcsell*units > m_maxInvestment))
 		units = UINT(m_maxInvestment/srcsell);
+	if (units == 0)
+		return;
 	if (g_goods[goodIndex].m_decay_time == 0)
 		profit = UINT(destbuy-srcsell)*units;
 	else
