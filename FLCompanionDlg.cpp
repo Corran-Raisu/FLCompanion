@@ -745,8 +745,8 @@ void CFLCompanionDlg::AddSolutionsForBase(CBase* base)
 					continue;
 				double destbuy = max(destbase->m_buy[goodIndex], 1);
 				double srcsell = max(sell[goodIndex], 1);
-				if (destbase->m_buy[goodIndex] > sell[goodIndex]) // destination buying price is higher than initial sell price
-					AddSolution(goodIndex, destbuy, srcsell, base, destbase, g_jumptrade ? m_jumptradeTime : 
+				if (destbuy > srcsell) // destination buying price is higher than initial sell price
+					AddSolution(goodIndex, destbuy, srcsell, base, destbase, g_jumptrade ? m_jumptradeTime :
 						base->m_distanceToBase[destbase-g_bases]+base->GetDockingDelay());
 						//base.m_system->m_distances[destbase->m_system-g_systems]);
 			}

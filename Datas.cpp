@@ -439,16 +439,16 @@ BOOL LoadMarketPrices(const CString &iniFilename)
 				UINT stock = iniFile.GetValueInt(values, 4);
 				float defPrice = good.m_defaultPrice;
 				float baseMult = iniFile.GetValueFloat(values, 6);
-				float buyPrice = defPrice * baseMult;
-				float sellPrice = static_cast<float>(min);
+				float sellPrice = defPrice * baseMult;
+				float buyPrice = static_cast<float>(min);
 				if(buyPrice < 1)
 					ProblemFound(L"MarketGood entry (%s, %s) with buy price less than 1 credit in %s, default price %0.0f, mult %0.2f", base.m_nickname, name, iniFilename, good.m_defaultPrice, baseMult);
 				if (sellPrice < 1)
 					ProblemFound(L"MarketGood entry (%s, %s) with sell price less than 1 credit in %s, price: 0.0f", base.m_nickname, name, iniFilename, sellPrice);
 				
-				if (!min && !stock)
+				if (stock == 0)
 				{
-					if ((iniFile.GetValueInt(values,3) != 0) || (iniFile.GetValueInt(values,4) != 0)) ProblemFound(L"MarketGood buy-only entry (%s on %s) with 4th or 5th value different than 0", name, base.m_nickname);
+					//if ((iniFile.GetValueInt(values,3) != 0) || (iniFile.GetValueInt(values,4) != 0)) ProblemFound(L"MarketGood buy-only entry (%s on %s) with 4th or 5th value different than 0", name, base.m_nickname);
 					base.m_buy[good] = buyPrice;
 					base.m_sell[good] = FLT_MAX;
 				}

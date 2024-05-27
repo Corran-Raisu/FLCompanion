@@ -175,7 +175,7 @@ BOOL CBaseInfoDlg::LoadBaseMarkets(const CString &iniFilename)
 				//		-1 = even if very hostile, 0 = must be at least neutral, 1 = need to be very friendly
 				UINT min = iniFile.GetValueInt(values, 3);
 				UINT stock = iniFile.GetValueInt(values,4);
-				if (!stock && !min)
+				if (!stock)
 					continue; // we want to list only goods that are sold here
 				if (g_goodsByNick.Contains(name)) // is it a commodity ?
 				{
