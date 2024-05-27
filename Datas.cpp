@@ -437,12 +437,14 @@ BOOL LoadMarketPrices(const CString &iniFilename)
 				//		-1 = even if very hostile, 0 = must be at least neutral, 1 = need to be very friendly
 				UINT min = iniFile.GetValueInt(values,3);
 				UINT stock = iniFile.GetValueInt(values, 4);
-				float buyPrice = (good.m_defaultPrice*iniFile.GetValueFloat(values,6));
-				float sellPricePrice = static_cast<float>(min);
+				float defPrice = good.m_defaultPrice;
+				float baseMult = iniFile.GetValueFloat(values, 6);
+				float buyPrice = defPrice * baseMult;
+				float sellPrice = static_cast<float>(min);
 				if(buyPrice < 1)
-					ProblemFound(L"MarketGood entry (%s, %s) with buy price less than 1 credit in %s", base.m_nickname, name, iniFilename);
-				if (sellPricePrice < 1)
-					ProblemFound(L"MarketGood entry (%s, %s) with sell price less than 1 credit in %s", base.m_nickname, name, iniFilename);
+					ProblemFound(L"MarketGood entry (%s, %s) with buy price less than 1 credit in %s, default price %0.0f, mult %0.2f", base.m_nickname, name, iniFilename, good.m_defaultPrice, baseMult);
+				if (sellPrice < 1)
+					ProblemFound(L"MarketGood entry (%s, %s) with sell price less than 1 credit in %s, price: 0.0f", base.m_nickname, name, iniFilename, sellPrice);
 				
 				if (!min && !stock)
 				{
@@ -455,7 +457,7 @@ BOOL LoadMarketPrices(const CString &iniFilename)
 					//CHECK((iniFile.GetValueInt(values,3) == 150) && (iniFile.GetValueInt(values,4) == 500));
 					//	supposedly: number of items in stock (but not implemented in game)
 					base.m_buy[good] = buyPrice;
-					base.m_sell[good] = sellPricePrice;
+					base.m_sell[good] = sellPrice;
 					if (!base.m_hasSell)
 					{
 						base.m_hasSell = true;

@@ -680,7 +680,7 @@ void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell,
 		CString ratio = DoubleToString(calcCSU*units);
 		int index = ratio.Find('.');
 		if (index > 0) ratio = ratio.Left(index + 3);
-		_stprintf(buf, L"%s ¢/sec", LPCTSTR(ratio));
+		_stprintf(buf, L"%s c/sec", LPCTSTR(ratio));
 	}
 	else
 	{
@@ -694,9 +694,9 @@ void CFLCompanionDlg::AddSolution(int goodIndex, double destbuy, double srcsell,
 	CString ratio = DoubleToString(calcCSU);
 	int index = ratio.Find('.');
 	if (index > 0) ratio = ratio.Left(index + 3);
-	_stprintf(buf, L"%s ¢/sec", LPCTSTR(ratio));
+	_stprintf(buf, L"%s c/sec", LPCTSTR(ratio));
 
-	//_stprintf(buf, L"%d ¢/sec", "");
+	//_stprintf(buf, L"%d c/sec", "");
 	m_routes.SetItemText(nItem, 8, buf);
 	_stprintf(buf, L"%d", goodIndex);
 	m_routes.SetItemText(nItem, 6, buf);
@@ -2295,7 +2295,7 @@ void CFLCompanionDlg::Calc_TotalRow()
 		//m_routes.SetItemText(nItem, 4, MinuteSeconds(distance, true));
 		if (m_cargoSize == 1)
 		{
-			//_stprintf(buf, L"%d ¢/sec", profit * 100000 / distance);
+			//_stprintf(buf, L"%d c/sec", profit * 100000 / distance);
 		}
 		else
 		{
@@ -2317,7 +2317,7 @@ void CFLCompanionDlg::Calc_TotalRow()
 	m_traderoute.SetItemText(g_traderouteTotal, 4, MinuteSeconds(t_distance, true));
 	if (m_cargoSize == 1)
 	{
-		_stprintf(buf, L"%d ¢/sec", t_profit * 100000 / t_distance);
+		_stprintf(buf, L"%d c/sec", t_profit * 100000 / t_distance);
 	}
 	else
 	{
@@ -2330,7 +2330,7 @@ void CFLCompanionDlg::Calc_TotalRow()
 	CString ratio = DoubleToString((t_profit / m_cargoSize) * 100000.00 / t_distance);
 	int index = ratio.Find('.');
 	if (index > 0) ratio = ratio.Left(index + 3);
-	_stprintf(buf, L"%s ¢/sec", LPCTSTR(ratio));
+	_stprintf(buf, L"%s c/sec", LPCTSTR(ratio));
 	m_traderoute.SetItemText(g_traderouteTotal, 8, buf);
 	g_traderouteTotalHour = m_traderoute.InsertItem(MAXLONG, L"Approx. per Hour : ");
 
