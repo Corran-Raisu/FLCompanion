@@ -435,25 +435,27 @@ BOOL LoadMarketPrices(const CString &iniFilename)
 				//
 				// iniFile.GetValueInt(values,2) : Minimum faction level to purchase (can be decimal)
 				//		-1 = even if very hostile, 0 = must be at least neutral, 1 = need to be very friendly
-				UINT buyonly = iniFile.GetValueInt(values,5);
-				if ((buyonly != 0) && (buyonly != 1)) ProblemFound(L"MarketGood entry (%s on %s) with 6th value (buy only) different than 0 or 1 (%d)", name, base.m_nickname, buyonly);
-				float price = (good.m_defaultPrice*iniFile.GetValueFloat(values,6));
-				if(price < 1)
-					ProblemFound(L"MarketGood entry (%s, %s) with value less than 1 credit in %s", base.m_nickname, name, iniFilename);
-				//if (base.m_buy[good] != 0) ProblemFound(L"MarketGood entry (%s on %s) is defined twice", name, base.m_nickname);
+				UINT min = iniFile.GetValueInt(values,3);
+				UINT stock = iniFile.GetValueInt(values, 4);
+				float buyPrice = (good.m_defaultPrice*iniFile.GetValueFloat(values,6));
+				float sellPricePrice = static_cast<float>(min);
+				if(buyPrice < 1)
+					ProblemFound(L"MarketGood entry (%s, %s) with buy price less than 1 credit in %s", base.m_nickname, name, iniFilename);
+				if (sellPricePrice < 1)
+					ProblemFound(L"MarketGood entry (%s, %s) with sell price less than 1 credit in %s", base.m_nickname, name, iniFilename);
 				
-				if (buyonly)
+				if (!min && !stock)
 				{
 					if ((iniFile.GetValueInt(values,3) != 0) || (iniFile.GetValueInt(values,4) != 0)) ProblemFound(L"MarketGood buy-only entry (%s on %s) with 4th or 5th value different than 0", name, base.m_nickname);
-					base.m_buy[good] = price;
+					base.m_buy[good] = buyPrice;
 					base.m_sell[good] = FLT_MAX;
 				}
 				else
 				{
 					//CHECK((iniFile.GetValueInt(values,3) == 150) && (iniFile.GetValueInt(values,4) == 500));
 					//	supposedly: number of items in stock (but not implemented in game)
-					base.m_buy[good] = price;
-					base.m_sell[good] = price;
+					base.m_buy[good] = buyPrice;
+					base.m_sell[good] = sellPricePrice;
 					if (!base.m_hasSell)
 					{
 						base.m_hasSell = true;
