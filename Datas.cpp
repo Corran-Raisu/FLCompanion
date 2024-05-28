@@ -11,6 +11,7 @@
 #include <ShObjIdl.h>
 #include <math.h>
 #include "Faction.h"
+#include <locale>
 
 _COM_SMARTPTR_TYPEDEF(IFileOpenDialog, IID_IFileOpenDialog);
 
@@ -1108,6 +1109,7 @@ void DetectMod()
 
 BOOL LoadAppDatas(CWnd *wnd)
 {
+	std::setlocale(LC_ALL, "en-US");
 	g_flAppPath = theApp.GetProfileString(L"Settings", L"FLPath");
 	if (g_flAppPath.IsEmpty() || !PathFileExists(g_flAppPath+L"\\EXE\\Freelancer.exe"))
 	{
