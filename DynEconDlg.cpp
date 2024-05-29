@@ -173,20 +173,27 @@ UINT CGameInspect::CollectGoodPrice(DWORD id, LPVOID ptr)
 	if (m_idGoodMap.Lookup(id, goodIndex))
 	{
 		result = MAKELONG(1, 0);
-		if (m_base->m_buy[goodIndex] != goodData.fPrice)
+		if (m_base->m_buy[goodIndex] != static_cast<float>(goodData.iStock1))
 			result = MAKELONG(1, 1);
-		m_base->m_buy[goodIndex] = goodData.fPrice;
-		float sellPrice = (goodData.iTransType == TransactionType_Sell) ? goodData.fPrice : FLT_MAX;
+		m_base->m_buy[goodIndex] = static_cast<float>(goodData.iStock1);
+		float sellPrice = goodData.fPrice;
 		if (m_base->m_sell[goodIndex] != sellPrice)
 			result = MAKELONG(1, 1);
 		m_base->m_sell[goodIndex] = sellPrice;
 
 		if (sellPrice < 1)
 			ProblemFound(L"Client-Imported MarketGood entry (%s, %s) with value less than 1 credit from server", m_base->m_nickname, g_goods[goodIndex].m_nickname);
-		if ((goodData.iTransType == TransactionType_Sell) && !m_base->m_hasSell)
+		if (goodData.iStock2)
 		{
-			m_base->m_hasSell = true;
-			m_base->m_system->m_hasSell = true;
+			if(!m_base->m_hasSell)
+			{
+				m_base->m_hasSell = true;
+				m_base->m_system->m_hasSell = true;
+			}
+		}
+		else
+		{
+			m_base->m_sell[goodIndex] = FLT_MAX;
 		}
 	}
 	return result;
@@ -221,9 +228,9 @@ UINT CGameInspect::TreeForEach(FlTree& tree, UINT (CGameInspect::*callback)(DWOR
 	FlNode* nodeNil = tree._Nil;
 	FlNode node;
 	READFLMEM(node, tree._Head);
-	// marketNode._Left  = feuille la plus à gauche
+	// marketNode._Left  = feuille la plus ï¿½ gauche
 	// marketNode._Parent= sommet de l'arbre
-	// marketNode._Right = feuille la plus à droite
+	// marketNode._Right = feuille la plus ï¿½ droite
 	if (node._Parent != nodeNil)
 		return TreeForEachRecurse(node._Parent, nodeNil, callback);
 	return 0;
@@ -533,7 +540,7 @@ UINT CGameInspect::FoundPlayer(DWORD id, LPVOID ptr)
 
 
 
-// 673320 IdsTree (mélange de FactionID et FLHash) { BYTE flags; }
+// 673320 IdsTree (mï¿½lange de FactionID et FLHash) { BYTE flags; }
 // 61226C
 
 // 64018EC: tree des groups?

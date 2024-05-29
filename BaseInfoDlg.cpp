@@ -94,7 +94,7 @@ BOOL CBaseInfoDlg::OnInitDialog()
 		int nIndex = m_baseCombo.AddString(base.m_caption+L", "+base.m_system->m_caption+L" System");
 		m_baseCombo.SetItemDataPtr(nIndex, &base);
 	}
-	// m_baseCombo est triée par ordre alphabetique
+	// m_baseCombo est triï¿½e par ordre alphabetique
 	int nIndex = 0;
 	void *data;
 	while ((data = m_baseCombo.GetItemDataPtr(nIndex)) != (void*) CB_ERR)
@@ -173,8 +173,9 @@ BOOL CBaseInfoDlg::LoadBaseMarkets(const CString &iniFilename)
 				//
 				// iniFile.GetValueInt(values,2) : Minimum faction level to purchase (can be decimal)
 				//		-1 = even if very hostile, 0 = must be at least neutral, 1 = need to be very friendly
-				UINT buyonly = iniFile.GetValueInt(values,5);
-				if (buyonly)
+				UINT min = iniFile.GetValueInt(values, 3);
+				UINT stock = iniFile.GetValueInt(values,4);
+				if (!stock)
 					continue; // we want to list only goods that are sold here
 				if (g_goodsByNick.Contains(name)) // is it a commodity ?
 				{
